@@ -458,7 +458,7 @@ class Message(Object, Update):
             "types.ReplyKeyboardRemove",
             "types.ForceReply"
         ] = None,
-        reactions: List["types.Reaction"] = None
+        reactions: List["types.Reaction"] = None,
         raw: Optional["raw.types.Message"] = None
     ):
         super().__init__(client)
