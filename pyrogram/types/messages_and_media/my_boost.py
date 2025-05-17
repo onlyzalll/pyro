@@ -74,6 +74,6 @@ class MyBoost(Object):
             slot=my_boost.slot,
             chat=chat,
             date=utils.timestamp_to_datetime(my_boost.date),
-            expire_date=utils.timestamp_to_datetime(my_boost.expires),
+            expire_date=utils.timestamp_to_datetime(my_boost.expire_date),
             cooldown_until_date=utils.timestamp_to_datetime(my_boost.cooldown_until_date),
         )

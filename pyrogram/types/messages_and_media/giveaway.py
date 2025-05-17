@@ -41,23 +41,11 @@ class Giveaway(Object):
         until_date (:py:obj:`~datetime.datetime`):
             Date when the giveaway will end.
 
-        description (``str``, *optional*):
-            Prize description.
-
-        only_new_subscribers (``bool``, *optional*):
-            True, if this giveaway is for new subscribers only.
+        only_new_subscribers (``bool``):
+            True if the giveaway is for new subscribers only.
 
         only_for_countries (List of ``str`` , *optional*):
-            A list of two-letter ISO 3166-1 alpha-2 country codes indicating the countries
-            from which eligible users for the giveaway must come.
-            If None, then all users can participate in the giveaway.
-            Users with a phone number that was bought on Fragment can always participate in giveaways.
-
-        winners_are_visible (``bool``, *optional*):
-            True, if this giveaway winners is visible.
-
-        stars (``int``, *optional*):
-            Stars amount.
+            Countries for which the giveaway is available in iso2 format.
     """
 
     def __init__(
@@ -68,11 +56,9 @@ class Giveaway(Object):
         quantity: int = None,
         months: int = None,
         until_date: datetime = None,
-        description: str = None,
         only_new_subscribers: bool = None,
-        only_for_countries: List[str] = None,
-        winners_are_visible: bool = None,
-        stars: int = None
+        only_for_countries: List[str] = None
+
     ):
         super().__init__(client)
 
@@ -80,11 +66,8 @@ class Giveaway(Object):
         self.quantity = quantity
         self.months = months
         self.until_date = until_date
-        self.description = description
         self.only_new_subscribers = only_new_subscribers
         self.only_for_countries = only_for_countries
-        self.winners_are_visible = winners_are_visible
-        self.stars = stars
 
     @staticmethod
     def _parse(
@@ -97,10 +80,7 @@ class Giveaway(Object):
             quantity=giveaway.quantity,
             months=giveaway.months,
             until_date=utils.timestamp_to_datetime(giveaway.until_date),
-            description=getattr(giveaway, "prize_description", None) or None,
-            only_new_subscribers=getattr(giveaway, "only_new_subscribers", None),
-            only_for_countries=types.List(getattr(giveaway, "countries_iso2", [])) or None,
-            winners_are_visible=getattr(giveaway, "winners_are_visible", None),
-            stars=getattr(giveaway, "stars", None),
+            only_new_subscribers=giveaway.only_new_subscribers,
+            only_for_countries=types.List(giveaway.countries_iso2) or None,
             client=client
         )
