@@ -1,5 +1,5 @@
 #  Pyrogram - Telegram MTProto API Client Library for Python
-#  Copyright (C) 2017-present Dan <https://github.com/delivrance>
+#  Copyright (C) 2017-present <https://github.com/TelegramPlayGround>
 #
 #  This file is part of Pyrogram.
 #
@@ -15,15 +15,27 @@
 #
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
+from pyrogram import raw
 
-from ..object import Object
+from .upgraded_gift_attribute_id import UpgradedGiftAttributeId
 
 
-class GeneralForumTopicUnhidden(Object):
-    """A service message about a general topic unhidden in the chat.
+class UpgradedGiftAttributeIdBackdrop(UpgradedGiftAttributeId):
+    """Identifier of a gift backdrop.
 
-    Currently holds no information.
+    Parameters:
+        backdrop_id (``int``):
+            Identifier of the sticker representing the backdrop.
     """
-
-    def __init__(self):
+    def __init__(
+        self,
+        backdrop_id: int,
+    ):
         super().__init__()
+
+        self.backdrop_id = backdrop_id
+
+    def write(self) -> "raw.types.StarGiftAttributeIdBackdrop":
+        return raw.types.StarGiftAttributeIdBackdrop(
+            backdrop_id=self.backdrop_id
+        )

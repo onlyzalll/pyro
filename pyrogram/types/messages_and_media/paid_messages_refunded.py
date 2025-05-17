@@ -16,14 +16,39 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+from pyrogram import raw
+
 from ..object import Object
 
 
-class GeneralForumTopicUnhidden(Object):
-    """A service message about a general topic unhidden in the chat.
+class PaidMessagesRefunded(Object):
+    """Paid messages were refunded.
 
-    Currently holds no information.
+    Parameters:
+        message_count (``int``):
+            The number of refunded messages.
+
+        star_count (``int``):
+            The number of refunded Telegram Stars.
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        *,
+        message_count: int,
+        star_count: int
+    ):
+
         super().__init__()
+
+        self.message_count = message_count
+        self.star_count = star_count
+
+    @staticmethod
+    def _parse(
+        action: "raw.types.MessageActionPaidMessagesRefunded"
+    ) -> "PaidMessagesRefunded":
+        return PaidMessagesRefunded(
+            message_count=action.count,
+            star_count=action.stars
+        )

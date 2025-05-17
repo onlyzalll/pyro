@@ -19,8 +19,8 @@
 from ..object import Object
 
 
-class GeneralForumTopicUnhidden(Object):
-    """A service message about a general topic unhidden in the chat.
+class ScreenshotTaken(Object):
+    """A service message that a screenshot of a message in the chat has been taken.
 
     Currently holds no information.
     """

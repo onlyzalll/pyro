@@ -19,8 +19,8 @@
 from ..object import Object
 
 
-class GeneralForumTopicUnhidden(Object):
-    """A service message about a general topic unhidden in the chat.
+class ContactRegistered(Object):
+    """A service message that a contact has registered with Telegram.
 
     Currently holds no information.
     """

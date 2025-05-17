@@ -16,46 +16,42 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+from typing import Optional
+
 import pyrogram
 
 from pyrogram import raw
 from ..object import Object
 
 
-class Location(Object):
-    """A point on the map.
+
+class GiveawayCreated(Object):
+    """This object represents a service message about the creation of a scheduled giveaway.
 
     Parameters:
-        longitude (``float``):
-            Longitude as defined by sender.
-
-        latitude (``float``):
-            Latitude as defined by sender.
-
-        accuracy_radius (``int``, *optional*):
-            The estimated horizontal accuracy of the location, in meters as defined by the sender.
+        prize_star_count (``int``, *optional*):
+            The number of Telegram Stars to be split between giveaway winners.
+            For Telegram Star giveaways only.
     """
 
     def __init__(
         self,
         *,
         client: "pyrogram.Client" = None,
-        longitude: float,
-        latitude: float,
-        accuracy_radius: int = None
+        prize_star_count: Optional[int] = None
     ):
         super().__init__(client)
 
-        self.longitude = longitude
-        self.latitude = latitude
-        self.accuracy_radius = accuracy_radius
+        self.prize_star_count = prize_star_count
+
 
     @staticmethod
-    def _parse(client, geo_point: "raw.types.GeoPoint") -> "Location":
-        if isinstance(geo_point, raw.types.GeoPoint):
-            return Location(
-                longitude=geo_point.long,
-                latitude=geo_point.lat,
-                accuracy_radius=getattr(geo_point, "accuracy_radius", None),
-                client=client
+    def _parse(
+        client,
+        giveaway_launch: "raw.types.MessageActionGiveawayLaunch"
+    ) -> "GiveawayCreated":
+        if isinstance(giveaway_launch, raw.types.MessageActionGiveawayLaunch):
+            return GiveawayCreated(
+                client=client,
+                prize_star_count=getattr(giveaway_launch, "stars", None)
             )
