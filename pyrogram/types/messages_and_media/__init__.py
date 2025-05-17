@@ -27,6 +27,7 @@ from .forum_topic_created import ForumTopicCreated
 from .forum_topic_closed import ForumTopicClosed
 from .forum_topic_reopened import ForumTopicReopened
 from .forum_topic_edited import ForumTopicEdited
+from .fact_check import FactCheck
 from .general_forum_topic_hidden import GeneralTopicHidden
 from .general_forum_topic_unhidden import GeneralTopicUnhidden
 from .game import Game
@@ -59,7 +60,7 @@ from .reply_parameters import ReplyParameters
 
 __all__ = [
     "Animation", "Audio", "BoostsStatus", "Contact", "Document", "ForumTopic", "ForumTopicCreated",
-    "ForumTopicClosed", "ForumTopicReopened", "LinkPreviewOptions", "ForumTopicEdited", "GeneralTopicHidden",
+    "ForumTopicClosed", "ForumTopicReopened", "LinkPreviewOptions", "FactCheck", "ForumTopicEdited", "GeneralTopicHidden",
     "GeneralTopicUnhidden", "Game", "Giveaway", "Location", "Message", "MessageEntity", "Photo", "ReplyParameters", "Thumbnail",
     "StrippedThumbnail", "Story", "StoryDeleted", "StorySkipped", "StoryViews", "Poll", "PollOption", "Sticker",
     "Venue", "Video", "VideoNote", "Voice", "WebPage", "Dice", "Reaction", "WebAppData",
