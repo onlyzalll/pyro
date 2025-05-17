@@ -19,6 +19,7 @@
 import asyncio
 import importlib.util
 import sys
+import re
 import base64
 import functools
 import hashlib
