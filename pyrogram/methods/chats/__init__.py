@@ -113,6 +113,7 @@ class Chats(
     DeleteForumTopic,
     DeleteSupergroup,
     EditForumTopic,
+    PinForumTopic,
     ExportFolderLink,
     GetNearbyChats,
     SetAdministratorTitle,
