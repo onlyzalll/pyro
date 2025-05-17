@@ -67,6 +67,7 @@ from .unarchive_chats import UnarchiveChats
 from .unban_chat_member import UnbanChatMember
 from .unpin_all_chat_messages import UnpinAllChatMessages
 from .unpin_chat_message import UnpinChatMessage
+from .unpin_forum_topic import UnpinForumTopic
 from .update_chat_notifications import UpdateChatNotifications
 from .update_color import UpdateColor
 from .update_folder import UpdateFolder
@@ -121,6 +122,7 @@ class Chats(
     ToggleForumTopics,
     DeleteUserHistory,
     UnpinAllChatMessages,
+    UnpinForumTopic,
     MarkChatUnread,
     GetChatEventLog,
     GetChatOnlineCount,
