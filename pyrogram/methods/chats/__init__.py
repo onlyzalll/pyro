@@ -50,6 +50,7 @@ from .join_chat import JoinChat
 from .leave_chat import LeaveChat
 from .mark_chat_unread import MarkChatUnread
 from .pin_chat_message import PinChatMessage
+from .pin_forum_topic import PinForumTopic
 from .promote_chat_member import PromoteChatMember
 from .restrict_chat_member import RestrictChatMember
 from .set_administrator_title import SetAdministratorTitle
