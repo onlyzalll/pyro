@@ -16,21 +16,21 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from enum import auto
+from pyrogram import raw
 from .auto_name import AutoName
 
 
-class StoriesPrivacyRules(AutoName):
-    """Stories privacy rules type enumeration used in :meth:`~pyrogram.Client.send_story`."""
+class GiftAttributeType(AutoName):
+    """Star gift attribute type enumeration used in :obj:`~pyrogram.types.GiftAttribute`."""
 
-    PUBLIC = auto()
-    "Public stories"
+    MODEL = raw.types.StarGiftAttributeModel
+    "Model attribute"
 
-    CONTACTS = auto()
-    "Contacts only stories"
+    SYMBOL = raw.types.StarGiftAttributePattern
+    "Symbol attribute"
 
-    CLOSE_FRIENDS = auto()
-    "Close friends stories"
+    BACKDROP = raw.types.StarGiftAttributeBackdrop
+    "Backdrop attribute"
 
-    SELECTED_USERS = auto()
-    "Selected users stories"
+    ORIGINAL_DETAILS = raw.types.StarGiftAttributeOriginalDetails
+    "Original details attribute"

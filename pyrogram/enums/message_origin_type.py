@@ -17,20 +17,25 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from enum import auto
+
 from .auto_name import AutoName
 
 
-class StoriesPrivacyRules(AutoName):
-    """Stories privacy rules type enumeration used in :meth:`~pyrogram.Client.send_story`."""
+class MessageOriginType(AutoName):
+    """Message origin type enumeration used in :obj:`~pyrogram.types.MessageOrigin`."""
 
-    PUBLIC = auto()
-    "Public stories"
+    CHANNEL = auto()
+    "The message was originally a post in a channel"
 
-    CONTACTS = auto()
-    "Contacts only stories"
+    CHAT = auto()
+    "The message was originally sent on behalf of a chat"
 
-    CLOSE_FRIENDS = auto()
-    "Close friends stories"
+    HIDDEN_USER = auto()
+    "The message was originally sent by a user, which is hidden by their privacy settings"
 
-    SELECTED_USERS = auto()
-    "Selected users stories"
+    IMPORT = auto()
+    "The message was imported from a foreign chat service"
+
+
+    USER = auto()
+    "The message was originally sent by a known user"

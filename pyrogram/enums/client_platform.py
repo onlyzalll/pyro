@@ -17,20 +17,33 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from enum import auto
+
 from .auto_name import AutoName
 
 
-class StoriesPrivacyRules(AutoName):
-    """Stories privacy rules type enumeration used in :meth:`~pyrogram.Client.send_story`."""
+class ClientPlatform(AutoName):
+    """Valid platforms for a :obj:`~pyrogram.Client`."""
 
-    PUBLIC = auto()
-    "Public stories"
+    ANDROID = auto()
+    "Android"
 
-    CONTACTS = auto()
-    "Contacts only stories"
+    IOS = auto()
+    "iOS"
 
-    CLOSE_FRIENDS = auto()
-    "Close friends stories"
+    WP = auto()
+    "Windows Phone"
 
-    SELECTED_USERS = auto()
-    "Selected users stories"
+    BB = auto()
+    "Blackberry"
+
+    DESKTOP = auto()
+    "Desktop"
+
+    WEB = auto()
+    "Web"
+
+    UBP = auto()
+    "Ubuntu Phone"
+
+    OTHER = auto()
+    "Other"

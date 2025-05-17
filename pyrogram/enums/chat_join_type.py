@@ -17,20 +17,18 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from enum import auto
+
 from .auto_name import AutoName
 
 
-class StoriesPrivacyRules(AutoName):
-    """Stories privacy rules type enumeration used in :meth:`~pyrogram.Client.send_story`."""
+class ChatJoinType(AutoName):
+    """How the service message :obj:`~pyrogram.enums.MessageServiceType.NEW_CHAT_MEMBERS` was used for the member to join the chat."""
 
-    PUBLIC = auto()
-    "Public stories"
+    BY_ADD = auto()
+    "A new member joined the chat via an invite link"
 
-    CONTACTS = auto()
-    "Contacts only stories"
+    BY_LINK = auto()
+    "A new member joined the chat via an invite link"
 
-    CLOSE_FRIENDS = auto()
-    "Close friends stories"
-
-    SELECTED_USERS = auto()
-    "Selected users stories"
+    BY_REQUEST = auto()
+    "A new member was accepted to the chat by an administrator"

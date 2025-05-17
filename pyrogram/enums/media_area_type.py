@@ -16,21 +16,31 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from enum import auto
+from pyrogram import raw
+
 from .auto_name import AutoName
 
 
-class StoriesPrivacyRules(AutoName):
-    """Stories privacy rules type enumeration used in :meth:`~pyrogram.Client.send_story`."""
+class MediaAreaType(AutoName):
+    """Media area type enumeration used in :obj:`~pyrogram.types.MediaArea`."""
 
-    PUBLIC = auto()
-    "Public stories"
+    POST = raw.types.MediaAreaChannelPost
+    "Channel post."
 
-    CONTACTS = auto()
-    "Contacts only stories"
+    LOCATION = raw.types.MediaAreaGeoPoint
+    "Location."
 
-    CLOSE_FRIENDS = auto()
-    "Close friends stories"
+    REACTION = raw.types.MediaAreaSuggestedReaction
+    "Reaction."
 
-    SELECTED_USERS = auto()
-    "Selected users stories"
+    URL = raw.types.MediaAreaUrl
+    "URL."
+
+    VENUE = raw.types.MediaAreaVenue
+    "Venue."
+
+    WEATHER = raw.types.MediaAreaWeather
+    "Weather."
+
+    GIFT = raw.types.MediaAreaStarGift
+    "Gift."

@@ -17,20 +17,18 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from enum import auto
+
 from .auto_name import AutoName
 
 
-class StoriesPrivacyRules(AutoName):
-    """Stories privacy rules type enumeration used in :meth:`~pyrogram.Client.send_story`."""
+class GiftForResaleOrder(AutoName):
+    """Describes order in which upgraded gifts for resale will be sorted. Used in :meth:`~pyrogram.Client.search_gifts_for_resale`."""
 
-    PUBLIC = auto()
-    "Public stories"
+    PRICE = auto()
+    "The gifts will be sorted by their price from the lowest to the highest"
 
-    CONTACTS = auto()
-    "Contacts only stories"
+    CHANGE_DATE = auto()
+    "The gifts will be sorted by the last date when their price was changed from the newest to the oldest"
 
-    CLOSE_FRIENDS = auto()
-    "Close friends stories"
-
-    SELECTED_USERS = auto()
-    "Selected users stories"
+    NUMBER = auto()
+    "The gifts will be sorted by their number from the smallest to the largest"
