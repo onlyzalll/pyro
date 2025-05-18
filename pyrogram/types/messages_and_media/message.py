@@ -416,7 +416,8 @@ class Message(Object, Update):
         contact: "types.Contact" = None,
         location: "types.Location" = None,
         venue: "types.Venue" = None,
-        web_page: "types.WebPage" = None,
+        web_page: Optional["types.WebPage"] = None,
+        link_preview_options: Optional["types.LinkPreviewOptions"] = None,
         poll: "types.Poll" = None,
         dice: "types.Dice" = None,
         new_chat_members: List["types.User"] = None,
@@ -449,7 +450,6 @@ class Message(Object, Update):
         video_chat_ended: "types.VideoChatEnded" = None,
         video_chat_members_invited: "types.VideoChatMembersInvited" = None,
         web_app_data: "types.WebAppData" = None,
-        web_page_preview: "types.WebPagePreview" = None,
         giveaway_launched: bool = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
@@ -511,7 +511,7 @@ class Message(Object, Update):
         self.location = location
         self.venue = venue
         self.web_page = web_page
-        self.web_page_preview = web_page_preview
+        self.link_preview_options = link_preview_options
         self.poll = poll
         self.dice = dice
         self.new_chat_members = new_chat_members
@@ -826,7 +826,6 @@ class Message(Object, Update):
             sticker = None
             document = None
             web_page = None
-            web_page_preview = None
             poll = None
             dice = None
 
@@ -922,9 +921,8 @@ class Message(Object, Update):
                             document = types.Document._parse(client, doc, file_name)
                             media_type = enums.MessageMediaType.DOCUMENT
                 elif isinstance(media, raw.types.MessageMediaWebPage):
-                    if isinstance(media.webpage, raw.types.WebPage) or isinstance(media.webpage, raw.types.WebPageEmpty):
-                        web_page_preview = types.WebPagePreview._parse(client, media, message.invert_media)
-                        media_type = enums.MessageMediaType.WEB_PAGE_PREVIEW
+                media_type = enums.MessageMediaType.WEB_PAGE
+                web_page = types.WebPage._parse(client, media)
                     else:
                         media = None
                 elif isinstance(media, raw.types.MessageMediaPoll):
@@ -1009,7 +1007,8 @@ class Message(Object, Update):
                 video_note=video_note,
                 sticker=sticker,
                 document=document,
-                web_page_preview=web_page_preview,
+                web_page=web_page,
+                link_preview_options=link_preview_options,
                 poll=poll,
                 dice=dice,
                 views=message.views,
@@ -1177,6 +1176,7 @@ class Message(Object, Update):
         quote: bool = None,
         parse_mode: Optional["enums.ParseMode"] = None,
         entities: List["types.MessageEntity"] = None,
+        link_preview_options: "types.LinkPreviewOptions" = None,
         disable_web_page_preview: bool = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
@@ -1268,7 +1268,7 @@ class Message(Object, Update):
             text=text,
             parse_mode=parse_mode,
             entities=entities,
-            disable_web_page_preview=disable_web_page_preview,
+            link_preview_options=link_preview_options,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             reply_to_message_id=reply_to_message_id,
@@ -3327,7 +3327,7 @@ class Message(Object, Update):
         text: str,
         parse_mode: Optional["enums.ParseMode"] = None,
         entities: List["types.MessageEntity"] = None,
-        disable_web_page_preview: bool = None,
+        link_preview_options: "types.LinkPreviewOptions" = None,
         reply_markup: "types.InlineKeyboardMarkup" = None,
     ) -> "Message":
         """Bound method *edit_text* of :obj:`~pyrogram.types.Message`.
@@ -3378,7 +3378,7 @@ class Message(Object, Update):
             text=text,
             parse_mode=parse_mode,
             entities=entities,
-            disable_web_page_preview=disable_web_page_preview,
+            link_preview_options=link_preview_options,
             reply_markup=reply_markup,
         )
 
@@ -3687,7 +3687,7 @@ class Message(Object, Update):
                 text=self.text,
                 entities=self.entities,
                 parse_mode=enums.ParseMode.DISABLED,
-                disable_web_page_preview=not self.web_page,
+                link_preview_options=types.LinkPreviewOptions(is_disabled=not self.web_page),
                 disable_notification=disable_notification,
                 message_thread_id=message_thread_id,
                 reply_to_chat_id=reply_to_chat_id,
