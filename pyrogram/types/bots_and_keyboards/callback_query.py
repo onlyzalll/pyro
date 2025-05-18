@@ -168,6 +168,7 @@ class CallbackQuery(Object, Update):
         self,
         text: str,
         parse_mode: Optional["enums.ParseMode"] = None,
+        link_preview_options: "types.LinkPreviewOptions" = None,
         disable_web_page_preview: bool = None,
         reply_markup: "types.InlineKeyboardMarkup" = None
     ) -> Union["types.Message", bool]:
@@ -196,12 +197,19 @@ class CallbackQuery(Object, Update):
         Raises:
             RPCError: In case of a Telegram RPC error.
         """
+        if disable_web_page_preview is not None:
+            log.warning(
+                "`disable_web_page_preview` is deprecated and will be removed in future updates. Use `link_preview_options` instead."
+            )
+            link_preview_options = types.LinkPreviewOptions(is_disabled=disable_web_page_preview)
+            
         if self.inline_message_id is None:
             return await self._client.edit_message_text(
                 chat_id=self.message.chat.id,
                 message_id=self.message.id,
                 text=text,
                 parse_mode=parse_mode,
+                link_preview_options=link_preview_options,
                 disable_web_page_preview=disable_web_page_preview,
                 reply_markup=reply_markup
             )
@@ -210,6 +218,7 @@ class CallbackQuery(Object, Update):
                 inline_message_id=self.inline_message_id,
                 text=text,
                 parse_mode=parse_mode,
+                link_preview_options=link_preview_options,
                 disable_web_page_preview=disable_web_page_preview,
                 reply_markup=reply_markup
             )
