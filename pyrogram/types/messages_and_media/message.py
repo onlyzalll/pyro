@@ -1273,6 +1273,7 @@ class Message(Object, Update):
             parse_mode=parse_mode,
             entities=entities,
             link_preview_options=link_preview_options,
+            disable_web_page_preview=disable_web_page_preview,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             reply_to_message_id=reply_to_message_id,
@@ -3332,6 +3333,7 @@ class Message(Object, Update):
         parse_mode: Optional["enums.ParseMode"] = None,
         entities: List["types.MessageEntity"] = None,
         link_preview_options: "types.LinkPreviewOptions" = None,
+        disable_web_page_preview: bool = None,
         reply_markup: "types.InlineKeyboardMarkup" = None,
     ) -> "Message":
         """Bound method *edit_text* of :obj:`~pyrogram.types.Message`.
@@ -3383,6 +3385,7 @@ class Message(Object, Update):
             parse_mode=parse_mode,
             entities=entities,
             link_preview_options=link_preview_options,
+            disable_web_page_preview=disable_web_page_preview,
             reply_markup=reply_markup,
         )
 
