@@ -921,8 +921,8 @@ class Message(Object, Update):
                             document = types.Document._parse(client, doc, file_name)
                             media_type = enums.MessageMediaType.DOCUMENT
                 elif isinstance(media, raw.types.MessageMediaWebPage):
-                media_type = enums.MessageMediaType.WEB_PAGE
-                web_page = types.WebPage._parse(client, media)
+                    media_type = enums.MessageMediaType.WEB_PAGE
+                    web_page = types.WebPage._parse(client, media)
                     else:
                         media = None
                 elif isinstance(media, raw.types.MessageMediaPoll):
