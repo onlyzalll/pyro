@@ -932,6 +932,12 @@ class Message(Object, Update):
                 else:
                     media = None
 
+            link_preview_options = types.LinkPreviewOptions._parse(
+                media,
+                getattr(getattr(media, "webpage", None), "url", utils.get_first_url(message.message)),
+                message.invert_media
+            )
+
             reply_markup = message.reply_markup
 
             if reply_markup:
