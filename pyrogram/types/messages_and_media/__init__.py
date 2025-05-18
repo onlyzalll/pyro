@@ -34,6 +34,7 @@ from .giveaway import Giveaway
 from .location import Location
 from .message import Message
 from .message_entity import MessageEntity
+from .message_origin import MessageOrigin
 from .photo import Photo
 from .poll import Poll
 from .poll_option import PollOption
@@ -56,7 +57,7 @@ from .message_story import MessageStory
 from .my_boost import MyBoost
 
 __all__ = [
-    "Animation", "Audio", "BoostsStatus", "Contact", "Document", "ForumTopic", "ForumTopicCreated",
+    "Animation", "Audio", "BoostsStatus", "Contact", "Document", "ForumTopic", "MessageOrigin", "ForumTopicCreated",
     "ForumTopicClosed", "ForumTopicReopened", "ForumTopicEdited", "GeneralTopicHidden",
     "GeneralTopicUnhidden", "Game", "Giveaway", "Location", "Message", "MessageEntity", "Photo", "Thumbnail",
     "StrippedThumbnail", "Story", "StoryDeleted", "StorySkipped", "StoryViews", "Poll", "PollOption", "Sticker",
