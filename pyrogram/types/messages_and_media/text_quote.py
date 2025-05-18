@@ -78,6 +78,6 @@ class TextQuote(Object):
             return TextQuote(
                 text=Str(reply_to.quote_text).init(entities) or None,
                 entities=entities or None,
-                position=reply_to.quote_offset or 0,
+                position=getattr(reply_to, "quote_offset", 0) or 0,
                 is_manual=reply_to.quote
             )
