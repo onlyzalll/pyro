@@ -234,7 +234,7 @@ reply = create(reply_filter)
 
 # region forwarded_filter
 async def forwarded_filter(_, __, m: Message):
-    return bool(m.forward_date)
+    return bool(m.forward_origin)
 
 
 forwarded = create(forwarded_filter)
