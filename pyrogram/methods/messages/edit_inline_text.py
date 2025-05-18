@@ -31,6 +31,7 @@ class EditInlineText:
         inline_message_id: str,
         text: str,
         parse_mode: Optional["enums.ParseMode"] = None,
+        link_preview_options: "types.LinkPreviewOptions" = None,
         disable_web_page_preview: bool = None,
         reply_markup: "types.InlineKeyboardMarkup" = None
     ) -> bool:
