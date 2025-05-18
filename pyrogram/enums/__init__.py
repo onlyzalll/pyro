@@ -25,6 +25,7 @@ from .message_entity_type import MessageEntityType
 from .message_media_type import MessageMediaType
 from .message_service_type import MessageServiceType
 from .messages_filter import MessagesFilter
+from .message_origin_type import MessageOriginType
 from .next_code_type import NextCodeType
 from .parse_mode import ParseMode
 from .poll_type import PollType
@@ -44,6 +45,7 @@ __all__ = [
     'MessagesFilter',
     'NextCodeType',
     'ParseMode',
+    'MessageOriginType',
     'PollType',
     'SentCodeType',
     'StoriesPrivacyRules',
