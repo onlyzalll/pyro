@@ -16,6 +16,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 from datetime import datetime
 from typing import Union, List, Optional
 
@@ -23,6 +24,7 @@ import pyrogram
 from pyrogram import raw, utils, enums
 from pyrogram import types
 
+log = logging.getLogger(__name__)
 
 class SendMessage:
     async def send_message(
@@ -143,15 +145,21 @@ class SendMessage:
                         ]))
         """
 
+        if disable_web_page_preview is not None:
+            log.warning(
+                "`disable_web_page_preview` is deprecated and will be removed in future updates. Use `link_preview_options` instead."
+            )
+            link_preview_options = types.LinkPreviewOptions(is_disabled=disable_web_page_preview)
+            
         message, entities = (await utils.parse_text_entities(self, text, parse_mode, entities)).values()
 
         quote_text, quote_entities = (await utils.parse_text_entities(self, quote_text, parse_mode, quote_entities)).values()
-
+        
         peer = await self.resolve_peer(chat_id)
         r = await self.invoke(
             raw.functions.messages.SendMessage(
                 peer=peer,
-                no_webpage=disable_web_page_preview or None,
+                no_webpage=getattr(link_preview_options, "is_disabled", None) or None,
                 silent=disable_notification or None,
                 reply_to=utils.get_reply_to(
                     reply_to_message_id=reply_to_message_id,

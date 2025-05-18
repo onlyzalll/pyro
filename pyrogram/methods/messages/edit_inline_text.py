@@ -16,6 +16,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 from typing import Optional
 
 import pyrogram
@@ -24,6 +25,7 @@ from pyrogram import types
 from pyrogram import utils
 from .inline_session import get_session
 
+log = logging.getLogger(__name__)
 
 class EditInlineText:
     async def edit_inline_text(
@@ -73,6 +75,12 @@ class EditInlineText:
                     disable_web_page_preview=True)
         """
 
+        if disable_web_page_preview is not None:
+            log.warning(
+                "`disable_web_page_preview` is deprecated and will be removed in future updates. Use `link_preview_options` instead."
+            )
+            link_preview_options = types.LinkPreviewOptions(is_disabled=disable_web_page_preview)
+            
         unpacked = utils.unpack_inline_message_id(inline_message_id)
         dc_id = unpacked.dc_id
 
@@ -81,7 +89,7 @@ class EditInlineText:
         return await session.invoke(
             raw.functions.messages.EditInlineBotMessage(
                 id=unpacked,
-                no_webpage=disable_web_page_preview or None,
+                no_webpage=getattr(link_preview_options, "is_disabled", None) or None,
                 reply_markup=await reply_markup.write(self) if reply_markup else None,
                 **await self.parser.parse(text, parse_mode)
             ),

@@ -16,6 +16,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 from typing import Union, List, Optional
 
 import pyrogram
@@ -23,6 +24,7 @@ from pyrogram import raw, enums
 from pyrogram import types
 from pyrogram import utils
 
+log = logging.getLogger(__name__)
 
 class EditMessageText:
     async def edit_message_text(
@@ -80,11 +82,17 @@ class EditMessageText:
                     disable_web_page_preview=True)
         """
 
+        if disable_web_page_preview is not None:
+            log.warning(
+                "`disable_web_page_preview` is deprecated and will be removed in future updates. Use `link_preview_options` instead."
+            )
+            link_preview_options = types.LinkPreviewOptions(is_disabled=disable_web_page_preview)
+            
         r = await self.invoke(
             raw.functions.messages.EditMessage(
                 peer=await self.resolve_peer(chat_id),
                 id=message_id,
-                no_webpage=disable_web_page_preview or None,
+                no_webpage=getattr(link_preview_options, "is_disabled", None) or None,
                 reply_markup=await reply_markup.write(self) if reply_markup else None,
                 **await utils.parse_text_entities(self, text, parse_mode, entities)
             )
