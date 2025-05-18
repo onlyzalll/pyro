@@ -35,6 +35,11 @@ from .location import Location
 from .message import Message
 from .message_entity import MessageEntity
 from .message_origin import MessageOrigin
+from .message_origin_channel import MessageOriginChannel
+from .message_origin_chat import MessageOriginChat
+from .message_origin_hidden_user import MessageOriginHiddenUser
+from .message_origin_import import MessageOriginImport
+from .message_origin_user import MessageOriginUser
 from .photo import Photo
 from .poll import Poll
 from .poll_option import PollOption
@@ -62,5 +67,5 @@ __all__ = [
     "GeneralTopicUnhidden", "Game", "Giveaway", "Location", "Message", "MessageEntity", "Photo", "Thumbnail",
     "StrippedThumbnail", "Story", "StoryDeleted", "StorySkipped", "StoryViews", "Poll", "PollOption", "Sticker",
     "Venue", "Video", "VideoNote", "Voice", "WebPage", "Dice", "Reaction", "WebAppData",
-    "MessageReactions", "MessageStory", "MyBoost"
+    "MessageReactions", "MessageStory", "MyBoost", "MessageOriginUser", "MessageOriginImport", "MessageOriginHiddenUser", "MessageOriginChat", "MessageOriginChannel"
 ]
