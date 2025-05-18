@@ -88,6 +88,32 @@ InlineQuery
 
     {inline_query_toctree}
 
+PreCheckoutQuery
+----------------
+
+.. hlist::
+    :columns: 2
+
+    {pre_checkout_query_hlist}
+
+.. toctree::
+    :hidden:
+
+    {pre_checkout_query_toctree}
+
+ShippingQuery
+----------------
+
+.. hlist::
+    :columns: 2
+
+    {shipping_query_hlist}
+
+.. toctree::
+    :hidden:
+
+    {shipping_query_toctree}
+
 ChatJoinRequest
 ---------------
 
@@ -101,3 +127,67 @@ ChatJoinRequest
 
     {chat_join_request_toctree}
 
+Story
+-----
+
+.. hlist::
+    :columns: 3
+
+    {story_hlist}
+
+.. toctree::
+    :hidden:
+
+    {story_toctree}
+
+Folder
+------
+
+.. hlist::
+    :columns: 2
+
+    {folder_hlist}
+
+.. toctree::
+    :hidden:
+
+    {folder_toctree}
+
+ActiveSession
+-------------
+
+.. hlist::
+    :columns: 2
+
+    {active_session_hlist}
+
+.. toctree::
+    :hidden:
+
+    {active_session_toctree}
+
+Gift
+--------
+
+.. hlist::
+    :columns: 2
+
+    {gift_hlist}
+
+.. toctree::
+    :hidden:
+
+    {gift_toctree}
+
+Animation
+---------
+
+.. hlist::
+    :columns: 2
+
+    {animation_hlist}
+
+.. toctree::
+    :hidden:
+
+    {animation_toctree}
