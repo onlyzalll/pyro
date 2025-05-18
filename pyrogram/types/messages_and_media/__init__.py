@@ -55,6 +55,7 @@ from .story_skipped import StorySkipped
 from .story_views import StoryViews
 from .stripped_thumbnail import StrippedThumbnail
 from .thumbnail import Thumbnail
+from .translated_text import TranslatedText
 from .venue import Venue
 from .video import Video
 from .video_note import VideoNote
@@ -102,6 +103,7 @@ __all__ = [
     "StoryViews",
     "StrippedThumbnail",
     "Thumbnail",
+    "TranslatedText",
     "Venue",
     "Video",
     "VideoNote",
