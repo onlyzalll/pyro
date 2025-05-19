@@ -1023,7 +1023,6 @@ class Message(Object, Update):
                 reply_markup=reply_markup,
                 reactions=reactions,
                 fact_check=types.FactCheck._parse(client, getattr(message, "fact_check", None), users),
-                channel_post=getattr(message, "post", None),
                 raw=message,
                 client=client
             )
