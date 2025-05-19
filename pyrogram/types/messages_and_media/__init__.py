@@ -22,6 +22,7 @@ from .boosts_status import BoostsStatus
 from .contact import Contact
 from .dice import Dice
 from .document import Document
+from .external_reply_info import ExternalReplyInfo
 from .forum_topic import ForumTopic
 from .forum_topic_closed import ForumTopicClosed
 from .forum_topic_created import ForumTopicCreated
@@ -72,6 +73,7 @@ __all__ = [
     "Contact",
     "Dice",
     "Document",
+    "ExternalReplyInfo",
     "ForumTopic",
     "ForumTopicClosed",
     "ForumTopicCreated",
