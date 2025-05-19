@@ -22,8 +22,7 @@ from typing import Callable, Union, List, Pattern, Optional
 
 import pyrogram
 from pyrogram import enums
-from pyrogram.types import Message, CallbackQuery, InlineQuery, PreCheckoutQuery, InlineKeyboardMarkup, ReplyKeyboardMarkup, Update
-
+from pyrogram.types import Message, CallbackQuery, InlineQuery, InlineKeyboardMarkup, ReplyKeyboardMarkup, Update
 
 class Filter:
     async def __call__(self, client: "pyrogram.Client", update: Update):
@@ -1017,8 +1016,6 @@ def regex(pattern: Union[str, Pattern], flags: int = 0):
             value = update.data
         elif isinstance(update, InlineQuery):
             value = update.query
-        elif isinstance(update, PreCheckoutQuery):
-            value = update.invoice_payload
         else:
             raise ValueError(f"Regex filter doesn't work with {type(update)}")
 
