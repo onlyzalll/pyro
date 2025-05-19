@@ -1455,7 +1455,6 @@ class Message(Object, Update):
         topics: Optional[Dict[int, "raw.base.ForumTopic"]] = None,
         is_scheduled: bool = False,
         replies: int = 1,
-        business_connection_id: Optional[str] = None,
         raw_reply_to_message: Optional["raw.base.Message"] = None
     ) -> "Message":
         if isinstance(message, raw.types.MessageEmpty):
@@ -1472,8 +1471,7 @@ class Message(Object, Update):
                 message=message,
                 users=users,
                 chats=chats,
-                replies=replies,
-                business_connection_id=business_connection_id
+                replies=replies
             )
 
         if isinstance(message, raw.types.Message):
@@ -2213,8 +2211,7 @@ class Message(Object, Update):
 
     async def reply_chat_action(
         self,
-        action: "enums.ChatAction",
-        business_connection_id: str = None
+        action: "enums.ChatAction"
     ) -> bool:
         """Bound method *reply_chat_action* of :obj:`~pyrogram.types.Message`.
 
@@ -2253,8 +2250,7 @@ class Message(Object, Update):
 
         return await self._client.send_chat_action(
             chat_id=self.chat.id,
-            action=action,
-            business_connection_id=business_connection_id
+            action=action
         )
 
     async def reply_contact(
