@@ -1022,10 +1022,6 @@ class Message(Object, Update):
                 outgoing=message.out,
                 reply_markup=reply_markup,
                 reactions=reactions,
-                restriction_reason=types.List(
-                types.RestrictionReason._parse(reason)
-                    for reason in getattr(message, "restriction_reason", [])
-                ) or None,
                 fact_check=types.FactCheck._parse(client, getattr(message, "fact_check", None), users),
                 channel_post=getattr(message, "post", None),
                 raw=message,
