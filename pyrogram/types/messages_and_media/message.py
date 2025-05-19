@@ -2645,7 +2645,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
+            
             schedule_date=schedule_date,
             protect_content=protect_content,
             business_connection_id=business_connection_id,
@@ -2753,7 +2753,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
+            
             allow_paid_broadcast=allow_paid_broadcast,
             reply_markup=reply_markup,
 
@@ -2843,7 +2843,7 @@ class Message(Object, Update):
             result_id=result_id,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            reply_parameters=reply_parameters,
+            
             paid_message_star_count=paid_message_star_count,
 
             reply_to_message_id=reply_to_message_id,
@@ -3062,7 +3062,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
+            
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             business_connection_id=business_connection_id,
@@ -3240,7 +3240,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
+            
             view_once=view_once,
             business_connection_id=business_connection_id,
             allow_paid_broadcast=allow_paid_broadcast,
@@ -3448,7 +3448,7 @@ class Message(Object, Update):
             protect_content=protect_content,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
+            
             schedule_date=schedule_date,
             business_connection_id=business_connection_id,
             options_parse_mode=options_parse_mode,
@@ -3975,7 +3975,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
+            
             no_sound=no_sound,
             business_connection_id=business_connection_id,
             allow_paid_broadcast=allow_paid_broadcast,
@@ -4146,7 +4146,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
+            
             protect_content=protect_content,
             view_once=view_once,
             business_connection_id=business_connection_id,
@@ -4317,7 +4317,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
+            
             view_once=view_once,
             business_connection_id=business_connection_id,
             allow_paid_broadcast=allow_paid_broadcast,
@@ -4360,7 +4360,6 @@ class Message(Object, Update):
         ] = None,
 
         reply_to_chat_id: Union[int, str] = None,
-        reply_to_story_id: int = None,
         quote_text: str = None,
         quote_entities: List["types.MessageEntity"] = None,
         quote_offset: int = None,
@@ -4468,7 +4467,7 @@ class Message(Object, Update):
             message_thread_id=message_thread_id,
             effect_id=effect_id,
             show_caption_above_media=show_caption_above_media,
-            reply_parameters=reply_parameters,
+            
             schedule_date=schedule_date,
             protect_content=protect_content,
             business_connection_id=business_connection_id,
@@ -4894,7 +4893,7 @@ class Message(Object, Update):
                 link_preview_options=types.LinkPreviewOptions(is_disabled=not self.web_page),
                 disable_notification=disable_notification,
                 message_thread_id=message_thread_id,
-                reply_parameters=reply_parameters,
+                
                 reply_to_chat_id=reply_to_chat_id,
                 reply_to_message_id=reply_to_message_id,
                 quote_text=quote_text,
@@ -4909,7 +4908,7 @@ class Message(Object, Update):
                 chat_id=chat_id,
                 disable_notification=disable_notification,
                 message_thread_id=message_thread_id,
-                reply_parameters=reply_parameters,
+                
                 reply_to_message_id=reply_to_message_id,
                 reply_to_chat_id=reply_to_chat_id,
                 quote_text=quote_text,
@@ -4945,7 +4944,7 @@ class Message(Object, Update):
                     last_name=self.contact.last_name,
                     vcard=self.contact.vcard,
                     disable_notification=disable_notification,
-                    reply_parameters=reply_parameters,
+                    
                     message_thread_id=message_thread_id,
                     schedule_date=schedule_date
                 )
@@ -4956,7 +4955,7 @@ class Message(Object, Update):
                     longitude=self.location.longitude,
                     disable_notification=disable_notification,
                     message_thread_id=message_thread_id,
-                    reply_parameters=reply_parameters,
+                    
                     schedule_date=schedule_date
                 )
             elif self.venue:
@@ -4970,7 +4969,7 @@ class Message(Object, Update):
                     foursquare_type=self.venue.foursquare_type,
                     disable_notification=disable_notification,
                     message_thread_id=message_thread_id,
-                    reply_parameters=reply_parameters,
+                    
                     schedule_date=schedule_date
                 )
             elif self.poll:
@@ -4980,7 +4979,7 @@ class Message(Object, Update):
                     options=[opt.text for opt in self.poll.options],
                     disable_notification=disable_notification,
                     message_thread_id=message_thread_id,
-                    reply_parameters=reply_parameters,
+                    
                     schedule_date=schedule_date
                 )
             elif self.game:
@@ -5104,7 +5103,7 @@ class Message(Object, Update):
             has_spoilers=has_spoilers,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            reply_parameters=reply_parameters,
+            
             schedule_date=schedule_date,
             show_caption_above_media=show_caption_above_media,
             allow_paid_broadcast=allow_paid_broadcast,
