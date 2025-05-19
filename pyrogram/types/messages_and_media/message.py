@@ -726,9 +726,6 @@ class Message(Object, Update):
         self.suggest_profile_photo = suggest_profile_photo
         self.users_shared = users_shared
         self.chat_shared = chat_shared
-        self.successful_payment = successful_payment
-        self.refunded_payment = refunded_payment
-        self.giveaway_created = giveaway_created
         self.chat_set_theme = chat_set_theme
         self.chat_set_background = chat_set_background
         self.set_message_auto_delete_time = set_message_auto_delete_time
@@ -801,8 +798,6 @@ class Message(Object, Update):
         gift_code = None
         gifted_premium = None
         gifted_stars = None
-        giveaway_created = None
-        giveaway_completed = None
         video_chat_ended = None
         video_chat_started = None
         video_chat_scheduled = None
@@ -812,7 +807,6 @@ class Message(Object, Update):
         successful_payment = None
         phone_call_ended = None
         phone_call_started = None
-        giveaway_prize_stars = None
         users_shared = None
         chat_shared = None
         screenshot_taken = None
@@ -900,42 +894,6 @@ class Message(Object, Update):
         elif isinstance(action, raw.types.MessageActionGiftCode):
             service_type = enums.MessageServiceType.GIFT_CODE
             gift_code = types.GiftCode._parse(client, action, users, chats)
-        elif isinstance(action, raw.types.MessageActionGiftPremium):
-            service_type = enums.MessageServiceType.GIFTED_PREMIUM
-            gifted_premium = await types.GiftedPremium._parse(
-                client,
-                action,
-                gifter=users.get(from_id),
-                receiver=users.get(peer_id or from_id),
-                users=users
-            )
-        elif isinstance(action, raw.types.MessageActionGiftStars):
-            service_type = enums.MessageServiceType.GIFTED_STARS
-            gifted_stars = await types.GiftedStars._parse(
-                client,
-                action,
-                gifter=users.get(from_id),
-                receiver=users.get(peer_id or from_id)
-            )
-        elif isinstance(action, raw.types.MessageActionGiveawayLaunch):
-            service_type = enums.MessageServiceType.GIVEAWAY_CREATED
-            giveaway_created = types.GiveawayCreated._parse(client, action)
-        elif isinstance(action, raw.types.MessageActionGiveawayResults):
-            service_type = enums.MessageServiceType.GIVEAWAY_COMPLETED
-            giveaway_completed = await types.GiveawayCompleted._parse(
-                client,
-                action,
-                types.Chat._parse(client, message, users, chats, is_chat=True),
-                getattr(
-                    getattr(
-                        message,
-                        "reply_to",
-                        None
-                    ),
-                    "reply_to_msg_id",
-                    None
-                )
-            )
         elif isinstance(action, raw.types.MessageActionGroupCall):
             if action.duration:
                 service_type = enums.MessageServiceType.VIDEO_CHAT_ENDED
@@ -965,9 +923,6 @@ class Message(Object, Update):
             else:
                 service_type = enums.MessageServiceType.PHONE_CALL_STARTED
                 phone_call_started = types.PhoneCallStarted._parse(action)
-        elif isinstance(action, raw.types.MessageActionPrizeStars):
-            service_type = enums.MessageServiceType.GIVEAWAY_PRIZE_STARS
-            giveaway_prize_stars = await types.GiveawayPrizeStars._parse(client, action, chats)
         elif isinstance(action, (raw.types.MessageActionRequestedPeer, raw.types.MessageActionRequestedPeerSentMe)):
             _requested_chat = types.ChatShared._parse(client, action, chats)
 
@@ -1055,20 +1010,13 @@ class Message(Object, Update):
             text=text,
             proximity_alert_triggered=proximity_alert_triggered,
             gift_code=gift_code,
-            gifted_premium=gifted_premium,
-            gifted_stars=gifted_stars,
-            giveaway_created=giveaway_created,
-            giveaway_completed=giveaway_completed,
             video_chat_ended=video_chat_ended,
             video_chat_started=video_chat_started,
             video_chat_scheduled=video_chat_scheduled,
             history_cleared=history_cleared,
             video_chat_members_invited=video_chat_members_invited,
-            refunded_payment=refunded_payment,
-            successful_payment=successful_payment,
             phone_call_ended=phone_call_ended,
             phone_call_started=phone_call_started,
-            giveaway_prize_stars=giveaway_prize_stars,
             users_shared=users_shared,
             chat_shared=chat_shared,
             screenshot_taken=screenshot_taken,
@@ -1191,9 +1139,6 @@ class Message(Object, Update):
         contact = None
         venue = None
         game = None
-        giveaway = None
-        giveaway_winners = None
-        invoice = None
         story = None
         audio = None
         voice = None
@@ -1229,15 +1174,6 @@ class Message(Object, Update):
             elif isinstance(media, raw.types.MessageMediaGame):
                 game = types.Game._parse(client, media)
                 media_type = enums.MessageMediaType.GAME
-            elif isinstance(media, raw.types.MessageMediaGiveaway):
-                giveaway = types.Giveaway._parse(client, media, chats)
-                media_type = enums.MessageMediaType.GIVEAWAY
-            elif isinstance(media, raw.types.MessageMediaGiveawayResults):
-                giveaway_winners = await types.GiveawayWinners._parse(client, media, users, chats)
-                media_type = enums.MessageMediaType.GIVEAWAY_WINNERS
-            elif isinstance(media, raw.types.MessageMediaInvoice):
-                invoice = types.Invoice._parse(client, media)
-                media_type = enums.MessageMediaType.INVOICE
             elif isinstance(media, raw.types.MessageMediaStory):
                 story = await types.Story._parse(client, media, media.peer, users, chats)
                 media_type = enums.MessageMediaType.STORY
@@ -1373,9 +1309,6 @@ class Message(Object, Update):
             voice=voice,
             animation=animation,
             game=game,
-            giveaway=giveaway,
-            giveaway_winners=giveaway_winners,
-            invoice=invoice,
             story=story,
             video=video,
             video_processing_pending=getattr(message, "video_processing_pending", None),
