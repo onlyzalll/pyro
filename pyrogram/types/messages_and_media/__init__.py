@@ -77,6 +77,7 @@ __all__ = [
     "ForumTopicCreated",
     "ForumTopicEdited",
     "ForumTopicReopened",
+    "FactCheck",
     "Game",
     "GeneralTopicHidden",
     "GeneralTopicUnhidden",
