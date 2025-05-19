@@ -515,7 +515,6 @@ class Message(Object, Update):
         topic: Optional["types.ForumTopic"] = None,
         forward_origin: Optional["types.MessageOrigin"] = None,
         message_thread_id: Optional[int] = None,
-        effect_id: Optional[int] = None,
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -643,7 +642,6 @@ class Message(Object, Update):
         self.topic = topic
         self.forward_origin = forward_origin
         self.message_thread_id = message_thread_id
-        self.effect_id = effect_id
         self.reply_to_message_id = reply_to_message_id
         self.reply_to_story_id = reply_to_story_id
         self.reply_to_story_user_id = reply_to_story_user_id
@@ -1255,7 +1253,6 @@ class Message(Object, Update):
         parsed_message = Message(
             id=message.id,
             message_thread_id=message_thread_id,
-            effect_id=getattr(message, "effect", None),
             date=utils.timestamp_to_datetime(message.date),
             chat=chat,
             from_user=from_user,
@@ -1592,7 +1589,6 @@ class Message(Object, Update):
         link_preview_options: "types.LinkPreviewOptions" = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
         show_caption_above_media: bool = None,
         reply_to_message_id: int = None,
         reply_to_story_id: int = None,
@@ -1709,7 +1705,6 @@ class Message(Object, Update):
             link_preview_options=link_preview_options,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             show_caption_above_media=show_caption_above_media,
             reply_to_message_id=reply_to_message_id,
             schedule_date=schedule_date,
@@ -1745,7 +1740,7 @@ class Message(Object, Update):
             "types.ForceReply"
         ] = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -1902,7 +1897,6 @@ class Message(Object, Update):
             thumb=thumb,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             reply_to_message_id=reply_to_message_id,
             reply_markup=reply_markup,
             progress=progress,
@@ -1926,7 +1920,7 @@ class Message(Object, Update):
         thumb: Union[str, BinaryIO] = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -2079,7 +2073,6 @@ class Message(Object, Update):
             thumb=thumb,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             reply_to_message_id=reply_to_message_id,
             reply_markup=reply_markup,
             progress=progress,
@@ -2262,7 +2255,7 @@ class Message(Object, Update):
         vcard: str = "",
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -2369,7 +2362,6 @@ class Message(Object, Update):
             vcard=vcard,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             reply_to_message_id=reply_to_message_id,
             reply_markup=reply_markup,
 
@@ -2391,7 +2383,7 @@ class Message(Object, Update):
         force_document: bool = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -2552,7 +2544,6 @@ class Message(Object, Update):
             force_document=force_document,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             
             schedule_date=schedule_date,
             protect_content=protect_content,
@@ -2572,7 +2563,7 @@ class Message(Object, Update):
         quote: bool = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -2657,7 +2648,6 @@ class Message(Object, Update):
             game_short_name=game_short_name,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             
             reply_markup=reply_markup,
 
@@ -2762,7 +2752,7 @@ class Message(Object, Update):
         quote: bool = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -2860,7 +2850,6 @@ class Message(Object, Update):
             longitude=longitude,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             reply_to_message_id=reply_to_message_id,
             reply_markup=reply_markup,
 
@@ -2875,7 +2864,7 @@ class Message(Object, Update):
         quote: bool = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -2962,7 +2951,6 @@ class Message(Object, Update):
             media=media,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             
             
 
@@ -2984,7 +2972,7 @@ class Message(Object, Update):
         ttl_seconds: int = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -3138,7 +3126,6 @@ class Message(Object, Update):
             ttl_seconds=ttl_seconds,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             
             view_once=view_once,
             
@@ -3171,7 +3158,7 @@ class Message(Object, Update):
         disable_notification: bool = None,
         protect_content: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -3344,7 +3331,6 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             protect_content=protect_content,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             
             schedule_date=schedule_date,
             
@@ -3368,7 +3354,7 @@ class Message(Object, Update):
         caption_entities: List["types.MessageEntity"] = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -3507,7 +3493,6 @@ class Message(Object, Update):
             caption_entities=caption_entities,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             reply_to_message_id=reply_to_message_id,
             reply_markup=reply_markup,
             progress=progress,
@@ -3529,7 +3514,7 @@ class Message(Object, Update):
         foursquare_type: str = "",
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -3647,7 +3632,6 @@ class Message(Object, Update):
             foursquare_type=foursquare_type,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             reply_to_message_id=reply_to_message_id,
             reply_markup=reply_markup,
 
@@ -3676,7 +3660,7 @@ class Message(Object, Update):
         supports_streaming: bool = True,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -3865,7 +3849,6 @@ class Message(Object, Update):
             supports_streaming=supports_streaming,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             
             no_sound=no_sound,
             
@@ -3887,7 +3870,7 @@ class Message(Object, Update):
         thumb: Union[str, BinaryIO] = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -4034,7 +4017,6 @@ class Message(Object, Update):
             thumb=thumb,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             
             protect_content=protect_content,
             view_once=view_once,
@@ -4059,7 +4041,7 @@ class Message(Object, Update):
         duration: int = 0,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
         reply_to_story_user_id: Optional[int] = None,
@@ -4203,7 +4185,6 @@ class Message(Object, Update):
             duration=duration,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             
             view_once=view_once,
             
@@ -4227,7 +4208,7 @@ class Message(Object, Update):
         entities: List["types.MessageEntity"] = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        effect_id: int = None,
+        
         show_caption_above_media: bool = None,
         reply_to_message_id: Optional[int] = None,
         reply_to_story_id: Optional[int] = None,
@@ -4350,7 +4331,6 @@ class Message(Object, Update):
             entities=entities,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            effect_id=effect_id,
             show_caption_above_media=show_caption_above_media,
             
             schedule_date=schedule_date,
