@@ -1719,8 +1719,6 @@ class Message(Object, Update):
             reply_to_message_id=reply_to_message_id,
             schedule_date=schedule_date,
             protect_content=protect_content,
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
 
             disable_web_page_preview=disable_web_page_preview,
@@ -1911,8 +1909,6 @@ class Message(Object, Update):
             message_thread_id=message_thread_id,
             effect_id=effect_id,
             reply_to_message_id=reply_to_message_id,
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args,
@@ -2090,8 +2086,6 @@ class Message(Object, Update):
             message_thread_id=message_thread_id,
             effect_id=effect_id,
             reply_to_message_id=reply_to_message_id,
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args,
@@ -2213,8 +2207,6 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             reply_to_message_id=reply_to_message_id,
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
 
             
@@ -2386,8 +2378,6 @@ class Message(Object, Update):
             message_thread_id=message_thread_id,
             effect_id=effect_id,
             reply_to_message_id=reply_to_message_id,
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
 
             
@@ -2574,8 +2564,6 @@ class Message(Object, Update):
             schedule_date=schedule_date,
             protect_content=protect_content,
             
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args,
@@ -2598,7 +2586,6 @@ class Message(Object, Update):
         reply_to_top_message_id: Optional[int] = None,
         reply_to_message: Optional["Message"] = None,
         reply_to_story: Optional["types.Story"] = None,
-        allow_paid_broadcast: bool = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -2679,7 +2666,6 @@ class Message(Object, Update):
             message_thread_id=message_thread_id,
             effect_id=effect_id,
             
-            allow_paid_broadcast=allow_paid_broadcast,
             reply_markup=reply_markup,
 
             reply_to_message_id=reply_to_message_id,
@@ -2769,7 +2755,6 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             
-            paid_message_star_count=paid_message_star_count,
 
             reply_to_message_id=reply_to_message_id,
             quote_text=quote_text,
@@ -2884,8 +2869,6 @@ class Message(Object, Update):
             message_thread_id=message_thread_id,
             effect_id=effect_id,
             reply_to_message_id=reply_to_message_id,
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
 
             
@@ -2988,8 +2971,6 @@ class Message(Object, Update):
             message_thread_id=message_thread_id,
             effect_id=effect_id,
             
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             
 
             reply_to_message_id=reply_to_message_id,
@@ -3168,8 +3149,6 @@ class Message(Object, Update):
             
             view_once=view_once,
             
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args,
@@ -3377,8 +3356,6 @@ class Message(Object, Update):
             schedule_date=schedule_date,
             
             options_parse_mode=options_parse_mode,
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
 
             reply_to_message_id=reply_to_message_id,
@@ -3539,8 +3516,6 @@ class Message(Object, Update):
             message_thread_id=message_thread_id,
             effect_id=effect_id,
             reply_to_message_id=reply_to_message_id,
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args,
@@ -3681,8 +3656,6 @@ class Message(Object, Update):
             message_thread_id=message_thread_id,
             effect_id=effect_id,
             reply_to_message_id=reply_to_message_id,
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
 
             
@@ -3903,8 +3876,6 @@ class Message(Object, Update):
             
             no_sound=no_sound,
             
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args,
@@ -4075,8 +4046,6 @@ class Message(Object, Update):
             protect_content=protect_content,
             view_once=view_once,
             
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args,
@@ -4245,8 +4214,6 @@ class Message(Object, Update):
             
             view_once=view_once,
             
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
             progress_args=progress_args,
@@ -4396,8 +4363,6 @@ class Message(Object, Update):
             schedule_date=schedule_date,
             protect_content=protect_content,
             
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
 
             reply_to_message_id=reply_to_message_id,
@@ -4617,7 +4582,6 @@ class Message(Object, Update):
         hide_sender_name: bool = None,
         hide_captions: bool = None,
         schedule_date: datetime = None,
-        allow_paid_broadcast: bool = None,
         video_start_timestamp: int = None,
         paid_message_star_count: int = None
     ) -> Union["types.Message", List["types.Message"]]:
@@ -4688,7 +4652,6 @@ class Message(Object, Update):
             schedule_date=schedule_date,
             hide_sender_name=hide_sender_name,
             hide_captions=hide_captions,
-            allow_paid_broadcast=allow_paid_broadcast,
             video_start_timestamp=video_start_timestamp,
             paid_message_star_count=paid_message_star_count
         )
@@ -5031,8 +4994,6 @@ class Message(Object, Update):
             
             schedule_date=schedule_date,
             show_caption_above_media=show_caption_above_media,
-            allow_paid_broadcast=allow_paid_broadcast,
-            paid_message_star_count=paid_message_star_count,
 
             reply_to_message_id=reply_to_message_id,
             reply_to_chat_id=reply_to_chat_id,
