@@ -30,9 +30,8 @@ class SendSticker:
     async def send_sticker(
         self: "pyrogram.Client",
         chat_id: Union[int, str],
-        emoji: str = "",
-        caption: str = "",
         sticker: Union[str, BinaryIO],
+        emoji: str = "",
         disable_notification: bool = None,
         message_thread_id: int = None,
         reply_to_message_id: int = None,
