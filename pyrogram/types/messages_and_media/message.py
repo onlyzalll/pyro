@@ -1799,7 +1799,7 @@ class Message(Object, Update):
             reply_markup=reply_markup,
 
             disable_web_page_preview=disable_web_page_preview,
-            reply_to_message_id=reply_to_message_id,
+            
             quote_text=quote_text,
             quote_entities=quote_entities,
         )
@@ -1992,7 +1992,7 @@ class Message(Object, Update):
             progress=progress,
             progress_args=progress_args,
 
-            reply_to_message_id=reply_to_message_id,
+            
             quote_text=quote_text,
             quote_entities=quote_entities,
         )
@@ -2171,7 +2171,7 @@ class Message(Object, Update):
             progress=progress,
             progress_args=progress_args,
 
-            reply_to_message_id=reply_to_message_id,
+            
             quote_text=quote_text,
             quote_entities=quote_entities,
         )
@@ -2292,7 +2292,7 @@ class Message(Object, Update):
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
 
-            reply_to_message_id=reply_to_message_id,
+            
             quote_text=quote_text,
             quote_entities=quote_entities,
         )
@@ -2465,7 +2465,7 @@ class Message(Object, Update):
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
 
-            reply_to_message_id=reply_to_message_id,
+            
             quote_text=quote_text,
             parse_mode=parse_mode,
             quote_entities=quote_entities,
@@ -2963,7 +2963,7 @@ class Message(Object, Update):
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
 
-            reply_to_message_id=reply_to_message_id,
+            
             quote_text=quote_text,
             quote_entities=quote_entities,
         )
@@ -3620,7 +3620,7 @@ class Message(Object, Update):
             progress=progress,
             progress_args=progress_args,
 
-            reply_to_message_id=reply_to_message_id,
+            
             quote_text=quote_text,
             quote_entities=quote_entities,
         )
@@ -3760,7 +3760,7 @@ class Message(Object, Update):
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
 
-            reply_to_message_id=reply_to_message_id,
+            
             quote_text=quote_text,
             parse_mode=parse_mode,
             quote_entities=quote_entities,
