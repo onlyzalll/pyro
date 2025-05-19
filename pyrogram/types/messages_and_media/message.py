@@ -1087,7 +1087,7 @@ class Message(Object, Update):
             paid_messages_refunded=paid_messages_refunded,
             paid_messages_price_changed=paid_messages_price,
             reactions=types.MessageReactions._parse(client, message.reactions),
-            business_connection_id=business_connection_id,
+            
             raw=message,
             client=client
         )
@@ -1391,7 +1391,7 @@ class Message(Object, Update):
             sender_boost_count=getattr(message, "from_boosts_applied", None),
             via_bot=types.User._parse(client, users.get(message.via_bot_id, None)),
             outgoing=message.out,
-            business_connection_id=business_connection_id,
+            
             reply_markup=reply_markup,
             reactions=reactions,
             from_offline=getattr(message, "offline", None),
@@ -1466,7 +1466,6 @@ class Message(Object, Update):
                     raw_reply_to_message,
                     users,
                     chats,
-                    business_connection_id=business_connection_id,
                     replies=0
                 )
             elif replies:
@@ -1538,7 +1537,6 @@ class Message(Object, Update):
             return Message(
                 id=message.id,
                 empty=True,
-                business_connection_id=business_connection_id,
                 raw=message,
                 client=client,
             )
@@ -1562,7 +1560,6 @@ class Message(Object, Update):
                 topics=topics,
                 is_scheduled=is_scheduled,
                 replies=replies,
-                business_connection_id=business_connection_id,
                 raw_reply_to_message=raw_reply_to_message
             )
 
@@ -2648,7 +2645,7 @@ class Message(Object, Update):
             
             schedule_date=schedule_date,
             protect_content=protect_content,
-            business_connection_id=business_connection_id,
+            
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
@@ -3065,7 +3062,7 @@ class Message(Object, Update):
             
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
-            business_connection_id=business_connection_id,
+            
 
             reply_to_message_id=reply_to_message_id,
             quote_text=quote_text,
@@ -3242,7 +3239,7 @@ class Message(Object, Update):
             effect_id=effect_id,
             
             view_once=view_once,
-            business_connection_id=business_connection_id,
+            
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
@@ -3450,7 +3447,7 @@ class Message(Object, Update):
             effect_id=effect_id,
             
             schedule_date=schedule_date,
-            business_connection_id=business_connection_id,
+            
             options_parse_mode=options_parse_mode,
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
@@ -3977,7 +3974,7 @@ class Message(Object, Update):
             effect_id=effect_id,
             
             no_sound=no_sound,
-            business_connection_id=business_connection_id,
+            
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
@@ -4149,7 +4146,7 @@ class Message(Object, Update):
             
             protect_content=protect_content,
             view_once=view_once,
-            business_connection_id=business_connection_id,
+            
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
@@ -4319,7 +4316,7 @@ class Message(Object, Update):
             effect_id=effect_id,
             
             view_once=view_once,
-            business_connection_id=business_connection_id,
+            
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
@@ -4470,7 +4467,7 @@ class Message(Object, Update):
             
             schedule_date=schedule_date,
             protect_content=protect_content,
-            business_connection_id=business_connection_id,
+            
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
