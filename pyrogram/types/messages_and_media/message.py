@@ -740,7 +740,6 @@ class Message(Object, Update):
         self.silent = silent
         self.legacy = legacy
         self.pinned = pinned
-        self.restriction_reason = restriction_reason
         self.fact_check = fact_check
         self.channel_post = channel_post
         self.raw = raw
@@ -1332,10 +1331,6 @@ class Message(Object, Update):
             unread_media=getattr(message, "media_unread", None),
             silent=getattr(message, "silent", None),
             pinned=getattr(message, "pinned", None),
-            restriction_reason=types.List(
-                types.RestrictionReason._parse(reason)
-                for reason in getattr(message, "restriction_reason", [])
-            ) or None,
             fact_check=types.FactCheck._parse(client, getattr(message, "fact_check", None), users),
             channel_post=getattr(message, "post", None),
             raw=message,
