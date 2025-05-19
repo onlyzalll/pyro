@@ -27,6 +27,7 @@ from .forum_topic_closed import ForumTopicClosed
 from .forum_topic_created import ForumTopicCreated
 from .forum_topic_edited import ForumTopicEdited
 from .forum_topic_reopened import ForumTopicReopened
+from .fact_check import FactCheck
 from .game import Game
 from .general_forum_topic_hidden import GeneralTopicHidden
 from .general_forum_topic_unhidden import GeneralTopicUnhidden

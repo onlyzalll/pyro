@@ -189,7 +189,7 @@ class Dispatcher:
                 for lock in self.locks_list:
                     lock.release()
 
-        self.loop.create_task(fn())
+        self.client.loop.create_task(fn())
 
     def remove_handler(self, handler, group: int):
         async def fn():
@@ -205,7 +205,7 @@ class Dispatcher:
                 for lock in self.locks_list:
                     lock.release()
 
-        self.loop.create_task(fn())
+        self.client.loop.create_task(fn())
 
     async def handler_worker(self, lock):
         while True:
@@ -238,7 +238,12 @@ class Dispatcher:
                                     continue
 
                             elif isinstance(handler, RawUpdateHandler):
-                                args = (update, users, chats)
+                                try:
+                                    if await handler.check(self.client, update):
+                                        args = (update, users, chats)
+                                except Exception as e:
+                                    log.exception(e)
+                                    continue
 
                             if args is None:
                                 continue
@@ -247,7 +252,7 @@ class Dispatcher:
                                 if inspect.iscoroutinefunction(handler.callback):
                                     await handler.callback(self.client, *args)
                                 else:
-                                    await self.loop.run_in_executor(
+                                    await self.client.loop.run_in_executor(
                                         self.client.executor,
                                         handler.callback,
                                         self.client,

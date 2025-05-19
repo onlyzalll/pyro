@@ -457,6 +457,7 @@ class Message(Object, Update):
             "types.ReplyKeyboardRemove",
             "types.ForceReply",
         ] = None,
+        fact_check: Optional["types.FactCheck"] = None,
         reactions: List["types.Reaction"] = None,
         quote: "types.TextQuote" = None,
         raw: "raw.types.Message" = None,
@@ -1023,6 +1024,7 @@ class Message(Object, Update):
                 reactions=reactions,
                 raw=message,
                 client=client,
+                fact_check=types.FactCheck._parse(client, getattr(message, "fact_check", None), users),
             )
 
             if any(

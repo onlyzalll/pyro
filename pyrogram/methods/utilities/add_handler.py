@@ -20,7 +20,6 @@ import pyrogram
 from pyrogram.handlers import DisconnectHandler
 from pyrogram.handlers.handler import Handler
 
-
 class AddHandler:
     def add_handler(
         self: "pyrogram.Client",
