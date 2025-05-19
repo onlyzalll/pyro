@@ -129,7 +129,7 @@ def get_type_hint(type: str) -> str:
         return f"Optional[{type}] = None" if is_flag else type
     else:
         ns, name = type.split(".") if "." in type else ("", type)
-        type = '"raw.base.' + ".".join([ns, name]).strip(".") + '"'
+        type = f'"raw.base.' + ".".join([ns, name]).strip(".") + '"'
 
         return f'{type}{" = None" if is_flag else ""}'
 
@@ -258,13 +258,10 @@ def start(format: bool = False):
 
             args = ARGS_RE.findall(line)
 
-            # Fix arg name being reserved python keyword
+            # Fix arg name being "self" (reserved python keyword)
             for i, item in enumerate(args):
                 if item[0] == "self":
                     args[i] = ("is_self", item[1])
-
-                if item[0] == "from":
-                    args[i] = ("from_peer", item[1])
 
             combinator = Combinator(
                 section=section,
@@ -394,6 +391,7 @@ def start(format: bool = False):
         for i, arg in enumerate(sorted_args):
             arg_name, arg_type = arg
             is_optional = FLAGS_RE.match(arg_type)
+            flag_number = is_optional.group(1) if is_optional else -1
             arg_type = arg_type.split("?")[-1]
 
             arg_docs = combinator_docs.get(c.qualname, None)
@@ -407,7 +405,7 @@ def start(format: bool = False):
                 "{} ({}{}):\n            {}\n".format(
                     arg_name,
                     get_docstring_arg_type(arg_type),
-                    ", *optional*" if is_optional else "",
+                    ", *optional*".format(flag_number) if is_optional else "",
                     arg_docs
                 )
             )
@@ -428,11 +426,11 @@ def start(format: bool = False):
             if function_docs:
                 docstring += function_docs["desc"] + "\n"
             else:
-                docstring += "Telegram API function."
+                docstring += f"Telegram API function."
 
         docstring += f"\n\n    Details:\n        - Layer: ``{layer}``\n        - ID: ``{c.id[2:].upper()}``\n\n"
-        docstring += "    Parameters:\n        " + \
-                     ("\n        ".join(docstring_args) if docstring_args else "No parameters required.\n")
+        docstring += f"    Parameters:\n        " + \
+                     (f"\n        ".join(docstring_args) if docstring_args else "No parameters required.\n")
 
         if c.section == "functions":
             docstring += "\n    Returns:\n        " + get_docstring_arg_type(c.qualtype)
@@ -592,8 +590,6 @@ def start(format: bool = False):
 
             if not namespace:
                 f.write(f"from . import {', '.join(filter(bool, namespaces_to_types))}")
-            
-            f.write("\n__all__ = [{}]\n".format(", ".join(f'"{t}"' for t in types)))
 
     for namespace, types in namespaces_to_constructors.items():
         with open(DESTINATION_PATH / "types" / namespace / "__init__.py", "w") as f:
@@ -611,8 +607,6 @@ def start(format: bool = False):
             if not namespace:
                 f.write(f"from . import {', '.join(filter(bool, namespaces_to_constructors))}\n")
 
-            f.write("\n__all__ = [{}]\n".format(", ".join(f'"{t}"' for t in types)))
-
     for namespace, types in namespaces_to_functions.items():
         with open(DESTINATION_PATH / "functions" / namespace / "__init__.py", "w") as f:
             f.write(f"{notice}\n\n")
@@ -628,8 +622,6 @@ def start(format: bool = False):
 
             if not namespace:
                 f.write(f"from . import {', '.join(filter(bool, namespaces_to_functions))}")
-
-            f.write("\n__all__ = [{}]\n".format(", ".join(f'"{t}"' for t in types)))
 
     with open(DESTINATION_PATH / "all.py", "w", encoding="utf-8") as f:
         f.write(notice + "\n\n")
