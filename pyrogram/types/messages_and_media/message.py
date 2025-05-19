@@ -1685,7 +1685,6 @@ class Message(Object, Update):
         reply_markup=None,
 
         disable_web_page_preview: bool = None,
-        reply_to_message_id: int = None,
         quote_text: str = None,
         quote_entities: List["types.MessageEntity"] = None,
     ) -> "Message":
@@ -1838,7 +1837,6 @@ class Message(Object, Update):
         progress: Callable = None,
         progress_args: tuple = (),
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         quote_entities: List["types.MessageEntity"] = None,
     ) -> "Message":
@@ -2027,8 +2025,6 @@ class Message(Object, Update):
         ] = None,
         progress: Callable = None,
         progress_args: tuple = (),
-
-        reply_to_message_id: int = None,
         quote_text: str = None,
         quote_entities: List["types.MessageEntity"] = None,
     ) -> "Message":
@@ -2202,7 +2198,6 @@ class Message(Object, Update):
             "types.ForceReply"
         ] = None,
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         quote_entities: List["types.MessageEntity"] = None,
     ) -> "Message":
@@ -2371,7 +2366,6 @@ class Message(Object, Update):
             "types.ForceReply"
         ] = None,
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         parse_mode: Optional["enums.ParseMode"] = None,
         quote_entities: List["types.MessageEntity"] = None,
@@ -2507,7 +2501,6 @@ class Message(Object, Update):
         progress: Callable = None,
         progress_args: tuple = (),
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         quote_entities: List["types.MessageEntity"] = None,
     ) -> "Message":
@@ -2688,7 +2681,6 @@ class Message(Object, Update):
             "types.ForceReply"
         ] = None,
 
-        reply_to_message_id: int = None,
     ) -> "Message":
         """Bound method *reply_game* of :obj:`~pyrogram.types.Message`.
 
@@ -2783,7 +2775,6 @@ class Message(Object, Update):
         reply_to_story: Optional["types.Story"] = None,
         paid_message_star_count: int = None,
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         parse_mode: Optional["enums.ParseMode"] = None,
         quote_entities: List["types.MessageEntity"] = None,
@@ -2882,7 +2873,6 @@ class Message(Object, Update):
             "types.ForceReply"
         ] = None,
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         quote_entities: List["types.MessageEntity"] = None,
     ) -> "Message":
@@ -2992,7 +2982,6 @@ class Message(Object, Update):
         reply_to_message: Optional["Message"] = None,
         reply_to_story: Optional["types.Story"] = None,
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         parse_mode: Optional["enums.ParseMode"] = None,
         quote_entities: List["types.MessageEntity"] = None,
@@ -3113,7 +3102,6 @@ class Message(Object, Update):
         progress: Callable = None,
         progress_args: tuple = (),
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         quote_entities: List["types.MessageEntity"] = None,
     ) -> "Message":
@@ -3302,7 +3290,6 @@ class Message(Object, Update):
             "types.ForceReply"
         ] = None,
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         quote_parse_mode: Optional["enums.ParseMode"] = None,
         quote_entities: List["types.MessageEntity"] = None,
@@ -3502,7 +3489,6 @@ class Message(Object, Update):
         progress: Callable = None,
         progress_args: tuple = (),
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         quote_entities: List["types.MessageEntity"] = None,
     ) -> "Message":
@@ -3664,7 +3650,6 @@ class Message(Object, Update):
             "types.ForceReply"
         ] = None,
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         parse_mode: Optional["enums.ParseMode"] = None,
         quote_entities: List["types.MessageEntity"] = None,
@@ -3817,7 +3802,6 @@ class Message(Object, Update):
         progress: Callable = None,
         progress_args: tuple = (),
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         quote_entities: List["types.MessageEntity"] = None,
     ) -> "Message":
@@ -4032,7 +4016,6 @@ class Message(Object, Update):
         progress: Callable = None,
         progress_args: tuple = (),
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         parse_mode: Optional["enums.ParseMode"] = None,
         quote_entities: List["types.MessageEntity"] = None,
@@ -4206,7 +4189,6 @@ class Message(Object, Update):
         progress: Callable = None,
         progress_args: tuple = (),
 
-        reply_to_message_id: int = None,
         quote_text: str = None,
         quote_entities: List["types.MessageEntity"] = None,
     ) -> "Message":
@@ -4377,7 +4359,6 @@ class Message(Object, Update):
             "types.ForceReply"
         ] = None,
 
-        reply_to_message_id: int = None,
         reply_to_chat_id: Union[int, str] = None,
         reply_to_story_id: int = None,
         quote_text: str = None,
@@ -4814,7 +4795,6 @@ class Message(Object, Update):
         ] = object,
 
         reply_to_chat_id: Union[int, str] = None,
-        reply_to_message_id: int = None,
         quote_text: str = None,
         quote_entities: List["types.MessageEntity"] = None,
     ) -> Union["types.Message", List["types.Message"]]:
@@ -5048,7 +5028,6 @@ class Message(Object, Update):
         schedule_date: datetime = None,
         show_caption_above_media: bool = None,
 
-        reply_to_message_id: int = None,
         reply_to_chat_id: Union[int, str] = None,
         reply_to_story_id: int = None,
         quote_text: str = None,
