@@ -22,14 +22,10 @@ from datetime import datetime
 from typing import Union, BinaryIO, Optional, Callable, List
 
 import pyrogram
-from pyrogram import StopTransmission
-from pyrogram import raw
-from pyrogram import types
-from pyrogram import utils
-from pyrogram import enums
+from pyrogram import StopTransmission, raw, types, utils, enums
 from pyrogram.errors import FilePartMissing
 from pyrogram.file_id import FileType
-    
+
 class SendSticker:
     async def send_sticker(
         self: "pyrogram.Client",
@@ -164,9 +160,7 @@ class SendSticker:
                         ]
                     )
                 elif re.match("^https?://", sticker):
-                    media = raw.types.InputMediaDocumentExternal(
-                        url=sticker
-                    )
+                    media = raw.types.InputMediaDocumentExternal(url=sticker)
                 else:
                     media = utils.get_input_media_from_file_id(sticker, FileType.STICKER)
             else:
@@ -182,8 +176,6 @@ class SendSticker:
                         ),
                     ]
                 )
-            else:
-                raise TypeError("Sticker must be a file_id, file path, URL, or a binary file-like object with 'name' attribute.")
 
             quote_text, quote_entities = (await utils.parse_text_entities(self, quote_text, parse_mode, quote_entities)).values()
 
