@@ -5028,7 +5028,7 @@ class Message(Object, Update):
         show_caption_above_media: bool = None,
 
         reply_to_chat_id: Union[int, str] = None,
-        reply_to_story_id: int = None,
+        
         quote_text: str = None,
         parse_mode: Optional["enums.ParseMode"] = None,
         quote_entities: List["types.MessageEntity"] = None,
