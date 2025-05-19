@@ -30,7 +30,6 @@ from pyrogram import enums
 from pyrogram.errors import FilePartMissing
 from pyrogram.file_id import FileType
 
-
 class SendSticker:
     async def send_sticker(
         self: "pyrogram.Client",
@@ -158,21 +157,23 @@ class SendSticker:
                             raw.types.DocumentAttributeFilename(file_name=os.path.basename(sticker))
                         ]
                     )
-                elif re.match("^https?://", sticker):
+                elif re.match(r"^https?://", sticker):
                     media = raw.types.InputMediaDocumentExternal(
                         url=sticker
                     )
                 else:
                     media = utils.get_input_media_from_file_id(sticker, FileType.STICKER)
-            else:
+            elif hasattr(sticker, "read") and hasattr(sticker, "name"):
                 file = await self.save_file(sticker, progress=progress, progress_args=progress_args)
                 media = raw.types.InputMediaUploadedDocument(
                     mime_type=self.guess_mime_type(sticker.name) or "image/webp",
                     file=file,
                     attributes=[
-                        raw.types.DocumentAttributeFilename(file_name=sticker.name)
+                        raw.types.DocumentAttributeFilename(file_name=os.path.basename(sticker.name))
                     ]
                 )
+            else:
+                raise TypeError("Sticker must be a file_id, file path, URL, or a binary file-like object with 'name' attribute.")
 
             quote_text, quote_entities = (await utils.parse_text_entities(self, quote_text, parse_mode, quote_entities)).values()
 
@@ -203,13 +204,15 @@ class SendSticker:
                     await self.save_file(sticker, file_id=file.id, file_part=e.value)
                 else:
                     for i in r.updates:
-                        if isinstance(i, (raw.types.UpdateNewMessage,
-                                          raw.types.UpdateNewChannelMessage,
-                                          raw.types.UpdateNewScheduledMessage)):
+                        if isinstance(i, (
+                            raw.types.UpdateNewMessage,
+                            raw.types.UpdateNewChannelMessage,
+                            raw.types.UpdateNewScheduledMessage
+                        )):
                             return await types.Message._parse(
                                 self, i.message,
-                                {i.id: i for i in r.users},
-                                {i.id: i for i in r.chats},
+                                {u.id: u for u in r.users},
+                                {c.id: c for c in r.chats},
                                 is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage)
                             )
         except StopTransmission:

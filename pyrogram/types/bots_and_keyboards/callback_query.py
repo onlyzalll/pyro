@@ -17,7 +17,7 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import Union, List, Match, Optional
-
+import log
 import pyrogram
 from pyrogram import raw, enums
 from pyrogram import types
@@ -25,6 +25,7 @@ from ..object import Object
 from ..update import Update
 from ... import utils
 
+log = logging.getLogger(__name__)
 
 class CallbackQuery(Object, Update):
     """An incoming callback query from a callback button in an inline keyboard.
