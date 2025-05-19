@@ -544,10 +544,6 @@ class Message(Object, Update):
         sticker: Optional["types.Sticker"] = None,
         animation: Optional["types.Animation"] = None,
         game: Optional["types.Game"] = None,
-        giveaway: Optional["types.Giveaway"] = None,
-        giveaway_winners: Optional["types.GiveawayWinners"] = None,
-        giveaway_completed: Optional["types.GiveawayCompleted"] = None,
-        invoice: Optional["types.Invoice"] = None,
         story: Optional["types.Story"] = None,
         video: Optional["types.Video"] = None,
         video_processing_pending: Optional[bool] = None,
@@ -603,9 +599,6 @@ class Message(Object, Update):
         suggest_profile_photo: Optional["types.Photo"] = None,
         users_shared: Optional["types.UsersShared"] = None,
         chat_shared: Optional["types.ChatShared"] = None,
-        successful_payment: Optional["types.SuccessfulPayment"] = None,
-        refunded_payment: Optional["types.RefundedPayment"] = None,
-        giveaway_created: Optional[bool] = None,
         chat_set_theme: Optional["types.ChatTheme"] = None,
         chat_set_background: Optional["types.ChatBackground"] = None,
         set_message_auto_delete_time: Optional[int] = None,
@@ -614,9 +607,6 @@ class Message(Object, Update):
         connected_website: Optional[str] = None,
         contact_registered: Optional["types.ContactRegistered"] = None,
         proximity_alert_triggered: Optional["types.ProximityAlertTriggered"] = None,
-        giveaway_prize_stars: Optional["types.GiveawayPrizeStars"] = None,
-        screenshot_taken: Optional["types.ScreenshotTaken"] = None,
-        business_connection_id: Optional[str] = None,
         reply_markup: Optional[
             Union[
                 "types.InlineKeyboardMarkup",
@@ -631,7 +621,6 @@ class Message(Object, Update):
         silent: Optional[bool] = None,
         legacy: Optional[bool] = None,
         pinned: Optional[bool] = None,
-        restriction_reason: Optional[List["types.RestrictionReason"]] = None,
         fact_check: Optional["types.FactCheck"] = None,
         channel_post: Optional[bool] = None,
         raw: Optional["raw.types.Message"] = None
@@ -683,10 +672,6 @@ class Message(Object, Update):
         self.sticker = sticker
         self.animation = animation
         self.game = game
-        self.giveaway = giveaway
-        self.giveaway_winners = giveaway_winners
-        self.giveaway_completed = giveaway_completed
-        self.invoice = invoice
         self.story = story
         self.video = video
         self.video_processing_pending = video_processing_pending
@@ -719,9 +704,6 @@ class Message(Object, Update):
         self.outgoing = outgoing
         self.matches = matches
         self.command = command
-        self.giveaway_prize_stars = giveaway_prize_stars
-        self.screenshot_taken = screenshot_taken
-        self.business_connection_id = business_connection_id
         self.reply_markup = reply_markup
         self.forum_topic_created = forum_topic_created
         self.forum_topic_closed = forum_topic_closed
@@ -737,8 +719,6 @@ class Message(Object, Update):
         self.phone_call_started = phone_call_started
         self.phone_call_ended = phone_call_ended
         self.web_app_data = web_app_data
-        self.paid_messages_refunded = paid_messages_refunded
-        self.paid_messages_price = paid_messages_price_changed
         self.gift_code = gift_code
         self.gifted_premium = gifted_premium
         self.gifted_stars = gifted_stars
@@ -775,7 +755,6 @@ class Message(Object, Update):
         users: Dict[int, "raw.base.User"],
         chats: Dict[int, "raw.base.Chat"],
         replies: int = 1,
-        business_connection_id: str = None,
     ) -> "Message":
         from_id = utils.get_raw_peer_id(message.from_id)
         peer_id = utils.get_raw_peer_id(message.peer_id)
@@ -1163,7 +1142,6 @@ class Message(Object, Update):
         topics: Dict[int, "raw.base.ForumTopic"] = None,
         is_scheduled: bool = False,
         replies: int = 1,
-        business_connection_id: str = None,
         raw_reply_to_message: "raw.base.Message" = None
     ) -> "Message":
         from_id = utils.get_raw_peer_id(message.from_id)
@@ -1696,12 +1674,14 @@ class Message(Object, Update):
         message_thread_id: int = None,
         effect_id: int = None,
         show_caption_above_media: bool = None,
-        reply_parameters: "types.ReplyParameters" = None,
+        reply_to_message_id: int = None,
+        reply_to_story_id: int = None,
+        reply_to_story_user_id: int = None,
+        reply_to_top_message_id: int = None,
+        reply_to_message: "Message" = None,
+        reply_to_story: "types.Story" = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
         reply_markup=None,
 
         disable_web_page_preview: bool = None,
@@ -1796,16 +1776,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_message(
             chat_id=self.chat.id,
@@ -1817,10 +1792,9 @@ class Message(Object, Update):
             message_thread_id=message_thread_id,
             effect_id=effect_id,
             show_caption_above_media=show_caption_above_media,
-            reply_parameters=reply_parameters,
+            reply_to_message_id=reply_to_message_id,
             schedule_date=schedule_date,
             protect_content=protect_content,
-            business_connection_id=business_connection_id,
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
@@ -1847,9 +1821,6 @@ class Message(Object, Update):
         height: int = 0,
         thumb: Union[str, BinaryIO] = None,
         disable_notification: bool = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -1858,7 +1829,12 @@ class Message(Object, Update):
         ] = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         progress: Callable = None,
         progress_args: tuple = (),
 
@@ -1989,16 +1965,12 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
+ 
 
         return await self._client.send_animation(
             chat_id=self.chat.id,
@@ -2015,8 +1987,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
-            business_connection_id=business_connection_id,
+            reply_to_message_id=reply_to_message_id,
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
@@ -2042,10 +2013,12 @@ class Message(Object, Update):
         disable_notification: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -2176,16 +2149,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_audio(
             chat_id=self.chat.id,
@@ -2200,8 +2168,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
-            business_connection_id=business_connection_id,
+            reply_to_message_id=reply_to_message_id,
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
@@ -2222,10 +2189,12 @@ class Message(Object, Update):
         caption_entities: List["types.MessageEntity"] = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -2309,16 +2278,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_cached_media(
             chat_id=self.chat.id,
@@ -2328,8 +2292,7 @@ class Message(Object, Update):
             caption_entities=caption_entities,
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
-            reply_parameters=reply_parameters,
-            business_connection_id=business_connection_id,
+            reply_to_message_id=reply_to_message_id,
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
@@ -2378,8 +2341,6 @@ class Message(Object, Update):
             RPCError: In case of a Telegram RPC error.
             ValueError: In case the provided string is not a valid chat action.
         """
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_chat_action(
             chat_id=self.chat.id,
@@ -2397,10 +2358,12 @@ class Message(Object, Update):
         disable_notification: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -2488,16 +2451,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_contact(
             chat_id=self.chat.id,
@@ -2508,8 +2466,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
-            business_connection_id=business_connection_id,
+            reply_to_message_id=reply_to_message_id,
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
@@ -2533,12 +2490,14 @@ class Message(Object, Update):
         disable_notification: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -2675,16 +2634,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_document(
             chat_id=self.chat.id,
@@ -2720,7 +2674,12 @@ class Message(Object, Update):
         disable_notification: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         allow_paid_broadcast: bool = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
@@ -2790,10 +2749,8 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
@@ -2818,7 +2775,12 @@ class Message(Object, Update):
         quote: bool = None,
         disable_notification: bool = None,
         message_thread_id: bool = None,
-        reply_parameters: "types.ReplyParameters" = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         paid_message_star_count: int = None,
 
         reply_to_message_id: int = None,
@@ -2878,10 +2840,8 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
@@ -2909,10 +2869,12 @@ class Message(Object, Update):
         disable_notification: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -2993,16 +2955,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_location(
             chat_id=self.chat.id,
@@ -3011,8 +2968,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
-            business_connection_id=business_connection_id,
+            reply_to_message_id=reply_to_message_id,
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
@@ -3029,10 +2985,12 @@ class Message(Object, Update):
         disable_notification: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
-        business_connection_id: str = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
 
         reply_to_message_id: int = None,
         quote_text: str = None,
@@ -3103,16 +3061,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_media_group(
             chat_id=self.chat.id,
@@ -3144,11 +3097,13 @@ class Message(Object, Update):
         disable_notification: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         view_once: bool = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -3279,16 +3234,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_photo(
             chat_id=self.chat.id,
@@ -3337,12 +3287,14 @@ class Message(Object, Update):
         protect_content: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         schedule_date: datetime = None,
-        business_connection_id: str = None,
         options_parse_mode: List["types.MessageEntity"] = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -3483,16 +3435,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_poll(
             chat_id=self.chat.id,
@@ -3540,10 +3487,12 @@ class Message(Object, Update):
         disable_notification: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -3662,16 +3611,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_sticker(
             chat_id=self.chat.id,
@@ -3683,8 +3627,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
-            business_connection_id=business_connection_id,
+            reply_to_message_id=reply_to_message_id,
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
@@ -3708,10 +3651,12 @@ class Message(Object, Update):
         disable_notification: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -3808,16 +3753,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_venue(
             chat_id=self.chat.id,
@@ -3830,8 +3770,7 @@ class Message(Object, Update):
             disable_notification=disable_notification,
             message_thread_id=message_thread_id,
             effect_id=effect_id,
-            reply_parameters=reply_parameters,
-            business_connection_id=business_connection_id,
+            reply_to_message_id=reply_to_message_id,
             allow_paid_broadcast=allow_paid_broadcast,
             paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
@@ -3862,11 +3801,13 @@ class Message(Object, Update):
         disable_notification: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         no_sound: bool = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -4025,16 +3966,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_video(
             chat_id=self.chat.id,
@@ -4079,12 +4015,14 @@ class Message(Object, Update):
         disable_notification: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         protect_content: bool = None,
         view_once: bool = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -4210,16 +4148,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_video_note(
             chat_id=self.chat.id,
@@ -4257,11 +4190,13 @@ class Message(Object, Update):
         disable_notification: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         view_once: bool = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -4384,16 +4319,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_voice(
             chat_id=self.chat.id,
@@ -4432,12 +4362,14 @@ class Message(Object, Update):
         message_thread_id: int = None,
         effect_id: int = None,
         show_caption_above_media: bool = None,
-        reply_parameters: "types.ReplyParameters" = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -4537,16 +4469,11 @@ class Message(Object, Update):
         if quote is None:
             quote = self.chat.type != enums.ChatType.PRIVATE
 
-        if reply_parameters is None and quote:
-            reply_parameters = types.ReplyParameters(
-                message_id=self.id
-            )
+        if reply_to_message_id is None and quote:
+            reply_to_message_id = self.id
 
         if message_thread_id is None:
             message_thread_id = self.message_thread_id
-
-        if business_connection_id is None:
-            business_connection_id = self.business_connection_id
 
         return await self._client.send_web_page(
             chat_id=self.chat.id,
@@ -4869,14 +4796,16 @@ class Message(Object, Update):
         caption_entities: List["types.MessageEntity"] = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
         has_spoiler: bool = None,
         show_caption_above_media: bool = None,
-        business_connection_id: str = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
@@ -4992,9 +4921,6 @@ class Message(Object, Update):
                 quote_entities=quote_entities,
                 schedule_date=schedule_date,
                 protect_content=protect_content,
-                business_connection_id=business_connection_id,
-                allow_paid_broadcast=allow_paid_broadcast,
-                paid_message_star_count=paid_message_star_count,
                 reply_markup=self.reply_markup if reply_markup is object else reply_markup
             )
         elif self.media:
@@ -5012,9 +4938,6 @@ class Message(Object, Update):
                 protect_content=protect_content,
                 has_spoiler=self.has_media_spoiler if has_spoiler is None else has_spoiler,
                 show_caption_above_media=self.show_caption_above_media if show_caption_above_media is None else show_caption_above_media,
-                business_connection_id=business_connection_id,
-                allow_paid_broadcast=allow_paid_broadcast,
-                paid_message_star_count=paid_message_star_count,
                 reply_markup=self.reply_markup if reply_markup is object else reply_markup
             )
 
@@ -5044,10 +4967,7 @@ class Message(Object, Update):
                     disable_notification=disable_notification,
                     reply_parameters=reply_parameters,
                     message_thread_id=message_thread_id,
-                    schedule_date=schedule_date,
-                    allow_paid_broadcast=allow_paid_broadcast,
-                    paid_message_star_count=paid_message_star_count,
-                    business_connection_id=business_connection_id
+                    schedule_date=schedule_date
                 )
             elif self.location:
                 return await self._client.send_location(
@@ -5057,10 +4977,7 @@ class Message(Object, Update):
                     disable_notification=disable_notification,
                     message_thread_id=message_thread_id,
                     reply_parameters=reply_parameters,
-                    schedule_date=schedule_date,
-                    allow_paid_broadcast=allow_paid_broadcast,
-                    paid_message_star_count=paid_message_star_count,
-                    business_connection_id=business_connection_id
+                    schedule_date=schedule_date
                 )
             elif self.venue:
                 return await self._client.send_venue(
@@ -5074,10 +4991,7 @@ class Message(Object, Update):
                     disable_notification=disable_notification,
                     message_thread_id=message_thread_id,
                     reply_parameters=reply_parameters,
-                    schedule_date=schedule_date,
-                    allow_paid_broadcast=allow_paid_broadcast,
-                    paid_message_star_count=paid_message_star_count,
-                    business_connection_id=business_connection_id
+                    schedule_date=schedule_date
                 )
             elif self.poll:
                 return await self._client.send_poll(
@@ -5087,18 +5001,13 @@ class Message(Object, Update):
                     disable_notification=disable_notification,
                     message_thread_id=message_thread_id,
                     reply_parameters=reply_parameters,
-                    schedule_date=schedule_date,
-                    allow_paid_broadcast=allow_paid_broadcast,
-                    paid_message_star_count=paid_message_star_count,
-                    business_connection_id=business_connection_id
+                    schedule_date=schedule_date
                 )
             elif self.game:
                 return await self._client.send_game(
                     chat_id,
                     game_short_name=self.game.short_name,
-                    disable_notification=disable_notification,
-                    allow_paid_broadcast=allow_paid_broadcast,
-                    message_thread_id=message_thread_id
+                    disable_notification=disable_notification
                 )
             else:
                 raise ValueError("Unknown media type")
@@ -5130,11 +5039,14 @@ class Message(Object, Update):
         has_spoilers: Union[List[bool], bool] = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
+        reply_to_message_id: Optional[int] = None,
+        reply_to_story_id: Optional[int] = None,
+        reply_to_story_user_id: Optional[int] = None,
+        reply_to_top_message_id: Optional[int] = None,
+        reply_to_message: Optional["Message"] = None,
+        reply_to_story: Optional["types.Story"] = None,
         schedule_date: datetime = None,
         show_caption_above_media: bool = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
 
         reply_to_message_id: int = None,
         reply_to_chat_id: Union[int, str] = None,
