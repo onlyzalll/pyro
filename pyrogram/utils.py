@@ -386,7 +386,7 @@ def get_reply_to(
     if reply_parameters:
         if reply_parameters.chat_id and reply_parameters.story_id:
             return raw.types.InputReplyToStory(
-                peer=await client.resolve_peer(reply_parameters.chat_id),
+                peer=client.resolve_peer(reply_parameters.chat_id),
                 story_id=reply_parameters.story_id
             )
 
@@ -407,7 +407,7 @@ def get_reply_to(
             return raw.types.InputReplyToMessage(
                 reply_to_msg_id=reply_parameters.message_id,
                 top_msg_id=message_thread_id,
-                reply_to_peer_id=await client.resolve_peer(reply_parameters.chat_id) if reply_parameters.chat_id else None,
+                reply_to_peer_id=client.resolve_peer(reply_parameters.chat_id) if reply_parameters.chat_id else None,
                 quote_text=message,
                 quote_entities=entities,
                 quote_offset=reply_parameters.quote_position,
