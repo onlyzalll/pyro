@@ -16,21 +16,19 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from enum import auto
+from pyrogram import raw
+
 from .auto_name import AutoName
 
 
-class StoriesPrivacyRules(AutoName):
-    """Stories privacy rules type enumeration used in :meth:`~pyrogram.Client.send_story`."""
+class BusinessSchedule(AutoName):
+    """Business away enumeration used in :obj:`~pyrogram.types.BusinessMessage`."""
 
-    PUBLIC = auto()
-    "Public stories"
+    ALWAYS = raw.types.BusinessAwayMessageScheduleAlways
+    "Send always"
 
-    CONTACTS = auto()
-    "Contacts only stories"
+    OUTSIDE_WORK_HOURS = raw.types.BusinessAwayMessageScheduleOutsideWorkHours
+    "Outside of Business Hours"
 
-    CLOSE_FRIENDS = auto()
-    "Close friends stories"
-
-    SELECTED_USERS = auto()
-    "Selected users stories"
+    CUSTOM = raw.types.BusinessAwayMessageScheduleCustom
+    "Custom Schedule"

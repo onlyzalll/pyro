@@ -15,22 +15,21 @@
 #
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
-
 from enum import auto
+
+from pyrogram import raw
+
 from .auto_name import AutoName
 
 
-class StoriesPrivacyRules(AutoName):
-    """Stories privacy rules type enumeration used in :meth:`~pyrogram.Client.send_story`."""
+class PaidReactionPrivacy(AutoName):
+    """Reaction privacy type enumeration used in :meth:`~pyrogram.Client.send_paid_reaction`."""
 
-    PUBLIC = auto()
-    "Public stories"
+    DEFAULT = raw.types.PaidReactionPrivacyDefault
+    "Send default reaction"
 
-    CONTACTS = auto()
-    "Contacts only stories"
+    ANONYMOUS = raw.types.PaidReactionPrivacyAnonymous
+    "Send anonymous reaction"
 
-    CLOSE_FRIENDS = auto()
-    "Close friends stories"
-
-    SELECTED_USERS = auto()
-    "Selected users stories"
+    CHAT = raw.types.PaidReactionPrivacyPeer
+    "Send reaction as specific chat. You can get all available chats in :meth:`~pyrogram.Client.get_send_as_chats`"

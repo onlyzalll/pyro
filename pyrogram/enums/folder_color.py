@@ -16,21 +16,32 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from enum import auto
 from .auto_name import AutoName
 
 
-class StoriesPrivacyRules(AutoName):
-    """Stories privacy rules type enumeration used in :meth:`~pyrogram.Client.send_story`."""
+class FolderColor(AutoName):
+    """Folder color enumeration used in :obj:`~pyrogram.types.Folder`."""
 
-    PUBLIC = auto()
-    "Public stories"
+    NO_COLOR = None
+    "No color."
 
-    CONTACTS = auto()
-    "Contacts only stories"
+    RED = 0
+    "Red color."
 
-    CLOSE_FRIENDS = auto()
-    "Close friends stories"
+    ORANGE = 1
+    "Orange color."
 
-    SELECTED_USERS = auto()
-    "Selected users stories"
+    VIOLET = 2
+    "Violet color."
+
+    GREEN = 3
+    "Green color."
+
+    CYAN = 4
+    "Cyan color."
+
+    BLUE = 5
+    "Blue color."
+
+    PINK = 6
+    "Pink color."
