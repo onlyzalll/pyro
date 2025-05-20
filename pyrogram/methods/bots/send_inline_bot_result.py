@@ -150,7 +150,7 @@ class SendInlineBotResult:
                 id=result_id,
                 random_id=self.rnd_id(),
                 silent=disable_notification or None,
-                reply_to=await utils.get_reply_to(
+                reply_to=utils.get_reply_to(
                     self,
                     reply_parameters,
                     message_thread_id
