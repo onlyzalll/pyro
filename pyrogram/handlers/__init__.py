@@ -25,7 +25,6 @@ from .chat_member_updated_handler import ChatMemberUpdatedHandler
 from .chosen_inline_result_handler import ChosenInlineResultHandler
 from .deleted_business_messages_handler import DeletedBusinessMessagesHandler
 from .deleted_messages_handler import DeletedMessagesHandler
-from .start_handler import StartHandler
 from .stop_handler import StopHandler
 from .connect_handler import ConnectHandler
 from .disconnect_handler import DisconnectHandler
