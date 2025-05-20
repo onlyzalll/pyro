@@ -26,7 +26,6 @@ import pyrogram
 from pyrogram import raw
 from pyrogram.enums import MessageEntityType
 from pyrogram.errors import PeerIdInvalid
-
 from . import utils
 
 log = logging.getLogger(__name__)
@@ -58,6 +57,7 @@ class Parser(HTMLParser):
             entity = raw.types.MessageEntityStrike
         elif tag == "blockquote":
             entity = raw.types.MessageEntityBlockquote
+            extra["collapsed"] = bool("expandable" in attrs.keys())
         elif tag == "code":
             entity = raw.types.MessageEntityCode
         elif tag == "pre":
@@ -151,7 +151,7 @@ class HTML:
 
         return {
             "message": utils.remove_surrogates(parser.text),
-            "entities": sorted(entities, key=lambda e: e.offset) or None,
+            "entities": sorted(entities, key=lambda e: e.offset) or None
         }
 
     @staticmethod
@@ -176,13 +176,18 @@ class HTML:
             elif entity_type == MessageEntityType.PRE:
                 name = entity_type.name.lower()
                 language = getattr(entity, "language", "") or ""
-                start_tag = (
-                    f'<{name} language="{language}">' if language else f"<{name}>"
-                )
+                start_tag = f'<{name} language="{language}">' if language else f"<{name}>"
+                end_tag = f"</{name}>"
+            elif entity_type == MessageEntityType.BLOCKQUOTE:
+                name = entity_type.name.lower()
+                start_tag = f"<{name}>"
+                end_tag = f"</{name}>"
+            elif entity_type == MessageEntityType.EXPANDABLE_BLOCKQUOTE:
+                name = "blockquote"
+                start_tag = f"<{name} expandable>"
                 end_tag = f"</{name}>"
             elif entity_type in (
                 MessageEntityType.CODE,
-                MessageEntityType.BLOCKQUOTE,
                 MessageEntityType.SPOILER,
             ):
                 name = entity_type.name.lower()
@@ -240,12 +245,7 @@ class HTML:
             last_offset = entities_offsets[-1][1]
             # no need to sort, but still add entities starting from the end
             for entity, offset in reversed(entities_offsets):
-                text = (
-                    text[:offset]
-                    + entity
-                    + html.escape(text[offset:last_offset])
-                    + text[last_offset:]
-                )
+                text = text[:offset] + entity + html.escape(text[offset:last_offset]) + text[last_offset:]
                 last_offset = offset
 
         return utils.remove_surrogates(text)
