@@ -39,7 +39,7 @@ class EditInlineMedia:
         media: "types.InputMedia",
         reply_markup: "types.InlineKeyboardMarkup" = None
     ) -> bool:
-        """Edit inline animation, audio, document, photo or video messages.
+        """Edit inline animation, audio, document, photo or video messages, or to add media to text messages.
 
         When the inline message is edited, a new file can't be uploaded. Use a previously uploaded file via its file_id
         or specify a URL.
@@ -78,6 +78,7 @@ class EditInlineMedia:
         """
         caption = media.caption
         parse_mode = media.parse_mode
+        caption_entities = media.caption_entities
 
         is_bytes_io = isinstance(media.media, io.BytesIO)
         is_uploaded_file = is_bytes_io or os.path.isfile(media.media)
@@ -112,7 +113,7 @@ class EditInlineMedia:
         elif isinstance(media, types.InputMediaVideo):
             if is_uploaded_file:
                 media = raw.types.InputMediaUploadedDocument(
-                    mime_type=(None if is_bytes_io else self.guess_mime_type(media.media)) or "video/mp4",
+                    mime_type=self.guess_mime_type(media.media) or "video/mp4",
                     thumb=await self.save_file(media.thumb),
                     file=await self.save_file(media.media),
                     spoiler=media.has_spoiler,
@@ -135,7 +136,7 @@ class EditInlineMedia:
         elif isinstance(media, types.InputMediaAudio):
             if is_uploaded_file:
                 media = raw.types.InputMediaUploadedDocument(
-                    mime_type=(None if is_bytes_io else self.guess_mime_type(media.media)) or "audio/mpeg",
+                    mime_type=self.guess_mime_type(media.media) or "audio/mpeg",
                     thumb=await self.save_file(media.thumb),
                     file=await self.save_file(media.media),
                     attributes=[
@@ -155,7 +156,7 @@ class EditInlineMedia:
         elif isinstance(media, types.InputMediaAnimation):
             if is_uploaded_file:
                 media = raw.types.InputMediaUploadedDocument(
-                    mime_type=(None if is_bytes_io else self.guess_mime_type(media.media)) or "video/mp4",
+                    mime_type=self.guess_mime_type(media.media) or "video/mp4",
                     thumb=await self.save_file(media.thumb),
                     file=await self.save_file(media.media),
                     spoiler=media.has_spoiler,
@@ -180,7 +181,7 @@ class EditInlineMedia:
         elif isinstance(media, types.InputMediaDocument):
             if is_uploaded_file:
                 media = raw.types.InputMediaUploadedDocument(
-                    mime_type=(None if is_bytes_io else self.guess_mime_type(media.media)) or "application/zip",
+                    mime_type=self.guess_mime_type(media.media) or "application/zip",
                     thumb=await self.save_file(media.thumb),
                     file=await self.save_file(media.media),
                     attributes=filename_attribute,
@@ -213,7 +214,7 @@ class EditInlineMedia:
                     file_reference=uploaded_media.photo.file_reference
                 ),
                 spoiler=getattr(media, "has_spoiler", None)
-            ) if isinstance(media, types.InputMediaPhoto) else raw.types.InputMediaDocument(
+            ) if isinstance(uploaded_media, raw.types.MessageMediaPhoto) else raw.types.InputMediaDocument(
                 id=raw.types.InputDocument(
                     id=uploaded_media.document.id,
                     access_hash=uploaded_media.document.access_hash,
@@ -231,7 +232,7 @@ class EditInlineMedia:
                         id=unpacked,
                         media=actual_media,
                         reply_markup=await reply_markup.write(self) if reply_markup else None,
-                        **await self.parser.parse(caption, parse_mode)
+                        **await utils.parse_text_entities(self, caption, parse_mode, caption_entities)
                     ),
                     sleep_threshold=self.sleep_threshold
                 )

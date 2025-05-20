@@ -17,14 +17,14 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import Union, List, Optional
+from datetime import datetime
+from typing import List, Optional, Union
 
 import pyrogram
-from pyrogram import raw, enums
-from pyrogram import types
-from pyrogram import utils
+from pyrogram import enums, raw, types, utils
 
 log = logging.getLogger(__name__)
+
 
 class EditMessageText:
     async def edit_message_text(
@@ -35,8 +35,10 @@ class EditMessageText:
         parse_mode: Optional["enums.ParseMode"] = None,
         entities: List["types.MessageEntity"] = None,
         link_preview_options: "types.LinkPreviewOptions" = None,
+        show_caption_above_media: bool = None,
+        schedule_date: datetime = None,
+        reply_markup: "types.InlineKeyboardMarkup" = None,
         disable_web_page_preview: bool = None,
-        reply_markup: "types.InlineKeyboardMarkup" = None
     ) -> "types.Message":
         """Edit the text of messages.
 
@@ -61,8 +63,14 @@ class EditMessageText:
             entities (List of :obj:`~pyrogram.types.MessageEntity`):
                 List of special entities that appear in message text, which can be specified instead of *parse_mode*.
 
-            disable_web_page_preview (``bool``, *optional*):
-                Disables link previews for links in this message.
+            link_preview_options (:obj:`~pyrogram.types.LinkPreviewOptions`, *optional*):
+                Options used for link preview generation for the message.
+
+            show_caption_above_media (``bool``, *optional*):
+                Pass True, if the caption must be shown above the message media.
+
+            schedule_date (:py:obj:`~datetime.datetime`, *optional*):
+                Date when the message will be automatically sent.
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
@@ -81,18 +89,19 @@ class EditMessageText:
                     chat_id, message_id, message.text,
                     disable_web_page_preview=True)
         """
-
         if disable_web_page_preview is not None:
             log.warning(
                 "`disable_web_page_preview` is deprecated and will be removed in future updates. Use `link_preview_options` instead."
             )
             link_preview_options = types.LinkPreviewOptions(is_disabled=disable_web_page_preview)
-            
+
         r = await self.invoke(
             raw.functions.messages.EditMessage(
                 peer=await self.resolve_peer(chat_id),
                 id=message_id,
                 no_webpage=getattr(link_preview_options, "is_disabled", None) or None,
+                invert_media=show_caption_above_media or None,
+                schedule_date=utils.datetime_to_timestamp(schedule_date),
                 reply_markup=await reply_markup.write(self) if reply_markup else None,
                 **await utils.parse_text_entities(self, text, parse_mode, entities)
             )

@@ -16,19 +16,23 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Union
+import logging
+from typing import Union, List
 
 import pyrogram
 from pyrogram import raw
+from pyrogram import types
+from pyrogram import utils
+
+log = logging.getLogger(__name__)
 
 
-class ReadMentions:
-    async def read_mentions(
+class GetScheduledMessages:
+    async def get_scheduled_messages(
         self: "pyrogram.Client",
-        chat_id: Union[int, str],
-        topic_id: int = None
-    ) -> bool:
-        """Mark a mention in the chat as read.
+        chat_id: Union[int, str]
+    ) -> List["types.Message"]:
+        """Get one or more scheduled messages from a chat.
 
         .. include:: /_includes/usable-by/users.rst
 
@@ -38,27 +42,20 @@ class ReadMentions:
                 For your personal cloud (Saved Messages) you can simply use "me" or "self".
                 For a contact that exists in your Telegram address book you can use his phone number (str).
 
-            topic_id (``int``, *optional*):
-                Mark as read only mentions to messages within the specified forum topic.
-                By default, no topic is applied and all mentions marked as read.
-
         Returns:
-            ``bool`` - On success, True is returned.
+            :List of :obj:`~pyrogram.types.Message`: a list of messages is returned.
 
         Example:
             .. code-block:: python
 
-                # Mark the chat mention as read
-                await app.read_mentions(chat_id)
+                # Get scheduled messages
+                await app.get_scheduled_messages(chat_id)
 
-                # Mark the chat mention as read in specified topic
-                await app.read_mentions(chat_id, topic_id)
+        Raises:
+            ValueError: In case of invalid arguments.
         """
         r = await self.invoke(
-            raw.functions.messages.ReadMentions(
-                peer=await self.resolve_peer(chat_id),
-                top_msg_id=topic_id
-            )
+            raw.functions.messages.GetScheduledHistory(peer=await self.resolve_peer(chat_id), hash=0)
         )
 
-        return bool(r)
+        return await utils.parse_messages(self, r, replies=0)

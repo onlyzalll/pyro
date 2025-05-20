@@ -17,6 +17,7 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from typing import Union, List, AsyncGenerator, Optional
+from datetime import datetime
 
 import pyrogram
 from pyrogram import raw, types, utils, enums
@@ -29,26 +30,33 @@ async def get_chunk(
     query: str = "",
     filter: "enums.MessagesFilter" = enums.MessagesFilter.EMPTY,
     offset: int = 0,
+    offset_id: int = 0,
+    min_date: datetime = utils.zero_datetime(),
+    max_date: datetime = utils.zero_datetime(),
     limit: int = 100,
-    from_user: Union[int, str] = None
+    min_id: int = 0,
+    max_id: int = 0,
+    from_user: Union[int, str] = None,
+    message_thread_id: Optional[int] = None
 ) -> List["types.Message"]:
     r = await client.invoke(
         raw.functions.messages.Search(
             peer=await client.resolve_peer(chat_id),
             q=query,
             filter=filter.value(),
-            min_date=0,
-            max_date=0,
-            offset_id=0,
+            min_date=utils.datetime_to_timestamp(min_date),
+            max_date= utils.datetime_to_timestamp(max_date),
+            offset_id=offset_id,
             add_offset=offset,
             limit=limit,
-            min_id=0,
-            max_id=0,
+            min_id=min_id,
+            max_id=max_id,
             from_id=(
                 await client.resolve_peer(from_user)
                 if from_user
                 else None
             ),
+            top_msg_id=message_thread_id,
             hash=0
         ),
         sleep_threshold=60
@@ -62,12 +70,18 @@ class SearchMessages:
     async def search_messages(
         self: "pyrogram.Client",
         chat_id: Union[int, str],
-        query: str = "",
-        offset: int = 0,
-        filter: "enums.MessagesFilter" = enums.MessagesFilter.EMPTY,
-        limit: int = 0,
-        from_user: Union[int, str] = None
-    ) -> Optional[AsyncGenerator["types.Message", None]]:
+        query: Optional[str] = "",
+        offset: Optional[int] = 0,
+        offset_id: Optional[int] = 0,
+        min_date: Optional[datetime] = utils.zero_datetime(),
+        max_date: Optional[datetime] = utils.zero_datetime(),
+        min_id: Optional[int] = 0,
+        max_id: Optional[int] = 0,
+        filter: Optional["enums.MessagesFilter"] = enums.MessagesFilter.EMPTY,
+        limit: Optional[int] = 0,
+        from_user: Union[int, str] = None,
+        message_thread_id: Optional[int] = None
+    ) -> AsyncGenerator["types.Message", None]:
         """Search for text and media messages inside a specific chat.
 
         If you want to get the messages count only, see :meth:`~pyrogram.Client.search_messages_count`.
@@ -90,6 +104,21 @@ class SearchMessages:
                 Sequential number of the first message to be returned.
                 Defaults to 0.
 
+            offset_id (``int``, *optional*):
+                Identifier of the first message to be returned.
+
+            min_date (:py:obj:`~datetime.datetime`, *optional*):
+                Pass a date as offset to retrieve only older messages starting from that date.
+
+            max_date (:py:obj:`~datetime.datetime`, *optional*):
+                Pass a date as offset to retrieve only newer messages starting from that date.
+
+            min_id (``int``, *optional*):
+                If a positive value was provided, the method will return only messages with IDs more than min_id.
+
+            max_id (``int``, *optional*):
+                If a positive value was provided, the method will return only messages with IDs less than max_id.
+
             filter (:obj:`~pyrogram.enums.MessagesFilter`, *optional*):
                 Pass a filter in order to search for specific kind of messages only.
                 Defaults to any message (no filter).
@@ -100,6 +129,10 @@ class SearchMessages:
 
             from_user (``int`` | ``str``, *optional*):
                 Unique identifier (int) or username (str) of the target user you want to search for messages from.
+
+            message_thread_id (``int``, *optional*):
+                Unique identifier for the target message thread (topic) of the forum.
+                For supergroups only.
 
         Returns:
             ``Generator``: A generator yielding :obj:`~pyrogram.types.Message` objects.
@@ -133,8 +166,14 @@ class SearchMessages:
                 query=query,
                 filter=filter,
                 offset=offset,
+                offset_id=offset_id,
+                min_date=min_date,
+                max_date=max_date,
+                min_id=min_id,
+                max_id=max_id,
                 limit=limit,
-                from_user=from_user
+                from_user=from_user,
+                message_thread_id=message_thread_id
             )
 
             if not messages:

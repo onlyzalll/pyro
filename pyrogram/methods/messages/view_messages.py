@@ -16,48 +16,45 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Union
+from typing import Union, List
 
 import pyrogram
 from pyrogram import raw
 
 
-class ReadMentions:
-    async def read_mentions(
+class ViewMessages:
+    async def view_messages(
         self: "pyrogram.Client",
         chat_id: Union[int, str],
-        topic_id: int = None
+        message_id: Union[int, List[int]],
     ) -> bool:
-        """Mark a mention in the chat as read.
+        """Increment message views counter.
 
         .. include:: /_includes/usable-by/users.rst
 
         Parameters:
             chat_id (``int`` | ``str``):
                 Unique identifier (int) or username (str) of the target chat.
-                For your personal cloud (Saved Messages) you can simply use "me" or "self".
-                For a contact that exists in your Telegram address book you can use his phone number (str).
 
-            topic_id (``int``, *optional*):
-                Mark as read only mentions to messages within the specified forum topic.
-                By default, no topic is applied and all mentions marked as read.
+            message_id (``int`` | List of ``int``):
+                Identifier or list of message identifiers of the target message.
 
         Returns:
-            ``bool`` - On success, True is returned.
+            ``bool``: On success, True is returned.
 
         Example:
             .. code-block:: python
 
-                # Mark the chat mention as read
-                await app.read_mentions(chat_id)
-
-                # Mark the chat mention as read in specified topic
-                await app.read_mentions(chat_id, topic_id)
+                # Increment message views
+                await app.view_messages(chat_id, 1)
         """
+        ids = [message_id] if not isinstance(message_id, list) else message_id
+
         r = await self.invoke(
-            raw.functions.messages.ReadMentions(
+            raw.functions.messages.GetMessagesViews(
                 peer=await self.resolve_peer(chat_id),
-                top_msg_id=topic_id
+                id=ids,
+                increment=True
             )
         )
 

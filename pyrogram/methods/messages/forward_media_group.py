@@ -17,19 +17,19 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import datetime
-from typing import Union, List, Iterable
+from typing import Union, List
 
 import pyrogram
 from pyrogram import raw, utils
 from pyrogram import types
 
 
-class ForwardMessages:
-    async def forward_messages(
+class ForwardMediaGroup:
+    async def forward_media_group(
         self: "pyrogram.Client",
         chat_id: Union[int, str],
         from_chat_id: Union[int, str],
-        message_ids: Union[int, Iterable[int]],
+        message_id: int,
         message_thread_id: int = None,
         disable_notification: bool = None,
         schedule_date: datetime = None,
@@ -37,10 +37,9 @@ class ForwardMessages:
         hide_captions: bool = None,
         protect_content: bool = None,
         allow_paid_broadcast: bool = None,
-        video_start_timestamp: int = None,
         paid_message_star_count: int = None
-    ) -> Union["types.Message", List["types.Message"]]:
-        """Forward messages of any kind.
+    ) -> List["types.Message"]:
+        """Forward a media group by providing one of the message ids.
 
         .. include:: /_includes/usable-by/users-bots.rst
 
@@ -55,8 +54,8 @@ class ForwardMessages:
                 For your personal cloud (Saved Messages) you can simply use "me" or "self".
                 For a contact that exists in your Telegram address book you can use his phone number (str).
 
-            message_ids (``int`` | Iterable of ``int``):
-                An iterable of message identifiers in the chat specified in *from_chat_id* or a single message id.
+            message_id (``int``):
+                Message identifier in the chat specified in *from_chat_id*.
 
             message_thread_id (``int``, *optional*):
                 Unique identifier of a message thread to which the message belongs.
@@ -84,27 +83,19 @@ class ForwardMessages:
                 The relevant Stars will be withdrawn from the bot's balance.
                 For bots only.
 
-            video_start_timestamp (``int``, *optional*):
-                Video startpoint, in seconds.
-
             paid_message_star_count (``int``, *optional*):
                 The number of Telegram Stars the user agreed to pay to send the messages.
 
         Returns:
-            :obj:`~pyrogram.types.Message` | List of :obj:`~pyrogram.types.Message`: In case *message_ids* was not
-            a list, a single message is returned, otherwise a list of messages is returned.
+            List of :obj:`~pyrogram.types.Message`: On success, a list of forwarded messages is returned.
 
         Example:
             .. code-block:: python
 
-                # Forward a single message
-                await app.forward_messages(to_chat, from_chat, 123)
-
-                # Forward multiple messages at once
-                await app.forward_messages(to_chat, from_chat, [1, 2, 3])
+                # Forward a media group
+                await app.forward_media_group(to_chat, from_chat, 123)
         """
-        is_iterable = not isinstance(message_ids, int)
-        message_ids = list(message_ids) if is_iterable else [message_ids]
+        message_ids = [i.id for i in await self.get_media_group(from_chat_id, message_id)]
 
         r = await self.invoke(
             raw.functions.messages.ForwardMessages(
@@ -119,7 +110,6 @@ class ForwardMessages:
                 noforwards=protect_content,
                 allow_paid_floodskip=allow_paid_broadcast,
                 top_msg_id=message_thread_id,
-                video_timestamp=video_start_timestamp,
                 allow_paid_stars=paid_message_star_count
             )
         )
@@ -140,4 +130,4 @@ class ForwardMessages:
                     )
                 )
 
-        return types.List(forwarded_messages) if is_iterable else forwarded_messages[0]
+        return types.List(forwarded_messages)

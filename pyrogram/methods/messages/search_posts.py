@@ -16,56 +16,33 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator
 
 import pyrogram
-from pyrogram import raw, enums
+from pyrogram import raw
 from pyrogram import types
 from pyrogram import utils
 
 
-class SearchGlobal:
-    async def search_global(
+class SearchPosts:
+    async def search_posts(
         self: "pyrogram.Client",
-        query: str = "",
-        filter: "enums.MessagesFilter" = enums.MessagesFilter.EMPTY,
-        channels_only: Optional[bool] = None,
-        groups_only: Optional[bool] = None,
-        users_only: Optional[bool] = None,
+        hashtag: str,
         limit: int = 0,
     ) -> AsyncGenerator["types.Message", None]:
-        """Search messages globally from all of your chats.
+        """Search posts globally by hashtag.
 
-        If you want to get the messages count only, see :meth:`~pyrogram.Client.search_global_count`.
-
-        .. note::
-
-            Due to server-side limitations, you can only get up to around ~10,000 messages and each message
-            retrieved will not have any *reply_to_message* field.
+        If you want to get the posts count only, see :meth:`~pyrogram.Client.search_posts_count`.
 
         .. include:: /_includes/usable-by/users.rst
 
         Parameters:
-            query (``str``, *optional*):
+            hashtag (``str``):
                 Text query string.
-                Use "@" to search for mentions.
-
-            filter (:obj:`~pyrogram.enums.MessagesFilter`, *optional*):
-                Pass a filter in order to search for specific kind of messages only.
-                Defaults to any message (no filter).
 
             limit (``int``, *optional*):
-                Limits the number of messages to be retrieved.
-                By default, no limit is applied and all messages are returned.
-
-            channels_only (``bool``, *optional*):
-                Pass True to search only in channels.
-
-            groups_only (``bool``, *optional*):
-                Pass True to search only in groups.
-
-            users_only (``bool``, *optional*):
-                Pass True to search only in users.
+                Limits the number of posts to be retrieved.
+                By default, no limit is applied and all posts are returned.
 
         Returns:
             ``Generator``: A generator yielding :obj:`~pyrogram.types.Message` objects.
@@ -73,18 +50,11 @@ class SearchGlobal:
         Example:
             .. code-block:: python
 
-                from pyrogram import enums
-
-                # Search for "pyrogram". Get the first 50 results
-                async for message in app.search_global("pyrogram", limit=50):
+                # Search for "#pyrogram". Get the first 50 results
+                async for message in app.search_posts("#pyrogram", limit=50):
                     print(message.text)
-
-                # Search for recent photos from Global. Get the first 20 results
-                async for message in app.search_global(filter=enums.MessagesFilter.PHOTO, limit=20):
-                    print(message.photo)
         """
         current = 0
-        # There seems to be an hard limit of 10k, beyond which Telegram starts spitting one message at a time.
         total = abs(limit) or (1 << 31)
         limit = min(100, total)
 
@@ -96,17 +66,11 @@ class SearchGlobal:
             messages = await utils.parse_messages(
                 self,
                 await self.invoke(
-                    raw.functions.messages.SearchGlobal(
-                        q=query,
-                        filter=filter.value(),
-                        min_date=0,
-                        max_date=0,
+                    raw.functions.channels.SearchPosts(
+                        hashtag=hashtag,
                         offset_rate=offset_date,
                         offset_peer=offset_peer,
                         offset_id=offset_id,
-                        broadcasts_only=channels_only,
-                        groups_only=groups_only,
-                        users_only=users_only,
                         limit=limit
                     ),
                     sleep_threshold=60

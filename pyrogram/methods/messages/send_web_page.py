@@ -25,19 +25,20 @@ from pyrogram import enums, raw, types, utils
 
 log = logging.getLogger(__name__)
 
-class SendVenue:
-    async def send_venue(
+class SendWebPage:
+    async def send_web_page(
         self: "pyrogram.Client",
         chat_id: Union[int, str],
-        latitude: float,
-        longitude: float,
-        title: str,
-        address: str,
-        foursquare_id: str = "",
-        foursquare_type: str = "",
+        text: str = None,
+        url: str = None,
+        prefer_large_media: bool = None,
+        prefer_small_media: bool = None,
+        parse_mode: Optional["enums.ParseMode"] = None,
+        entities: List["types.MessageEntity"] = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
         effect_id: int = None,
+        show_caption_above_media: bool = None,
         reply_parameters: "types.ReplyParameters" = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
@@ -53,12 +54,12 @@ class SendVenue:
 
         reply_to_message_id: int = None,
         reply_to_chat_id: Union[int, str] = None,
+        reply_to_story_id: int = None,
         quote_text: str = None,
-        parse_mode: Optional["enums.ParseMode"] = None,
         quote_entities: List["types.MessageEntity"] = None,
         quote_offset: int = None,
     ) -> "types.Message":
-        """Send information about a venue.
+        """Send Web Page Preview.
 
         .. include:: /_includes/usable-by/users-bots.rst
 
@@ -68,24 +69,30 @@ class SendVenue:
                 For your personal cloud (Saved Messages) you can simply use "me" or "self".
                 For a contact that exists in your Telegram address book you can use his phone number (str).
 
-            latitude (``float``):
-                Latitude of the venue.
+            text (``str``, *optional*):
+                Text of the message to be sent.
 
-            longitude (``float``):
-                Longitude of the venue.
+            url (``str``, *optional*):
+                Link that will be previewed.
+                If url not specified, the first URL found in the text will be used.
 
-            title (``str``):
-                Name of the venue.
+            parse_mode (:obj:`~pyrogram.enums.ParseMode`, *optional*):
+                By default, texts are parsed using both Markdown and HTML styles.
+                You can combine both syntaxes together.
 
-            address (``str``):
-                Address of the venue.
+            entities (List of :obj:`~pyrogram.types.MessageEntity`):
+                List of special entities that appear in message text, which can be specified instead of *parse_mode*.
 
-            foursquare_id (``str``, *optional*):
-                Foursquare identifier of the venue.
+            prefer_large_media (``bool``, *optional*):
+                If True, media in the link preview will be larger.
+                Ignored if the URL isn't explicitly specified or media size change isn't supported for the preview.
 
-            foursquare_type (``str``, *optional*):
-                Foursquare type of the venue, if known.
-                (For example, "arts_entertainment/default", "arts_entertainment/aquarium" or "food/icecream".)
+            prefer_small_media (``bool``, *optional*):
+                If True, media in the link preview will be smaller.
+                Ignored if the URL isn't explicitly specified or media size change isn't supported for the preview.
+
+            show_caption_above_media (``bool``, *optional*):
+                Pass True, if the caption must be shown above the message media.
 
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
@@ -93,7 +100,7 @@ class SendVenue:
 
             message_thread_id (``int``, *optional*):
                 Unique identifier for the target message thread (topic) of the forum.
-                For supergroups only.
+                for forum supergroups only.
 
             effect_id (``int``, *optional*):
                 Unique identifier of the message effect.
@@ -101,6 +108,9 @@ class SendVenue:
 
             reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
                 Describes reply parameters for the message that is being sent.
+
+            quote_offset (``int``, *optional*):
+                Offset for quote in original message.
 
             schedule_date (:py:obj:`~datetime.datetime`, *optional*):
                 Date when the message will be automatically sent.
@@ -125,21 +135,24 @@ class SendVenue:
                 instructions to remove reply keyboard or to force a reply from the user.
 
         Returns:
-            :obj:`~pyrogram.types.Message`: On success, the sent venue message is returned.
+            :obj:`~pyrogram.types.Message`: On success, the sent message is returned.
 
         Example:
             .. code-block:: python
 
-                await app.send_venue(
-                    "me", latitude, longitude,
-                    "Venue title", "Venue address")
+                # Simple example
+                await app.send_web_page("me", "https://docs.pyrogram.org")
+
+                # Make web preview image larger
+                await app.send_web_page("me", "https://docs.pyrogram.org", prefer_large_media=True)
+
         """
         if any(
             (
                 reply_to_message_id is not None,
                 reply_to_chat_id is not None,
+                reply_to_story_id is not None,
                 quote_text is not None,
-                parse_mode is not None,
                 quote_entities is not None,
                 quote_offset is not None,
             )
@@ -154,14 +167,14 @@ class SendVenue:
                     "`reply_to_chat_id` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
                 )
 
+            if reply_to_story_id is not None:
+                log.warning(
+                    "`reply_to_story_id` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
+                )
+
             if quote_text is not None:
                 log.warning(
                     "`quote_text` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
-                )
-
-            if parse_mode is not None:
-                log.warning(
-                    "`parse_mode` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
                 )
 
             if quote_entities is not None:
@@ -177,27 +190,31 @@ class SendVenue:
             reply_parameters = types.ReplyParameters(
                 message_id=reply_to_message_id,
                 chat_id=reply_to_chat_id,
+                story_id=reply_to_story_id,
                 quote=quote_text,
                 quote_parse_mode=parse_mode,
                 quote_entities=quote_entities,
                 quote_position=quote_offset
             )
 
+        message, entities = (await utils.parse_text_entities(self, text, parse_mode, entities)).values()
+
+        if not url:
+            if entities:
+                for entity in entities:
+                    if isinstance(entity, enums.MessageEntityType.URL):
+                        url = entity.url
+                        break
+
+            if not url:
+                url = utils.get_first_url(message)
+
+        if not url:
+            raise ValueError("URL not specified")
+
         r = await self.invoke(
             raw.functions.messages.SendMedia(
                 peer=await self.resolve_peer(chat_id),
-                media=raw.types.InputMediaVenue(
-                    geo_point=raw.types.InputGeoPoint(
-                        lat=latitude,
-                        long=longitude
-                    ),
-                    title=title,
-                    address=address,
-                    provider="",
-                    venue_id=foursquare_id,
-                    venue_type=foursquare_type
-                ),
-                message="",
                 silent=disable_notification or None,
                 reply_to=await utils.get_reply_to(
                     self,
@@ -206,14 +223,49 @@ class SendVenue:
                 ),
                 random_id=self.rnd_id(),
                 schedule_date=utils.datetime_to_timestamp(schedule_date),
-                noforwards=protect_content,
+                reply_markup=await reply_markup.write(self) if reply_markup else None,
+                message=message,
+                media=raw.types.InputMediaWebPage(
+                    url=url,
+                    force_large_media=prefer_large_media,
+                    force_small_media=prefer_small_media
+                ),
+                invert_media=show_caption_above_media,
                 allow_paid_floodskip=allow_paid_broadcast,
                 allow_paid_stars=paid_message_star_count,
-                reply_markup=await reply_markup.write(self) if reply_markup else None,
+                entities=entities,
+                noforwards=protect_content,
                 effect=effect_id
             ),
             business_connection_id=business_connection_id
         )
+
+        if isinstance(r, raw.types.UpdateShortSentMessage):
+            peer = await self.resolve_peer(chat_id)
+
+            peer_id = (
+                peer.user_id
+                if isinstance(peer, raw.types.InputPeerUser)
+                else -peer.chat_id
+            )
+
+            return types.Message(
+                id=r.id,
+                chat=types.Chat(
+                    id=peer_id,
+                    type=enums.ChatType.PRIVATE,
+                    client=self
+                ),
+                text=message,
+                date=utils.timestamp_to_datetime(r.date),
+                outgoing=r.out,
+                reply_markup=reply_markup,
+                entities=[
+                    types.MessageEntity._parse(None, entity, {})
+                    for entity in entities
+                ] if entities else None,
+                client=self
+            )
 
         for i in r.updates:
             if isinstance(i, (raw.types.UpdateNewMessage,

@@ -19,16 +19,15 @@
 from typing import Union
 
 import pyrogram
-from pyrogram import raw
+from pyrogram import raw, types, utils
 
-
-class ReadMentions:
-    async def read_mentions(
+class SendScreenshotNotification:
+    async def send_screenshot_notification(
         self: "pyrogram.Client",
         chat_id: Union[int, str],
-        topic_id: int = None
-    ) -> bool:
-        """Mark a mention in the chat as read.
+        reply_parameters: "types.ReplyParameters" = None
+    ) -> "types.Message":
+        """Notify the other user in a private chat that a screenshot of the chat was taken.
 
         .. include:: /_includes/usable-by/users.rst
 
@@ -38,27 +37,30 @@ class ReadMentions:
                 For your personal cloud (Saved Messages) you can simply use "me" or "self".
                 For a contact that exists in your Telegram address book you can use his phone number (str).
 
-            topic_id (``int``, *optional*):
-                Mark as read only mentions to messages within the specified forum topic.
-                By default, no topic is applied and all mentions marked as read.
+            reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
+                Describes reply parameters for the message that is being sent.
 
         Returns:
-            ``bool`` - On success, True is returned.
-
-        Example:
-            .. code-block:: python
-
-                # Mark the chat mention as read
-                await app.read_mentions(chat_id)
-
-                # Mark the chat mention as read in specified topic
-                await app.read_mentions(chat_id, topic_id)
+            :obj:`~pyrogram.types.Message`: On success, the sent service message is returned.
         """
+
         r = await self.invoke(
-            raw.functions.messages.ReadMentions(
+            raw.functions.messages.SendScreenshotNotification(
                 peer=await self.resolve_peer(chat_id),
-                top_msg_id=topic_id
+                reply_to=await utils.get_reply_to(self, reply_parameters) if reply_parameters else raw.types.InputReplyToMessage(reply_to_msg_id=0),
+                random_id=self.rnd_id()
             )
         )
 
-        return bool(r)
+        for i in r.updates:
+            if isinstance(i, (raw.types.UpdateNewMessage,
+                            raw.types.UpdateNewChannelMessage,
+                            raw.types.UpdateNewScheduledMessage,
+                            raw.types.UpdateBotNewBusinessMessage)):
+                return await types.Message._parse(
+                    self, i.message,
+                    {i.id: i for i in r.users},
+                    {i.id: i for i in r.chats},
+                    is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage),
+                    business_connection_id=getattr(i, "connection_id", None)
+                )
