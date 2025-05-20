@@ -196,6 +196,8 @@ class Client(Methods):
     # Interval of seconds in which the updates watchdog will kick in
     UPDATES_WATCHDOG_INTERVAL = 5 * 60
 
+    MAX_TOPIC_CACHE_SIZE = 1000
+    
     MAX_CONCURRENT_TRANSMISSIONS = 1
 
     mimetypes = MimeTypes()
