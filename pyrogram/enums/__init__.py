@@ -33,7 +33,6 @@ from .messages_filter import MessagesFilter
 from .next_code_type import NextCodeType
 from .paid_reaction_privacy import PaidReactionPrivacy
 from .parse_mode import ParseMode
-from .phone_call_discard_reason import PhoneCallDiscardReason
 from .poll_type import PollType
 from .privacy_key import PrivacyKey
 from .privacy_rule_type import PrivacyRuleType
@@ -64,7 +63,6 @@ __all__ = [
     'NextCodeType',
     'PaidReactionPrivacy',
     'ParseMode',
-    'PhoneCallDiscardReason',
     'PollType',
     'PrivacyKey',
     'PrivacyRuleType',
