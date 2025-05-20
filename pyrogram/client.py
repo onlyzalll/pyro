@@ -279,6 +279,8 @@ class Client(Methods):
         self.parser = Parser(self)
 
         self.session = None
+        
+        self.business_connections = {}
 
         self.media_sessions = {}
         self.media_sessions_lock = asyncio.Lock()
