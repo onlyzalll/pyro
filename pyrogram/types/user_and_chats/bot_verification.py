@@ -18,45 +18,46 @@
 
 from typing import Optional
 
-from pyrogram import raw
+from pyrogram import raw, types
 from ..object import Object
 
 
-class Birthday(Object):
-    """Birthday information of a user.
+class BotVerification(Object):
+    """Information about bot verification.
 
     Parameters:
-        day (``int``):
-            Birthday day.
+        bot (:obj:`~pyrogram.types.User`):
+            Bot that is verified this user.
 
-        month (``int``):
-            Birthday month.
+        custom_emoji_id (``int``):
+            Custom emoji icon identifier.
 
-        year (``int``, *optional*):
-            Birthday year.
+        description (``int``, *optional*):
+            Additional description about the verification.
     """
 
     def __init__(
         self,
         *,
-        day: int,
-        month: int,
-        year: int = None
-
+        bot: int,
+        custom_emoji_id: int,
+        description: str
     ):
-        self.day = day
-        self.month = month
-        self.year = year
+        self.bot = bot
+        self.custom_emoji_id = custom_emoji_id
+        self.description = description
 
     @staticmethod
     def _parse(
-        birthday: "raw.types.Birthday" = None
-    ) -> Optional["Birthday"]:
-        if not birthday:
-            return
+        client,
+        verification: "raw.types.BotVerification",
+        users
+    ) -> Optional["BotVerification"]:
+        if not verification:
+            return None
 
-        return Birthday(
-            day=birthday.day,
-            month=birthday.month,
-            year=getattr(birthday, "year", None)
+        return BotVerification(
+            bot=types.User._parse(client, users.get(verification.bot_id)),
+            custom_emoji_id=verification.icon,
+            description=verification.description
         )

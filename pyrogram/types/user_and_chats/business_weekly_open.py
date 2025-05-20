@@ -16,47 +16,34 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
-
 from pyrogram import raw
 from ..object import Object
 
 
-class Birthday(Object):
-    """Birthday information of a user.
+class BusinessWeeklyOpen(Object):
+    """Business weekly open hours.
 
     Parameters:
-        day (``int``):
-            Birthday day.
+        start_minute (``int``):
+            Start minute of the working day.
 
-        month (``int``):
-            Birthday month.
-
-        year (``int``, *optional*):
-            Birthday year.
+        end_minute (``int``):
+            End minute of the working day.
     """
 
     def __init__(
         self,
         *,
-        day: int,
-        month: int,
-        year: int = None
+        start_minute: int,
+        end_minute: int,
 
     ):
-        self.day = day
-        self.month = month
-        self.year = year
+        self.start_minute = start_minute
+        self.end_minute = end_minute
 
     @staticmethod
-    def _parse(
-        birthday: "raw.types.Birthday" = None
-    ) -> Optional["Birthday"]:
-        if not birthday:
-            return
-
-        return Birthday(
-            day=birthday.day,
-            month=birthday.month,
-            year=getattr(birthday, "year", None)
+    def _parse(weekly_open: "raw.types.BusinessWeeklyOpen" = None) -> "BusinessWeeklyOpen":
+        return BusinessWeeklyOpen(
+            start_minute=weekly_open.start_minute,
+            end_minute=weekly_open.end_minute,
         )

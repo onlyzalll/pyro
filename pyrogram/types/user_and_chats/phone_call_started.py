@@ -16,47 +16,34 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
-
 from pyrogram import raw
 from ..object import Object
 
 
-class Birthday(Object):
-    """Birthday information of a user.
+class PhoneCallStarted(Object):
+    """A service message about a phone_call started in the chat.
 
     Parameters:
-        day (``int``):
-            Birthday day.
+        id (``int``):
+            Unique call identifier.
 
-        month (``int``):
-            Birthday month.
-
-        year (``int``, *optional*):
-            Birthday year.
+        is_video (``bool``):
+            True, if call was a video call.
     """
 
     def __init__(
-        self,
-        *,
-        day: int,
-        month: int,
-        year: int = None
-
+        self, *,
+        id: int,
+        is_video: bool
     ):
-        self.day = day
-        self.month = month
-        self.year = year
+        super().__init__()
+
+        self.id = id
+        self.is_video = is_video
 
     @staticmethod
-    def _parse(
-        birthday: "raw.types.Birthday" = None
-    ) -> Optional["Birthday"]:
-        if not birthday:
-            return
-
-        return Birthday(
-            day=birthday.day,
-            month=birthday.month,
-            year=getattr(birthday, "year", None)
+    def _parse(action: "raw.types.MessageActionPhoneCall") -> "PhoneCallStarted":
+        return PhoneCallStarted(
+            id=action.call_id,
+            is_video=action.video
         )

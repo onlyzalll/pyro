@@ -16,47 +16,34 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+import asyncio
+from typing import Union, Iterable
 
-from pyrogram import raw
-from ..object import Object
+import pyrogram
+from pyrogram import raw, utils
+from .input_privacy_rule import InputPrivacyRule
 
 
-class Birthday(Object):
-    """Birthday information of a user.
+class InputPrivacyRuleDisallowChats(InputPrivacyRule):
+    """Disallow only participants of certain chats.
 
     Parameters:
-        day (``int``):
-            Birthday day.
-
-        month (``int``):
-            Birthday month.
-
-        year (``int``, *optional*):
-            Birthday year.
+        chat_ids (``int`` | ``str`` | Iterable of ``int`` or ``str``):
+            Unique identifier (int) or username (str) of the target chat.
     """
 
     def __init__(
         self,
-        *,
-        day: int,
-        month: int,
-        year: int = None
-
+        chat_ids: Union[int, str, Iterable[Union[int, str]]],
     ):
-        self.day = day
-        self.month = month
-        self.year = year
+        super().__init__()
 
-    @staticmethod
-    def _parse(
-        birthday: "raw.types.Birthday" = None
-    ) -> Optional["Birthday"]:
-        if not birthday:
-            return
+        self.chat_ids = chat_ids
 
-        return Birthday(
-            day=birthday.day,
-            month=birthday.month,
-            year=getattr(birthday, "year", None)
+    async def write(self, client: "pyrogram.Client"):
+        chats = list(self.chat_ids) if not isinstance(self.chat_ids, (int, str)) else [self.chat_ids]
+        chats = await asyncio.gather(*[client.resolve_peer(i) for i in chats])
+
+        return raw.types.InputPrivacyValueDisallowChatParticipants(
+            chats=[utils.get_raw_peer_id(i) for i in chats]
         )

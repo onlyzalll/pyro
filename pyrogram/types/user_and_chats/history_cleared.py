@@ -16,47 +16,14 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
-
-from pyrogram import raw
 from ..object import Object
 
 
-class Birthday(Object):
-    """Birthday information of a user.
+class HistoryCleared(Object):
+    """A service message about a cleared history in chat.
 
-    Parameters:
-        day (``int``):
-            Birthday day.
-
-        month (``int``):
-            Birthday month.
-
-        year (``int``, *optional*):
-            Birthday year.
+    Currently holds no information.
     """
 
-    def __init__(
-        self,
-        *,
-        day: int,
-        month: int,
-        year: int = None
-
-    ):
-        self.day = day
-        self.month = month
-        self.year = year
-
-    @staticmethod
-    def _parse(
-        birthday: "raw.types.Birthday" = None
-    ) -> Optional["Birthday"]:
-        if not birthday:
-            return
-
-        return Birthday(
-            day=birthday.day,
-            month=birthday.month,
-            year=getattr(birthday, "year", None)
-        )
+    def __init__(self):
+        super().__init__()

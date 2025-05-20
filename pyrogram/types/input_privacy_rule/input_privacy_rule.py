@@ -16,47 +16,29 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+import pyrogram
 
-from pyrogram import raw
 from ..object import Object
 
 
-class Birthday(Object):
-    """Birthday information of a user.
+class InputPrivacyRule(Object):
+    """Content of a privacy rule.
 
-    Parameters:
-        day (``int``):
-            Birthday day.
+    It should be one of:
 
-        month (``int``):
-            Birthday month.
-
-        year (``int``, *optional*):
-            Birthday year.
+    - :obj:`~pyrogram.types.InputPrivacyRuleAllowAll`
+    - :obj:`~pyrogram.types.InputPrivacyRuleAllowContacts`
+    - :obj:`~pyrogram.types.InputPrivacyRuleAllowPremium`
+    - :obj:`~pyrogram.types.InputPrivacyRuleAllowUsers`
+    - :obj:`~pyrogram.types.InputPrivacyRuleAllowChats`
+    - :obj:`~pyrogram.types.InputPrivacyRuleDisallowAll`
+    - :obj:`~pyrogram.types.InputPrivacyRuleDisallowContacts`
+    - :obj:`~pyrogram.types.InputPrivacyRuleDisallowUsers`
+    - :obj:`~pyrogram.types.InputPrivacyRuleDisallowChats`
     """
 
-    def __init__(
-        self,
-        *,
-        day: int,
-        month: int,
-        year: int = None
+    def __init__(self):
+        super().__init__()
 
-    ):
-        self.day = day
-        self.month = month
-        self.year = year
-
-    @staticmethod
-    def _parse(
-        birthday: "raw.types.Birthday" = None
-    ) -> Optional["Birthday"]:
-        if not birthday:
-            return
-
-        return Birthday(
-            day=birthday.day,
-            month=birthday.month,
-            year=getattr(birthday, "year", None)
-        )
+    async def write(self, client: "pyrogram.Client"):
+        raise NotImplementedError

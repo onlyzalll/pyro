@@ -16,47 +16,18 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
-
+import pyrogram
 from pyrogram import raw
-from ..object import Object
+from .input_privacy_rule import InputPrivacyRule
 
 
-class Birthday(Object):
-    """Birthday information of a user.
-
-    Parameters:
-        day (``int``):
-            Birthday day.
-
-        month (``int``):
-            Birthday month.
-
-        year (``int``, *optional*):
-            Birthday year.
-    """
+class InputPrivacyRuleDisallowAll(InputPrivacyRule):
+    """Disallow all users."""
 
     def __init__(
         self,
-        *,
-        day: int,
-        month: int,
-        year: int = None
-
     ):
-        self.day = day
-        self.month = month
-        self.year = year
+        super().__init__()
 
-    @staticmethod
-    def _parse(
-        birthday: "raw.types.Birthday" = None
-    ) -> Optional["Birthday"]:
-        if not birthday:
-            return
-
-        return Birthday(
-            day=birthday.day,
-            month=birthday.month,
-            year=getattr(birthday, "year", None)
-        )
+    async def write(self, client: "pyrogram.Client"):
+        return raw.types.InputPrivacyValueDisallowAll()
