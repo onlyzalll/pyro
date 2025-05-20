@@ -201,6 +201,48 @@ async def parse_messages(
     return types.List(parsed_messages)
 
 
+def parse_deleted_messages(client, update, users, chats) -> List["types.Message"]:
+    messages = update.messages
+    channel_id = getattr(update, "channel_id", None)
+    peer = getattr(update, "peer", None)
+
+    chat = None
+
+    if channel_id:
+        chat = types.Chat(
+            id=get_channel_id(channel_id),
+            type=enums.ChatType.CHANNEL,
+            client=client
+        )
+    if peer:
+        chat_id = get_raw_peer_id(peer)
+        if chat_id:
+            if isinstance(peer, raw.types.PeerUser):
+                chat = types.Chat._parse_user_chat(client, users[chat_id])
+
+            elif isinstance(peer, raw.types.PeerChat):
+                chat = types.Chat._parse_chat_chat(client, chats[chat_id])
+
+            else:
+                chat = types.Chat._parse_channel_chat(
+                    client, chats[chat_id]
+                )
+
+    parsed_messages = []
+
+    for message in messages:
+        parsed_messages.append(
+            types.Message(
+                id=message,
+                chat=chat,
+                business_connection_id=getattr(update, "connection_id", None),
+                client=client
+            )
+        )
+
+    return types.List(parsed_messages)
+
+
 def parse_deleted_messages(client, update) -> List["types.Message"]:
     messages = update.messages
     channel_id = getattr(update, "channel_id", None)
