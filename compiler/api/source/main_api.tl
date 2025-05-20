@@ -187,7 +187,7 @@ messageMediaStory#68cb6283 flags:# via_mention:flags.1?true peer:Peer id:int sto
 messageMediaGiveaway#aa073beb flags:# only_new_subscribers:flags.0?true winners_are_visible:flags.2?true channels:Vector<long> countries_iso2:flags.1?Vector<string> prize_description:flags.3?string quantity:int months:flags.4?int stars:flags.5?long until_date:int = MessageMedia;
 messageMediaGiveawayResults#ceaa3ea1 flags:# only_new_subscribers:flags.0?true refunded:flags.2?true channel_id:long additional_peers_count:flags.3?int launch_msg_id:int winners_count:int unclaimed_count:int winners:Vector<long> months:flags.4?int stars:flags.5?long prize_description:flags.1?string until_date:int = MessageMedia;
 messageMediaPaidMedia#a8852491 stars_amount:long extended_media:Vector<MessageExtendedMedia> = MessageMedia;
-
+messageActionPaidMessagesPrice#bcd71419 stars:long = MessageAction;
 messageActionEmpty#b6aef7b0 = MessageAction;
 messageActionChatCreate#bd47cbad title:string users:Vector<long> = MessageAction;
 messageActionChatEditTitle#b5a1ce5a title:string = MessageAction;
@@ -2506,7 +2506,8 @@ channels.setBoostsToUnblockRestrictions#ad399cee channel:InputChannel boosts:int
 channels.setEmojiStickers#3cd930b7 channel:InputChannel stickerset:InputStickerSet = Bool;
 channels.restrictSponsoredMessages#9ae91519 channel:InputChannel restricted:Bool = Updates;
 channels.searchPosts#d19f987b hashtag:string offset_rate:int offset_peer:InputPeer offset_id:int limit:int = messages.Messages;
-
+channels.updatePaidMessagesPrice#fc84653f channel:InputChannel send_paid_messages_stars:long = Updates;
+channels.toggleAutotranslation#167fc0a1 channel:InputChannel enabled:Bool = Updates;
 bots.sendCustomRequest#aa2769ed custom_method:string params:DataJSON = DataJSON;
 bots.answerWebhookJSONQuery#e6213f4d query_id:long data:DataJSON = Bool;
 bots.setBotCommands#517165a scope:BotCommandScope lang_code:string commands:Vector<BotCommand> = Bool;
