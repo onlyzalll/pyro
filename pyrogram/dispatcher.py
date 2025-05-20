@@ -53,6 +53,7 @@ from pyrogram.raw.types import (
     UpdateDeleteMessages,
     UpdateEditChannelMessage,
     UpdateEditMessage,
+    UpdateInlineBotCallbackQuery,
     UpdateMessagePoll,
     UpdateNewChannelMessage,
     UpdateNewMessage,
