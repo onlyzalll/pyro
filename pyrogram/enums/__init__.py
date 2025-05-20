@@ -34,15 +34,12 @@ from .next_code_type import NextCodeType
 from .paid_reaction_privacy import PaidReactionPrivacy
 from .parse_mode import ParseMode
 from .poll_type import PollType
-from .privacy_key import PrivacyKey
-from .privacy_rule_type import PrivacyRuleType
 from .profile_color import ProfileColor
 from .reply_color import ReplyColor
 from .sent_code_type import SentCodeType
 from .gift_attribute_type import GiftAttributeType
 from .gift_for_resale_order import GiftForResaleOrder
 from .media_area_type import MediaAreaType
-from .stories_privacy_rules import StoriesPrivacyRules
 from .user_status import UserStatus
 
 __all__ = [
@@ -64,14 +61,11 @@ __all__ = [
     'PaidReactionPrivacy',
     'ParseMode',
     'PollType',
-    'PrivacyKey',
-    'PrivacyRuleType',
     'ProfileColor',
     'ReplyColor',
     'SentCodeType',
     'GiftAttributeType',
     'GiftForResaleOrder',
     'MediaAreaType',
-    'StoriesPrivacyRules',
     'UserStatus'
 ]
