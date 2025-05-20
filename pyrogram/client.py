@@ -222,6 +222,7 @@ class Client(Methods):
         workers: int = WORKERS,
         workdir: str = WORKDIR,
         plugins: dict = None,
+        max_topic_cache_size: int = MAX_TOPIC_CACHE_SIZE,
         fetch_replies: Optional[bool] = True,
         fetch_topics: Optional[bool] = True,
         fetch_stories: Optional[bool] = True,
@@ -258,6 +259,7 @@ class Client(Methods):
         self.takeout = takeout
         self.sleep_threshold = sleep_threshold
         self.hide_password = hide_password
+        self.max_topic_cache_size = max_topic_cache_size
         self.fetch_replies = fetch_replies
         self.fetch_topics = fetch_topics
         self.fetch_stories = fetch_stories
@@ -294,6 +296,7 @@ class Client(Methods):
         self.takeout_id = None
 
         self.disconnect_handler = None
+        self.topic_cache = Cache(self.max_topic_cache_size)
 
         self.me: Optional[User] = None
 
