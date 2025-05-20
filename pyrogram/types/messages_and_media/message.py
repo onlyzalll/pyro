@@ -528,7 +528,6 @@ class Message(Object, Update):
         scheduled: Optional[bool] = None,
         from_scheduled: Optional[bool] = None,
         media: Optional["enums.MessageMediaType"] = None,
-        paid_media: Optional["types.PaidMediaInfo"] = None,
         edit_date: Optional[datetime] = None,
         edit_hidden: Optional[bool] = None,
         media_group_id: Optional[int] = None,
@@ -594,8 +593,6 @@ class Message(Object, Update):
         phone_call_started: Optional["types.PhoneCallStarted"] = None,
         phone_call_ended: Optional["types.PhoneCallEnded"] = None,
         web_app_data: Optional["types.WebAppData"] = None,
-        paid_messages_refunded: Optional["types.PaidMessagesRefunded"] = None,
-        paid_messages_price_changed: Optional["types.PaidMessagesPriceChanged"] = None,
         gift_code: Optional["types.GiftCode"] = None,
         gifted_premium: Optional["types.GiftedPremium"] = None,
         gifted_stars: Optional["types.GiftedStars"] = None,
@@ -1044,12 +1041,6 @@ class Message(Object, Update):
         elif isinstance(action, (raw.types.MessageActionWebViewDataSent, raw.types.MessageActionWebViewDataSentMe)):
             service_type = enums.MessageServiceType.WEB_APP_DATA
             web_app_data = types.WebAppData._parse(action)
-        elif isinstance(action, raw.types.MessageActionPaidMessagesRefunded):
-            service_type = enums.MessageServiceType.PAID_MESSAGES_REFUNDED
-            paid_messages_refunded = types.PaidMessagesRefunded._parse(action)
-        elif isinstance(action, raw.types.MessageActionPaidMessagesPrice):
-            service_type = enums.MessageServiceType.PAID_MESSAGES_PRICE
-            paid_messages_price = types.PaidMessagesPriceChanged._parse(action)
 
         parsed_message = Message(
             id=message.id,
@@ -1105,8 +1096,6 @@ class Message(Object, Update):
             general_forum_topic_unhidden=general_forum_topic_unhidden,
             forum_topic_reopened=forum_topic_reopened,
             web_app_data=web_app_data,
-            paid_messages_refunded=paid_messages_refunded,
-            paid_messages_price_changed=paid_messages_price,
             reactions=types.MessageReactions._parse(client, message.reactions),
             business_connection_id=business_connection_id,
             raw=message,
@@ -1314,9 +1303,6 @@ class Message(Object, Update):
             elif isinstance(media, raw.types.MessageMediaDice):
                 dice = types.Dice._parse(client, media)
                 media_type = enums.MessageMediaType.DICE
-            elif isinstance(media, raw.types.MessageMediaPaidMedia):
-                paid_media = types.PaidMediaInfo._parse(client, media)
-                media_type = enums.MessageMediaType.PAID_MEDIA
             else:
                 media = None
 
