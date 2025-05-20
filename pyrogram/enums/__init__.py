@@ -31,7 +31,6 @@ from .message_origin_type import MessageOriginType
 from .message_service_type import MessageServiceType
 from .messages_filter import MessagesFilter
 from .next_code_type import NextCodeType
-from .paid_reaction_privacy import PaidReactionPrivacy
 from .parse_mode import ParseMode
 from .poll_type import PollType
 from .profile_color import ProfileColor
@@ -58,7 +57,6 @@ __all__ = [
     'MessageServiceType',
     'MessagesFilter',
     'NextCodeType',
-    'PaidReactionPrivacy',
     'ParseMode',
     'PollType',
     'ProfileColor',
