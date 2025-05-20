@@ -265,9 +265,6 @@ class Dispatcher:
 
             log.info("Started %s HandlerTasks", self.client.workers)
 
-            if not self.client.skip_updates:
-                await self.client.recover_gaps()
-
     async def stop(self, clear: bool = True):
         if callable(self.client.stop_handler):
             try:
