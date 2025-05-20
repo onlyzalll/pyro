@@ -222,6 +222,9 @@ class Client(Methods):
         workers: int = WORKERS,
         workdir: str = WORKDIR,
         plugins: dict = None,
+        fetch_replies: Optional[bool] = True,
+        fetch_topics: Optional[bool] = True,
+        fetch_stories: Optional[bool] = True,
         parse_mode: "enums.ParseMode" = enums.ParseMode.DEFAULT,
         no_updates: bool = None,
         takeout: bool = None,
@@ -255,6 +258,9 @@ class Client(Methods):
         self.takeout = takeout
         self.sleep_threshold = sleep_threshold
         self.hide_password = hide_password
+        self.fetch_replies = fetch_replies
+        self.fetch_topics = fetch_topics
+        self.fetch_stories = fetch_stories
         self.max_concurrent_transmissions = max_concurrent_transmissions
 
         self.executor = ThreadPoolExecutor(self.workers, thread_name_prefix="Handler")
