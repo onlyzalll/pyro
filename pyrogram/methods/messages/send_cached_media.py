@@ -193,7 +193,7 @@ class SendCachedMedia:
                 media=utils.get_input_media_from_file_id(file_id, has_spoiler=has_spoiler),
                 silent=disable_notification or None,
                 invert_media=show_caption_above_media,
-                reply_to=await utils.get_reply_to(
+                reply_to=utils.get_reply_to(
                     self,
                     reply_parameters,
                     message_thread_id

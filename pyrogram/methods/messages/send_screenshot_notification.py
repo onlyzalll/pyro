@@ -47,7 +47,7 @@ class SendScreenshotNotification:
         r = await self.invoke(
             raw.functions.messages.SendScreenshotNotification(
                 peer=await self.resolve_peer(chat_id),
-                reply_to=await utils.get_reply_to(self, reply_parameters) if reply_parameters else raw.types.InputReplyToMessage(reply_to_msg_id=0),
+                reply_to=utils.get_reply_to(self, reply_parameters) if reply_parameters else raw.types.InputReplyToMessage(reply_to_msg_id=0),
                 random_id=self.rnd_id()
             )
         )

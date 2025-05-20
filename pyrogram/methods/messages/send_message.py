@@ -224,7 +224,7 @@ class SendMessage:
                 no_webpage=getattr(link_preview_options, "is_disabled", None) or None,
                 silent=disable_notification or None,
                 invert_media=show_caption_above_media or None,
-                reply_to=await utils.get_reply_to(
+                reply_to=utils.get_reply_to(
                     self,
                     reply_parameters,
                     message_thread_id

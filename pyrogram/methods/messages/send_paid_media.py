@@ -357,7 +357,7 @@ class SendPaidMedia:
                     payload=payload
                 ),
                 silent=disable_notification or None,
-                reply_to=await utils.get_reply_to(
+                reply_to=utils.get_reply_to(
                     self,
                     reply_parameters
                 ),

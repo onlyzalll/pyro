@@ -277,7 +277,7 @@ class SendPoll:
                 ),
                 message="",
                 silent=disable_notification,
-                reply_to=await utils.get_reply_to(
+                reply_to=utils.get_reply_to(
                     self,
                     reply_parameters,
                     message_thread_id
