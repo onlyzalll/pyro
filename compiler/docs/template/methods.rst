@@ -12,7 +12,7 @@ the main package directly.
     app = Client("my_account")
 
     with app:
-        app.send_message("me", "hi")
+        app.send_message(chat_id="me", text="hi")
 
 -----
 
@@ -47,6 +47,19 @@ Utilities
 
 .. currentmodule:: pyrogram.Client
 
+Authorization
+-------------
+
+.. autosummary::
+    :nosignatures:
+
+    {authorization}
+
+.. toctree::
+    :hidden:
+
+    {authorization}
+
 Messages
 --------
 
@@ -73,19 +86,6 @@ Chats
 
     {chats}
 
-Users
------
-
-.. autosummary::
-    :nosignatures:
-
-    {users}
-
-.. toctree::
-    :hidden:
-
-    {users}
-
 Invite Links
 ------------
 
@@ -98,6 +98,32 @@ Invite Links
     :hidden:
 
     {invite_links}
+
+Chat Forum Topics
+------------------
+
+.. autosummary::
+    :nosignatures:
+
+    {chat_topics}
+
+.. toctree::
+    :hidden:
+
+    {chat_topics}
+
+Users
+-----
+
+.. autosummary::
+    :nosignatures:
+
+    {users}
+
+.. toctree::
+    :hidden:
+
+    {users}
 
 Contacts
 --------
@@ -138,18 +164,57 @@ Bots
 
     {bots}
 
-Authorization
--------------
+Stickers
+--------
 
 .. autosummary::
     :nosignatures:
 
-    {authorization}
+    {stickers}
 
 .. toctree::
     :hidden:
 
-    {authorization}
+    {stickers}
+
+Stories
+--------
+
+.. autosummary::
+    :nosignatures:
+
+    {stories}
+
+.. toctree::
+    :hidden:
+
+    {stories}
+
+Payments
+---------
+
+.. autosummary::
+    :nosignatures:
+
+    {payments}
+
+.. toctree::
+    :hidden:
+
+    {payments}
+
+Phone
+------
+
+.. autosummary::
+    :nosignatures:
+
+    {phone}
+
+.. toctree::
+    :hidden:
+
+    {phone}
 
 Advanced
 --------
