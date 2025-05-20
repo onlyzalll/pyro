@@ -129,7 +129,7 @@ class Dispatcher:
 
         async def callback_query_parser(update, users, chats):
             return (
-                await pyrogram.types.CallbackQuery._parse(self.client, update, users),
+                await pyrogram.types.CallbackQuery._parse(self.client, update, users, chats),
                 CallbackQueryHandler
             )
 
