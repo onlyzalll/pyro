@@ -1117,30 +1117,6 @@ class Message(Object, Update):
             parsed_message.game_high_score = types.GameHighScore._parse_action(client, message, users)
             parsed_message.service = enums.MessageServiceType.GAME_HIGH_SCORE
 
-            if client.fetch_replies and message.reply_to and replies:
-                try:
-                    parsed_message.reply_to_message = await client.get_messages(
-                        chat_id=parsed_message.chat.id,
-                        message_ids=message.id,
-                        reply=True,
-                        replies=0
-                    )
-                except (MessageIdsEmpty, ChannelPrivate):
-                    pass
-        elif isinstance(action, raw.types.MessageActionPinMessage):
-            parsed_message.service = enums.MessageServiceType.PINNED_MESSAGE
-
-            if client.fetch_replies:
-                try:
-                    parsed_message.pinned_message = await client.get_messages(
-                        chat_id=parsed_message.chat.id,
-                        pinned=True,
-                        replies=0
-                    )
-
-                except (MessageIdsEmpty, ChannelPrivate):
-                    pass
-
         if message.reply_to and message.reply_to.forum_topic:
             parsed_message.topic_message = True
             if message.reply_to.reply_to_top_id:
@@ -1502,7 +1478,7 @@ class Message(Object, Update):
 
                     reply_to_message = client.message_cache[key]
 
-                    if not reply_to_message and client.fetch_replies:
+                    if not reply_to_message:
                         try:
                             reply_to_message = await client.get_messages(
                                 replies=replies - 1,
