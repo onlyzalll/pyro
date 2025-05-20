@@ -57,7 +57,7 @@ class Parser(HTMLParser):
             entity = raw.types.MessageEntityStrike
         elif tag == "blockquote":
             entity = raw.types.MessageEntityBlockquote
-            extra["collapsed"] = bool("expandable" in attrs.keys())
+            extra["collapsed"] = "expandable" in attrs
         elif tag == "code":
             entity = raw.types.MessageEntityCode
         elif tag == "pre":
@@ -117,7 +117,7 @@ class HTML:
     def __init__(self, client: Optional["pyrogram.Client"]):
         self.client = client
 
-    async def parse(self, text: str):
+    async def parse(self, text: str) -> dict:
         # Strip whitespaces from the beginning and the end, but preserve closing tags
         text = re.sub(r"^\s*(<[\w<>=\s\"]*>)\s*", r"\1", text)
         text = re.sub(r"\s*(</[\w</>]*>)\s*$", r"\1", text)
@@ -155,7 +155,7 @@ class HTML:
         }
 
     @staticmethod
-    def unparse(text: str, entities: list):
+    def unparse(text: str, entities: list) -> str:
         def parse_one(entity):
             """
             Parses a single entity and returns (start_tag, start), (end_tag, end)
@@ -180,11 +180,8 @@ class HTML:
                 end_tag = f"</{name}>"
             elif entity_type == MessageEntityType.BLOCKQUOTE:
                 name = entity_type.name.lower()
-                start_tag = f"<{name}>"
-                end_tag = f"</{name}>"
-            elif entity_type == MessageEntityType.EXPANDABLE_BLOCKQUOTE:
-                name = "blockquote"
-                start_tag = f"<{name} expandable>"
+                expandable = getattr(entity, "expandable", False)
+                start_tag = f'<{name}{" expandable" if expandable else ""}>'
                 end_tag = f"</{name}>"
             elif entity_type in (
                 MessageEntityType.CODE,

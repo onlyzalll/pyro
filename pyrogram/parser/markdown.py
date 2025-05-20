@@ -18,7 +18,7 @@
 
 import html
 import re
-from typing import Optional
+from typing import List, Optional, Tuple, Union
 
 import pyrogram
 from pyrogram.enums import MessageEntityType
@@ -34,32 +34,24 @@ SPOILER_DELIM = "||"
 CODE_DELIM = "`"
 PRE_DELIM = "```"
 BLOCKQUOTE_DELIM = ">"
-BLOCKQUOTE_ESCAPE_DELIM = "|>"
 BLOCKQUOTE_EXPANDABLE_DELIM = "**>"
-BLOCKQUOTE_EXPANDABLE_END_DELIM = "<**"
+BLOCKQUOTE_EXPANDABLE_END_DELIM = "||"
 
-
-MARKDOWN_RE = re.compile(
-    r"({d})|(!?)\[(.+?)\]\((.+?)\)".format(
-        d="|".join(
-            [
-                "".join(i)
-                for i in [
-                    [rf"\{j}" for j in i]
-                    for i in [
-                        PRE_DELIM,
-                        CODE_DELIM,
-                        STRIKE_DELIM,
-                        UNDERLINE_DELIM,
-                        ITALIC_DELIM,
-                        BOLD_DELIM,
-                        SPOILER_DELIM,
-                    ]
-                ]
+MARKDOWN_RE = re.compile(r"({d})|(!?)\[(.+?)\]\((.+?)\)".format(
+    d="|".join(
+        ["".join(i) for i in [
+            [rf"\{j}" for j in i]
+            for i in [
+                PRE_DELIM,
+                CODE_DELIM,
+                STRIKE_DELIM,
+                UNDERLINE_DELIM,
+                ITALIC_DELIM,
+                BOLD_DELIM,
+                SPOILER_DELIM
             ]
-        )
-    )
-)
+        ]]
+    )))
 
 OPENING_TAG = "<{}>"
 CLOSING_TAG = "</{}>"
@@ -74,15 +66,15 @@ class Markdown:
 
     @staticmethod
     def escape_and_create_quotes(text: str, strict: bool):
-        text_lines: list[str | None] = text.splitlines()
+        text_lines: List[Union[str, None]] = text.splitlines()
 
         # Indexes of Already escaped lines
-        html_escaped_list: list[int] = []
+        html_escaped_list: List[int] = []
 
         # Temporary Queue to hold lines to be quoted
-        to_quote_list: list[tuple[int, str]] = []
+        to_quote_list: List[Tuple[int, str]] = []
 
-        def create_blockquote(quote_type: str = "") -> None:
+        def create_blockquote(expandable: bool = False) -> None:
             """
             Merges all lines in quote_queue into first line of queue
             Encloses that line in html quote
@@ -95,7 +87,7 @@ class Markdown:
 
             first_line_index, _ = to_quote_list[0]
             text_lines[first_line_index] = (
-                f"<blockquote{quote_type}>{joined_lines}</blockquote>"
+                f"<blockquote{' expandable' if expandable else ''}>{joined_lines}</blockquote>"
             )
 
             for line_to_remove in to_quote_list[1:]:
@@ -107,7 +99,7 @@ class Markdown:
         inside_blockquote = False
         for index, line in enumerate(text_lines):
             if line.startswith(BLOCKQUOTE_EXPANDABLE_DELIM) and not inside_blockquote:
-                delim_stripped_line = line[3:]
+                delim_stripped_line = line[len(BLOCKQUOTE_EXPANDABLE_DELIM) + (1 if line.startswith(f"{BLOCKQUOTE_EXPANDABLE_DELIM} ") else 0) :]
                 parsed_line = (
                     html.escape(delim_stripped_line) if strict else delim_stripped_line
                 )
@@ -119,7 +111,11 @@ class Markdown:
                 continue
 
             elif line.endswith(BLOCKQUOTE_EXPANDABLE_END_DELIM) and inside_blockquote:
-                delim_stripped_line = line[:-3]
+                if line.startswith(BLOCKQUOTE_DELIM):
+                    line = line[len(BLOCKQUOTE_DELIM) + (1 if line.startswith(f"{BLOCKQUOTE_DELIM} ") else 0) :]
+
+                delim_stripped_line = line[:-len(BLOCKQUOTE_EXPANDABLE_END_DELIM)]
+
                 parsed_line = (
                     html.escape(delim_stripped_line) if strict else delim_stripped_line
                 )
@@ -129,25 +125,21 @@ class Markdown:
 
                 inside_blockquote = False
 
-                create_blockquote(quote_type=" expandable")
+                create_blockquote(expandable=True)
 
             if inside_blockquote:
-                parsed_line = html.escape(line) if strict else line
+                parsed_line = line[len(BLOCKQUOTE_DELIM) + (1 if line.startswith(f"{BLOCKQUOTE_DELIM} ") else 0) :]
+                parsed_line = html.escape(parsed_line) if strict else parsed_line
                 to_quote_list.append((index, parsed_line))
                 html_escaped_list.append(index)
 
         # Handle Single line/Continued Quote
         for index, line in enumerate(text_lines):
             if line is None:
-                continue 
-
-            if line.startswith(BLOCKQUOTE_ESCAPE_DELIM):
-                text_lines[index] = line[1:]
-                create_blockquote()
                 continue
 
             if line.startswith(BLOCKQUOTE_DELIM):
-                delim_stripped_line = line[1:]
+                delim_stripped_line = line[len(BLOCKQUOTE_DELIM) + (1 if line.startswith(f"{BLOCKQUOTE_DELIM} ") else 0) :]
                 parsed_line = (
                     html.escape(delim_stripped_line) if strict else delim_stripped_line
                 )
@@ -186,17 +178,13 @@ class Markdown:
                 continue
 
             if not is_emoji and text_url:
-                text = utils.replace_once(
-                    text, full, URL_MARKUP.format(url, text_url), start
-                )
+                text = utils.replace_once(text, full, URL_MARKUP.format(url, text_url), start)
                 continue
 
             if is_emoji:
                 emoji = text_url
                 emoji_id = url.lstrip("tg://emoji?id=")
-                text = utils.replace_once(
-                    text, full, EMOJI_MARKUP.format(emoji_id, emoji), start
-                )
+                text = utils.replace_once(text, full, EMOJI_MARKUP.format(emoji_id, emoji), start)
                 continue
 
             if delim == BOLD_DELIM:
@@ -224,11 +212,9 @@ class Markdown:
                 tag = CLOSING_TAG.format(tag)
 
             if delim == PRE_DELIM and delim in delims:
-                delim_and_language = text[text.find(PRE_DELIM) :].split("\n")[0]
-                language = delim_and_language[len(PRE_DELIM) :]
-                text = utils.replace_once(
-                    text, delim_and_language, f'<pre language="{language}">', start
-                )
+                delim_and_language = text[text.find(PRE_DELIM):].split("\n")[0]
+                language = delim_and_language[len(PRE_DELIM):]
+                text = utils.replace_once(text, delim_and_language, f'<pre language="{language}">', start)
                 continue
 
             text = utils.replace_once(text, delim, tag, start)
@@ -269,26 +255,13 @@ class Markdown:
                 for line in lines:
                     if len(line) == 0 and last_length == end:
                         continue
-                    start_offset = start + last_length
-                    last_length = last_length + len(line)
-                    end_offset = start_offset + last_length
-                    entities_offsets.append(
-                        (
-                            start_tag,
-                            start_offset,
-                        )
-                    )
-                    entities_offsets.append(
-                        (
-                            end_tag,
-                            end_offset,
-                        )
-                    )
-                    last_length = last_length + 1
+                    start_offset = start+last_length
+                    last_length = last_length+len(line)
+                    end_offset = start_offset+last_length
+                    entities_offsets.append((start_tag, start_offset,))
+                    entities_offsets.append((end_tag, end_offset,))
+                    last_length = last_length+1
                 continue
-            elif entity_type == MessageEntityType.EXPANDABLE_BLOCKQUOTE:
-                start_tag = BLOCKQUOTE_EXPANDABLE_DELIM + " "
-                end_tag = " " + BLOCKQUOTE_EXPANDABLE_END_DELIM
             elif entity_type == MessageEntityType.SPOILER:
                 start_tag = end_tag = SPOILER_DELIM
             elif entity_type == MessageEntityType.TEXT_LINK:
@@ -306,24 +279,16 @@ class Markdown:
             else:
                 continue
 
-            entities_offsets.append(
-                (
-                    start_tag,
-                    start,
-                )
-            )
-            entities_offsets.append(
-                (
-                    end_tag,
-                    end,
-                )
-            )
+            entities_offsets.append((start_tag, start,))
+            entities_offsets.append((end_tag, end,))
 
         entities_offsets = map(
             lambda x: x[1],
             sorted(
-                enumerate(entities_offsets), key=lambda x: (x[1][1], x[0]), reverse=True
-            ),
+                enumerate(entities_offsets),
+                key=lambda x: (x[1][1], x[0]),
+                reverse=True
+            )
         )
 
         for entity, offset in entities_offsets:
