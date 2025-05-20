@@ -65,9 +65,19 @@ class Dispatcher:
         self.groups = OrderedDict()
 
         async def message_parser(update, users, chats):
+            connection_id = getattr(update, "connection_id", None)
+
             return (
-                await pyrogram.types.Message._parse(self.client, update.message, users, chats, None,
-                                                    isinstance(update, UpdateNewScheduledMessage)),
+                await pyrogram.types.Message._parse(
+                    self.client,
+                    update.message,
+                    users,
+                    chats,
+                    is_scheduled=isinstance(update, UpdateNewScheduledMessage),
+                    replies=0 if getattr(update, "connection_id", None) else 1,
+                    business_connection_id=connection_id,
+                    raw_reply_to_message=getattr(update, "reply_to_message", None)
+                ),
                 MessageHandler
             )
 
@@ -133,6 +143,39 @@ class Dispatcher:
                 await pyrogram.types.Story._parse(self.client, update.story, users, chats, update.peer),
                 StoryHandler
             )
+            
+        async def business_connection_parser(update, users, chats):
+            return (
+                pyrogram.types.BusinessConnection._parse(self.client, update, users),
+                BusinessConnectionHandler
+            )
+
+        async def business_message_parser(update, users, chats):
+            # Business messages are parsed the same way as regular messages, but the handler is different
+            parsed, _ = await message_parser(update, users, chats)
+
+            return (
+                parsed,
+                BusinessMessageHandler
+            )
+
+        async def edited_business_message_parser(update, users, chats):
+            # Edited messages are parsed the same way as regular messages, but the handler is different
+            parsed, _ = await message_parser(update, users, chats)
+
+            return (
+                parsed,
+                EditedBusinessMessageHandler
+            )
+
+        async def deleted_business_messages_parser(update, users, chats):
+            # Deleted messages are parsed the same way as regular messages, but the handler is different
+            parsed, _ = await deleted_messages_parser(update, users, chats)
+
+            return (
+                parsed,
+                DeletedBusinessMessagesHandler,
+            )
 
         self.update_parsers = {
             Dispatcher.NEW_MESSAGE_UPDATES: message_parser,
@@ -146,6 +189,10 @@ class Dispatcher:
             Dispatcher.CHAT_MEMBER_UPDATES: chat_member_updated_parser,
             Dispatcher.CHAT_JOIN_REQUEST_UPDATES: chat_join_request_parser,
             Dispatcher.NEW_STORY_UPDATES: story_parser
+            Dispatcher.BUSINESS_CONNECTION_UPDATES: business_connection_parser,
+            Dispatcher.NEW_BUSINESS_MESSAGE_UPDATES: business_message_parser,
+            Dispatcher.EDITED_BUSINESS_MESSAGE_UPDATES: edited_business_message_parser,
+            Dispatcher.DELETED_BUSINESS_MESSAGES_UPDATES: deleted_business_messages_parser
         }
 
         self.update_parsers = {key: value for key_tuple, value in self.update_parsers.items() for key in key_tuple}
