@@ -42,6 +42,9 @@ from pyrogram.handlers import (
     UserStatusHandler
 )
 from pyrogram.raw.types import (
+    UpdateBotNewBusinessMessage,
+    UpdateBotEditBusinessMessage,
+    UpdateBotDeleteBusinessMessage,
     UpdateBotBusinessConnect,
     UpdateBotCallbackQuery,
     UpdateBotChatInviteRequester,
