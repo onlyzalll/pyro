@@ -18,23 +18,37 @@
 
 from .animation import Animation
 from .audio import Audio
+from .available_effect import AvailableEffect
 from .boosts_status import BoostsStatus
+from .business_message import BusinessMessage
+from .chat_background import ChatBackground
+from .chat_boost import ChatBoost
+from .chat_theme import ChatTheme
+from .checked_gift_code import CheckedGiftCode
+from .contact_registered import ContactRegistered
 from .contact import Contact
 from .dice import Dice
 from .document import Document
 from .external_reply_info import ExternalReplyInfo
+from .fact_check import FactCheck
 from .forum_topic import ForumTopic
 from .forum_topic_closed import ForumTopicClosed
 from .forum_topic_created import ForumTopicCreated
 from .forum_topic_edited import ForumTopicEdited
 from .forum_topic_reopened import ForumTopicReopened
-from .fact_check import FactCheck
 from .game import Game
-from .general_forum_topic_hidden import GeneralTopicHidden
-from .general_forum_topic_unhidden import GeneralTopicUnhidden
-from .giveaway import Giveaway
+from .general_forum_topic_hidden import GeneralForumTopicHidden
+from .general_forum_topic_unhidden import GeneralForumTopicUnhidden
+from .gift_code import GiftCode
+from .invoice import Invoice
 from .link_preview_options import LinkPreviewOptions
+from .giveaway import Giveaway
+from .giveaway_completed import GiveawayCompleted
+from .giveaway_created import GiveawayCreated
+from .giveaway_prize_stars import GiveawayPrizeStars
+from .giveaway_winners import GiveawayWinners
 from .location import Location
+from .media_area import MediaArea
 from .message import Message
 from .message_entity import MessageEntity
 from .message_origin import MessageOrigin
@@ -44,48 +58,78 @@ from .message_origin_hidden_user import MessageOriginHiddenUser
 from .message_origin_import import MessageOriginImport
 from .message_origin_user import MessageOriginUser
 from .message_reactions import MessageReactions
-from .message_story import MessageStory
 from .my_boost import MyBoost
+from .paid_media_info import PaidMediaInfo
+from .paid_media_preview import PaidMediaPreview
+from .paid_messages_price_changed import PaidMessagesPriceChanged
+from .paid_messages_refunded import PaidMessagesRefunded
+from .payment_form import PaymentForm
 from .photo import Photo
 from .poll import Poll
+from .proximity_alert_triggered import ProximityAlertTriggered
 from .poll_option import PollOption
 from .reaction import Reaction
+from .refunded_payment import RefundedPayment
+from .reply_parameters import ReplyParameters
+from .restriction_reason import RestrictionReason
+from .screenshot_taken import ScreenshotTaken
+from .gift_attribute import GiftAttribute
+from .gift import Gift
+from .gifted_premium import GiftedPremium
+from .gifted_stars import GiftedStars
 from .sticker import Sticker
+from .story_view import StoryView
 from .story import Story
-from .story_deleted import StoryDeleted
-from .story_skipped import StorySkipped
-from .story_views import StoryViews
 from .stripped_thumbnail import StrippedThumbnail
+from .successful_payment import SuccessfulPayment
 from .text_quote import TextQuote
 from .thumbnail import Thumbnail
-from .translated_text import TranslatedText
+from .upgraded_gift_attribute_id_backdrop import UpgradedGiftAttributeIdBackdrop
+from .upgraded_gift_attribute_id_model import UpgradedGiftAttributeIdModel
+from .upgraded_gift_attribute_id_symbol import UpgradedGiftAttributeIdSymbol
+from .upgraded_gift_attribute_id import UpgradedGiftAttributeId
 from .venue import Venue
 from .video import Video
 from .video_note import VideoNote
 from .voice import Voice
 from .web_app_data import WebAppData
 from .web_page import WebPage
+from .write_access_allowed import WriteAccessAllowed
 
 __all__ = [
     "Animation",
     "Audio",
+    "AvailableEffect",
     "BoostsStatus",
+    "BusinessMessage",
+    "ChatBackground",
+    "ChatBoost",
+    "ChatTheme",
+    "CheckedGiftCode",
+    "ContactRegistered",
     "Contact",
     "Dice",
     "Document",
     "ExternalReplyInfo",
+    "FactCheck",
     "ForumTopic",
     "ForumTopicClosed",
     "ForumTopicCreated",
     "ForumTopicEdited",
     "ForumTopicReopened",
-    "FactCheck",
     "Game",
-    "GeneralTopicHidden",
-    "GeneralTopicUnhidden",
+    "GeneralForumTopicHidden",
+    "GeneralForumTopicUnhidden",
+    "GiftCode",
     "Giveaway",
+    "Invoice",
     "LinkPreviewOptions",
+    "GiveawayCompleted",
+    "GiveawayCreated",
+    "GiveawayPrizeStars",
+    "GiveawayWinners",
     "Location",
+    "MediaArea",
     "Message",
     "MessageEntity",
     "MessageOrigin",
@@ -95,25 +139,41 @@ __all__ = [
     "MessageOriginImport",
     "MessageOriginUser",
     "MessageReactions",
-    "MessageStory",
     "MyBoost",
+    "PaidMediaInfo",
+    "PaidMediaPreview",
+    "PaidMessagesPriceChanged",
+    "PaidMessagesRefunded",
+    "PaymentForm",
     "Photo",
     "Poll",
+    "ProximityAlertTriggered",
     "PollOption",
     "Reaction",
+    "RefundedPayment",
+    "ReplyParameters",
+    "RestrictionReason",
+    "ScreenshotTaken",
+    "GiftAttribute",
+    "Gift",
+    "GiftedPremium",
+    "GiftedStars",
     "Sticker",
+    "StoryView",
     "Story",
-    "StoryDeleted",
-    "StorySkipped",
-    "StoryViews",
     "StrippedThumbnail",
+    "SuccessfulPayment",
     "TextQuote",
     "Thumbnail",
-    "TranslatedText",
+    "UpgradedGiftAttributeIdBackdrop",
+    "UpgradedGiftAttributeIdModel",
+    "UpgradedGiftAttributeIdSymbol",
+    "UpgradedGiftAttributeId",
     "Venue",
     "Video",
     "VideoNote",
     "Voice",
     "WebAppData",
-    "WebPage"
+    "WebPage",
+    "WriteAccessAllowed",
 ]
