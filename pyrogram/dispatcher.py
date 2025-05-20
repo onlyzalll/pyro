@@ -188,7 +188,7 @@ class Dispatcher:
             Dispatcher.CHOSEN_INLINE_RESULT_UPDATES: chosen_inline_result_parser,
             Dispatcher.CHAT_MEMBER_UPDATES: chat_member_updated_parser,
             Dispatcher.CHAT_JOIN_REQUEST_UPDATES: chat_join_request_parser,
-            Dispatcher.NEW_STORY_UPDATES: story_parser
+            Dispatcher.NEW_STORY_UPDATES: story_parser,
             Dispatcher.BUSINESS_CONNECTION_UPDATES: business_connection_parser,
             Dispatcher.NEW_BUSINESS_MESSAGE_UPDATES: business_message_parser,
             Dispatcher.EDITED_BUSINESS_MESSAGE_UPDATES: edited_business_message_parser,
