@@ -53,6 +53,10 @@ class Dispatcher:
     CHOSEN_INLINE_RESULT_UPDATES = (UpdateBotInlineSend,)
     CHAT_JOIN_REQUEST_UPDATES = (UpdateBotChatInviteRequester,)
     NEW_STORY_UPDATES = (UpdateStory,)
+    BUSINESS_CONNECTION_UPDATES = (UpdateBotBusinessConnect,)
+    NEW_BUSINESS_MESSAGE_UPDATES = (UpdateBotNewBusinessMessage,)
+    EDITED_BUSINESS_MESSAGE_UPDATES = (UpdateBotEditBusinessMessage,)
+    DELETED_BUSINESS_MESSAGES_UPDATES = (UpdateBotDeleteBusinessMessage,)
 
     def __init__(self, client: "pyrogram.Client"):
         self.client = client
