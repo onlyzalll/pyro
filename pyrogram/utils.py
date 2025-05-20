@@ -396,7 +396,7 @@ def get_reply_to(
 
             if reply_parameters.quote:
                 message, entities = (
-                    await parse_text_entities(
+                    parse_text_entities(
                         client,
                         reply_parameters.quote,
                         reply_parameters.quote_parse_mode,
