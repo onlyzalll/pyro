@@ -18,7 +18,7 @@
 
 import html
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import List, Optional
 
 import pyrogram
 from pyrogram import enums, utils
@@ -100,26 +100,23 @@ class User(Object, Update):
         is_premium (``bool``, *optional*):
             True, if this user is a premium user.
 
-        is_contact_require_premium (``bool``, *optional*):
-            True, if this user requires premium to send messages to him.
-
-        is_close_friend (``bool``, *optional*):
+        is_close_friend (``bool``):
             True, if this user is a close friend.
 
-        is_stories_hidden (``bool``, *optional*):
+        is_stories_hidden (``bool``):
             True, if this user has hidden stories.
 
-        is_stories_unavailable (``bool``, *optional*):
-            True, if this user stories is unavailable.
-
-        is_business_bot (``bool``, *optional*):
-            True, if this bot can connect to business account.
+        is_stories_unavailable (``bool``):
+            True, if this chat stories is unavailable.
 
         first_name (``str``, *optional*):
             User's or bot's first name.
 
         last_name (``str``, *optional*):
             User's or bot's last name.
+
+        full_name (``str``, *property*):
+            Full name of the other party in a private chat, for private chats and bots.
 
         status (:obj:`~pyrogram.enums.UserStatus`, *optional*):
             User's last seen & online status. ``None``, for bots.
@@ -158,53 +155,17 @@ class User(Object, Update):
             The list of reasons why this bot might be unavailable to some users.
             This field is available only in case *is_restricted* is True.
 
-        reply_color (:obj:`~pyrogram.types.ChatColor`, *optional*):
-            Chat reply color.
-
-        profile_color (:obj:`~pyrogram.types.ChatColor`, *optional*):
-            Chat profile color.
-
-        added_to_attachment_menu (``bool``, *optional*):
-            True, if this user added the bot to the attachment menu.
-
-        active_users_count (``int``, *optional*):
-            The number of recently (monthly) active users of the bot.
-
-        inline_need_location (``bool``, *optional*):
-            True, if the bot supports inline `user location <https://core.telegram.org/bots/inline#location-based-results>`_ requests. Returned only in get_me.
-
-        inline_query_placeholder (``str``, *optional*):
-            Placeholder for inline queries (displayed on the application input field).
-
-        can_be_edited (``bool``, *optional*):
-            True, if the current user can edit this bot's profile picture.
-
-        can_be_added_to_attachment_menu (``bool``, *optional*):
-            True, if the bot can be added to attachment or side menu.
-
-        can_join_groups (``bool``, *optional*):
-            True, if the bot can be invited to groups. Returned only in get_me.
-
-        can_read_all_group_messages (``bool``, *optional*):
-            True, if privacy mode is disabled for the bot. Returned only in get_me.
-
-        has_main_web_app (``bool``, *optional*):
-            True, if the bot has a main Web App. Returned only in get_me.
-
-        paid_message_star_count (``int``, *optional*):
-            Number of Telegram Stars that must be paid by user for each sent message to the user.
-
-        raw (:obj:`~pyrogram.raw.base.User` | :obj:`~pyrogram.raw.base.UserStatus`, *optional*):
-            The raw user or user status object, as received from the Telegram API.
-
         mention (``str``, *property*):
             Generate a text mention for this user.
             You can use ``user.mention()`` to mention the user using their first name (styled using html), or
             ``user.mention("another name")`` for a custom name. To choose a different style
             ("html" or "md"/"markdown") use ``user.mention(style="md")``.
 
-        full_name (``str``, *property*):
-            Full name of the other party in a private chat, for private chats and bots.
+        color (``int``, *optional*)
+            Chat color.
+
+        background_emoji_id (``int``, *optional*)
+            Chat background emoji id.
     """
 
     def __init__(
@@ -223,11 +184,9 @@ class User(Object, Update):
         is_fake: bool = None,
         is_support: bool = None,
         is_premium: bool = None,
-        is_contact_require_premium: bool = None,
         is_close_friend: bool = None,
         is_stories_hidden: bool = None,
         is_stories_unavailable: bool = None,
-        is_business_bot: bool = None,
         first_name: str = None,
         last_name: str = None,
         status: "enums.UserStatus" = None,
@@ -241,19 +200,8 @@ class User(Object, Update):
         phone_number: str = None,
         photo: "types.ChatPhoto" = None,
         restrictions: List["types.Restriction"] = None,
-        reply_color: "types.ChatColor" = None,
-        profile_color: "types.ChatColor" = None,
-        added_to_attachment_menu: bool = None,
-        active_users_count: int = None,
-        inline_need_location: bool = None,
-        inline_query_placeholder: str = None,
-        can_be_edited: bool = None,
-        can_be_added_to_attachment_menu: bool = None,
-        can_join_groups: bool = None,
-        can_read_all_group_messages: bool = None,
-        has_main_web_app: bool = None,
-        paid_message_star_count: int = None,
-        raw: Union["raw.base.User", "raw.base.UserStatus"] = None
+        color: int = None,
+        background_emoji_id: int = None
     ):
         super().__init__(client)
 
@@ -269,11 +217,9 @@ class User(Object, Update):
         self.is_fake = is_fake
         self.is_support = is_support
         self.is_premium = is_premium
-        self.is_contact_require_premium = is_contact_require_premium
         self.is_close_friend = is_close_friend
         self.is_stories_hidden = is_stories_hidden
         self.is_stories_unavailable = is_stories_unavailable
-        self.is_business_bot = is_business_bot
         self.first_name = first_name
         self.last_name = last_name
         self.status = status
@@ -287,19 +233,8 @@ class User(Object, Update):
         self.phone_number = phone_number
         self.photo = photo
         self.restrictions = restrictions
-        self.reply_color = reply_color
-        self.profile_color = profile_color
-        self.added_to_attachment_menu = added_to_attachment_menu
-        self.active_users_count = active_users_count
-        self.inline_need_location = inline_need_location
-        self.inline_query_placeholder = inline_query_placeholder
-        self.can_be_edited = can_be_edited
-        self.can_be_added_to_attachment_menu = can_be_added_to_attachment_menu
-        self.can_join_groups = can_join_groups
-        self.can_read_all_group_messages = can_read_all_group_messages
-        self.has_main_web_app = has_main_web_app
-        self.paid_message_star_count = paid_message_star_count
-        self.raw = raw
+        self.color = color
+        self.background_emoji_id = background_emoji_id
 
     @property
     def full_name(self) -> str:
@@ -331,15 +266,13 @@ class User(Object, Update):
             is_fake=user.fake,
             is_support=user.support,
             is_premium=user.premium,
-            is_contact_require_premium=user.contact_require_premium,
             is_close_friend=user.close_friend,
             is_stories_hidden=user.stories_hidden,
             is_stories_unavailable=user.stories_unavailable,
-            is_business_bot=user.bot_business,
             first_name=user.first_name,
             last_name=user.last_name,
             **User._parse_status(user.status, user.bot),
-            username=user.username or (user.usernames[0].username if user.usernames else None),
+            username=user.username,
             usernames=types.List([types.Username._parse(r) for r in user.usernames]) or None,
             language_code=user.lang_code,
             emoji_status=types.EmojiStatus._parse(client, user.emoji_status),
@@ -347,19 +280,8 @@ class User(Object, Update):
             phone_number=user.phone,
             photo=types.ChatPhoto._parse(client, user.photo, user.id, user.access_hash),
             restrictions=types.List([types.Restriction._parse(r) for r in user.restriction_reason]) or None,
-            reply_color=types.ChatColor._parse(getattr(user, "color", None)),
-            profile_color=types.ChatColor._parse_profile_color(getattr(user, "profile_color", None)),
-            added_to_attachment_menu=getattr(user, "attach_menu_enabled", None),
-            active_users_count=getattr(user, "bot_active_users", None),
-            inline_need_location=getattr(user, "bot_inline_geo", None),
-            inline_query_placeholder=getattr(user, "bot_inline_placeholder", None),
-            can_be_edited=getattr(user, "bot_can_edit", None),
-            can_be_added_to_attachment_menu=getattr(user, "bot_attach_menu", None),
-            can_join_groups=getattr(user, "bot_nochats", None),
-            can_read_all_group_messages=getattr(user, "bot_chat_history", None),
-            has_main_web_app=getattr(user, "bot_has_main_app", None),
-            paid_message_star_count=getattr(user, "send_paid_messages_stars", None),
-            raw=user,
+            color=getattr(user, "color", None),
+            background_emoji_id=getattr(user, "background_emoji_id", None),
             client=client
         )
 
@@ -401,7 +323,6 @@ class User(Object, Update):
         return User(
             id=user_status.user_id,
             **User._parse_status(user_status.status),
-            raw=user_status,
             client=client
         )
 
@@ -451,7 +372,7 @@ class User(Object, Update):
 
         return await self._client.unarchive_chats(self.id)
 
-    async def block(self):
+    def block(self):
         """Bound method *block* of :obj:`~pyrogram.types.User`.
 
         Use as a shortcut for:
@@ -472,21 +393,21 @@ class User(Object, Update):
             RPCError: In case of a Telegram RPC error.
         """
 
-        return await self._client.block_user(self.id)
+        return self._client.block_user(self.id)
 
-    async def unblock(self):
+    def unblock(self):
         """Bound method *unblock* of :obj:`~pyrogram.types.User`.
 
         Use as a shortcut for:
 
         .. code-block:: python
 
-            await client.unblock_user(123456789)
+            client.unblock_user(123456789)
 
         Example:
             .. code-block:: python
 
-                await user.unblock()
+                user.unblock()
 
         Returns:
             True on success.
@@ -495,27 +416,27 @@ class User(Object, Update):
             RPCError: In case of a Telegram RPC error.
         """
 
-        return await self._client.unblock_user(self.id)
+        return self._client.unblock_user(self.id)
 
-    async def get_common_chats(self):
+    def get_common_chats(self):
         """Bound method *get_common_chats* of :obj:`~pyrogram.types.User`.
 
         Use as a shortcut for:
 
         .. code-block:: python
 
-            await client.get_common_chats(123456789)
+            client.get_common_chats(123456789)
 
         Example:
             .. code-block:: python
 
-                await user.get_common_chats()
+                user.get_common_chats()
 
         Returns:
-            List of :obj:`~pyrogram.types.Chat`: On success, a list of the common chats is returned.
+            True on success.
 
         Raises:
             RPCError: In case of a Telegram RPC error.
         """
 
-        return await self._client.get_common_chats(self.id)
+        return self._client.get_common_chats(self.id)
