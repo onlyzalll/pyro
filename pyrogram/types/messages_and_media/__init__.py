@@ -48,7 +48,6 @@ from .poll import Poll
 from .poll_option import PollOption
 from .reaction import Reaction
 from .sticker import Sticker
-from .stickerset import StickerSet
 from .story import Story
 from .story_deleted import StoryDeleted
 from .story_skipped import StorySkipped
@@ -94,7 +93,6 @@ __all__ = [
     "Poll",
     "PollOption",
     "Sticker",
-    "StickerSet",
     "Venue",
     "Video",
     "VideoNote",
