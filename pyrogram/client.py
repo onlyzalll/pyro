@@ -32,7 +32,7 @@ from importlib import import_module
 from io import BytesIO, StringIO
 from mimetypes import MimeTypes
 from pathlib import Path
-from typing import AsyncGenerator, Callable, List, Optional, Union
+from typing import AsyncGenerator, Callable, List, Optional, Union, Type
 
 import pyrogram
 from pyrogram import __license__, __version__, enums, raw, utils
