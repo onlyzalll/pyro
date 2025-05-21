@@ -227,6 +227,8 @@ class Client(Methods):
         takeout: bool = None,
         sleep_threshold: int = Session.SLEEP_THRESHOLD,
         hide_password: bool = False,
+        connection_factory: Type[Connection] = Connection,
+        protocol_factory: Type[TCP] = TCPAbridged,
         max_concurrent_transmissions: int = MAX_CONCURRENT_TRANSMISSIONS,
     ):
         super().__init__()
@@ -255,6 +257,8 @@ class Client(Methods):
         self.takeout = takeout
         self.sleep_threshold = sleep_threshold
         self.hide_password = hide_password
+        self.connection_factory = connection_factory
+        self.protocol_factory = protocol_factory
         self.max_concurrent_transmissions = max_concurrent_transmissions
 
         self.executor = ThreadPoolExecutor(self.workers, thread_name_prefix="Handler")
