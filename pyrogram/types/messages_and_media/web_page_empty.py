@@ -16,39 +16,39 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+import pyrogram
 from pyrogram import raw
-
+from pyrogram import types
 from ..object import Object
 
 
-class ForumTopicEdited(Object):
-    """A service message about a forum topic renamed in the chat.
-
+class WebPageEmpty(Object):
+    # TODO: hash, cached_page
+    """A webpage preview
 
     Parameters:
-        title (``String``):
-            Name of the topic.
+        id (``str``):
+            Unique identifier for this webpage.
 
-        icon_color (``Integer``):
-            Color of the topic icon in RGB format
-
-        icon_custom_emoji_id (``String``, *optional*):
-            Unique identifier of the custom emoji shown as the topic icon
+        url (``str``):
+            Full URL for this webpage.
     """
 
     def __init__(
-        self, *, title: str = None, icon_color: int = None, icon_emoji_id: str = None
+        self,
+        *,
+        id: str,
+        url: str
     ):
         super().__init__()
 
-        self.title = title
-        self.icon_color = icon_color
-        self.icon_emoji_id = icon_emoji_id
+        self.id = id
+        self.url = url
 
     @staticmethod
-    def _parse(action: "raw.types.MessageActionTopicEdit") -> "ForumTopicEdited":
-        return ForumTopicEdited(
-            title=getattr(action, "title", None),
-            icon_color=getattr(action, "icon_color", None),
-            icon_emoji_id=getattr(action, "icon_emoji_id", None),
+    def _parse(webpage: "raw.types.WebPageEmpty") -> "WebPageEmpty":
+
+        return WebPageEmpty(
+            id=str(webpage.id),
+            url=webpage.url
         )

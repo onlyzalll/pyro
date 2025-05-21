@@ -16,36 +16,38 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-import pyrogram
+from pyrogram import raw, types
 
 from ..object import Object
+from .message import Str
 
 
-class PollOption(Object):
-    """Contains information about one answer option in a poll.
+class TranslatedText(Object):
+    """A translated text with entities.
 
     Parameters:
         text (``str``):
-            Option text, 1-100 characters.
+            Translated text.
 
-        voter_count (``int``):
-            Number of users that voted for this option.
-            Equals to 0 until you vote.
-
-        data (``bytes``):
-            The data this poll option is holding.
+        entities (List of :obj:`~pyrogram.types.MessageEntity`, *optional*):
+            Entities of the text.
     """
 
-    def __init__(
-        self,
-        *,
-        client: "pyrogram.Client" = None,
-        text: str,
-        voter_count: int,
-        data: bytes
-    ):
-        super().__init__(client)
-
+    def __init__(self, *, text: str, entities: list["types.MessageEntity"] = None):
         self.text = text
-        self.voter_count = voter_count
-        self.data = data
+        self.entities = entities
+
+    @staticmethod
+    def _parse(
+        client, translate_result: "raw.types.TextWithEntities"
+    ) -> "TranslatedText":
+        entities = [
+            types.MessageEntity._parse(client, entity, {})
+            for entity in translate_result.entities
+        ]
+        entities = types.List(filter(lambda x: x is not None, entities))
+
+        return TranslatedText(
+            text=Str(translate_result.text).init(entities) or None,
+            entities=entities or None,
+        )
