@@ -296,7 +296,7 @@ class Client(Methods):
         # after some idle time has been detected.
         self.updates_watchdog_task = None
         self.updates_watchdog_event = asyncio.Event()
-        self.last_update_time = datetime.now()}
+        self.last_update_time = datetime.now()
 
         self.loop = asyncio.get_event_loop()
 
