@@ -27,4 +27,3 @@ from .input_media import *
 from .input_message_content import *
 from .messages_and_media import *
 from .user_and_chats import *
-from .pyromod import *
