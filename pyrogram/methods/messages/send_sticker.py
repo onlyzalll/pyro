@@ -36,6 +36,7 @@ class SendSticker:
         self: "pyrogram.Client",
         chat_id: Union[int, str],
         sticker: Union[str, BinaryIO],
+        emoji: str = "",
         disable_notification: bool = None,
         message_thread_id: int = None,
         reply_to_message_id: int = None,
@@ -155,7 +156,11 @@ class SendSticker:
                         mime_type=self.guess_mime_type(sticker) or "image/webp",
                         file=file,
                         attributes=[
-                            raw.types.DocumentAttributeFilename(file_name=os.path.basename(sticker))
+                            raw.types.DocumentAttributeFilename(file_name=os.path.basename(sticker)),
+                            raw.types.DocumentAttributeSticker(
+                                alt=emoji,
+                                stickerset=raw.types.InputStickerSetEmpty()
+                            ),
                         ]
                     )
                 elif re.match("^https?://", sticker):
@@ -170,7 +175,11 @@ class SendSticker:
                     mime_type=self.guess_mime_type(sticker.name) or "image/webp",
                     file=file,
                     attributes=[
-                        raw.types.DocumentAttributeFilename(file_name=sticker.name)
+                        raw.types.DocumentAttributeFilename(file_name=sticker.name),
+                        raw.types.DocumentAttributeSticker(
+                            alt=emoji,
+                            stickerset=raw.types.InputStickerSetEmpty()
+                        ),
                     ]
                 )
 
