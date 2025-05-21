@@ -16,10 +16,12 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List, Optional, Union
+from typing import Union, List, Optional
 
 import pyrogram
-from pyrogram import enums, raw, types, utils
+from pyrogram import raw, enums
+from pyrogram import types
+from pyrogram import utils
 
 
 class EditMessageText:
@@ -31,7 +33,7 @@ class EditMessageText:
         parse_mode: Optional["enums.ParseMode"] = None,
         entities: List["types.MessageEntity"] = None,
         disable_web_page_preview: bool = None,
-        reply_markup: "types.InlineKeyboardMarkup" = None,
+        reply_markup: "types.InlineKeyboardMarkup" = None
     ) -> "types.Message":
         """Edit the text of messages.
 
@@ -88,12 +90,9 @@ class EditMessageText:
         )
 
         for i in r.updates:
-            if isinstance(
-                i, (raw.types.UpdateEditMessage, raw.types.UpdateEditChannelMessage)
-            ):
+            if isinstance(i, (raw.types.UpdateEditMessage, raw.types.UpdateEditChannelMessage)):
                 return await types.Message._parse(
-                    self,
-                    i.message,
+                    self, i.message,
                     {i.id: i for i in r.users},
-                    {i.id: i for i in r.chats},
+                    {i.id: i for i in r.chats}
                 )

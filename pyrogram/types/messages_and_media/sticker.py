@@ -1,30 +1,29 @@
-#  Pyrofork - Telegram MTProto API Client Library for Python
+#  Pyrogram - Telegram MTProto API Client Library for Python
 #  Copyright (C) 2017-present Dan <https://github.com/delivrance>
-#  Copyright (C) 2022-present Mayuri-Chan <https://github.com/Mayuri-Chan>
 #
-#  This file is part of Pyrofork.
+#  This file is part of Pyrogram.
 #
-#  Pyrofork is free software: you can redistribute it and/or modify
+#  Pyrogram is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Lesser General Public License as published
 #  by the Free Software Foundation, either version 3 of the License, or
 #  (at your option) any later version.
 #
-#  Pyrofork is distributed in the hope that it will be useful,
+#  Pyrogram is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU Lesser General Public License for more details.
 #
 #  You should have received a copy of the GNU Lesser General Public License
-#  along with Pyrofork.  If not, see <http://www.gnu.org/licenses/>.
+#  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import datetime
-from typing import Dict, List, Type
+from typing import List, Dict, Type
 
 import pyrogram
-from pyrogram import raw, types, utils
+from pyrogram import raw, utils
+from pyrogram import types
 from pyrogram.errors import StickersetInvalid
 from pyrogram.file_id import FileId, FileType, FileUniqueId, FileUniqueType
-
 from ..object import Object
 
 
@@ -50,13 +49,6 @@ class Sticker(Object):
 
         is_video (``bool``):
             True, if the sticker is a video sticker
-
-        needs_repainting (``bool``, *optional*):
-            True, if the sticker needs repainting.
-            if the sticker can repainted to a text color in messages,
-            the color of the Telegram Premium badge in emoji status,
-            white color on chat photos, or another appropriate color in other places.
-            Only applicable to custom emoji stickers.
 
         file_name (``str``, *optional*):
             Sticker file name.
@@ -92,7 +84,6 @@ class Sticker(Object):
         height: int,
         is_animated: bool,
         is_video: bool,
-        needs_repainting: bool = False,
         file_name: str = None,
         mime_type: str = None,
         file_size: int = None,
@@ -113,7 +104,6 @@ class Sticker(Object):
         self.height = height
         self.is_animated = is_animated
         self.is_video = is_video
-        self.needs_repainting = needs_repainting
         self.emoji = emoji
         self.set_name = set_name
         self.thumbs = thumbs
@@ -132,21 +122,20 @@ class Sticker(Object):
             if name is not None:
                 return name
 
-            name = (
-                await invoke(
-                    raw.functions.messages.GetStickerSet(
-                        stickerset=raw.types.InputStickerSetID(
-                            id=set_id, access_hash=set_access_hash
-                        ),
-                        hash=0,
-                    )
+            name = (await invoke(
+                raw.functions.messages.GetStickerSet(
+                    stickerset=raw.types.InputStickerSetID(
+                        id=set_id,
+                        access_hash=set_access_hash
+                    ),
+                    hash=0
                 )
-            ).set.short_name
+            )).set.short_name
 
             Sticker.cache[(set_id, set_access_hash)] = name
 
             if len(Sticker.cache) > 250:
-                for _ in range(50):
+                for i in range(50):
                     Sticker.cache.pop(next(iter(Sticker.cache)))
 
             return name
@@ -157,9 +146,7 @@ class Sticker(Object):
     async def _parse(
         client,
         sticker: "raw.types.Document",
-        document_attributes: Dict[
-            Type["raw.base.DocumentAttribute"], "raw.base.DocumentAttribute"
-        ],
+        document_attributes: Dict[Type["raw.base.DocumentAttribute"], "raw.base.DocumentAttribute"],
     ) -> "Sticker":
         sticker_attributes = (
             document_attributes[raw.types.DocumentAttributeSticker]
@@ -167,32 +154,17 @@ class Sticker(Object):
             else document_attributes[raw.types.DocumentAttributeCustomEmoji]
         )
 
-        image_size_attributes = document_attributes.get(
-            raw.types.DocumentAttributeImageSize, None
-        )
-        file_name = getattr(
-            document_attributes.get(raw.types.DocumentAttributeFilename, None),
-            "file_name",
-            None,
-        )
-        video_attributes = document_attributes.get(
-            raw.types.DocumentAttributeVideo, None
-        )
+        image_size_attributes = document_attributes.get(raw.types.DocumentAttributeImageSize, None)
+        file_name = getattr(document_attributes.get(raw.types.DocumentAttributeFilename, None), "file_name", None)
+        video_attributes = document_attributes.get(raw.types.DocumentAttributeVideo, None)
 
         sticker_set = sticker_attributes.stickerset
 
         if isinstance(sticker_set, raw.types.InputStickerSetID):
             input_sticker_set_id = (sticker_set.id, sticker_set.access_hash)
-            set_name = await Sticker._get_sticker_set_name(
-                client.invoke, input_sticker_set_id
-            )
+            set_name = await Sticker._get_sticker_set_name(client.invoke, input_sticker_set_id)
         else:
             set_name = None
-
-        if isinstance(sticker_attributes, raw.types.DocumentAttributeCustomEmoji):
-            needs_repainting = sticker_attributes.text_color
-        else:
-            needs_repainting = None
 
         return Sticker(
             file_id=FileId(
@@ -200,24 +172,28 @@ class Sticker(Object):
                 dc_id=sticker.dc_id,
                 media_id=sticker.id,
                 access_hash=sticker.access_hash,
-                file_reference=sticker.file_reference,
+                file_reference=sticker.file_reference
             ).encode(),
             file_unique_id=FileUniqueId(
-                file_unique_type=FileUniqueType.DOCUMENT, media_id=sticker.id
+                file_unique_type=FileUniqueType.DOCUMENT,
+                media_id=sticker.id
             ).encode(),
             width=(
                 image_size_attributes.w
                 if image_size_attributes
-                else video_attributes.w if video_attributes else 512
+                else video_attributes.w
+                if video_attributes
+                else 512
             ),
             height=(
                 image_size_attributes.h
                 if image_size_attributes
-                else video_attributes.h if video_attributes else 512
+                else video_attributes.h
+                if video_attributes
+                else 512
             ),
             is_animated=sticker.mime_type == "application/x-tgsticker",
             is_video=sticker.mime_type == "video/webm",
-            needs_repainting=needs_repainting,
             # TODO: mask_position
             set_name=set_name,
             emoji=sticker_attributes.alt or None,
@@ -226,5 +202,5 @@ class Sticker(Object):
             file_name=file_name,
             date=utils.timestamp_to_datetime(sticker.date),
             thumbs=types.Thumbnail._parse(client, sticker),
-            client=client,
+            client=client
         )

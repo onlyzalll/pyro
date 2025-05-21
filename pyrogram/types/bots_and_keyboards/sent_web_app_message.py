@@ -17,7 +17,6 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from pyrogram import raw, utils
-
 from ..object import Object
 
 
@@ -31,8 +30,7 @@ class SentWebAppMessage(Object):
     """
 
     def __init__(
-        self,
-        *,
+        self, *,
         inline_message_id: str,
     ):
         super().__init__()
@@ -41,6 +39,4 @@ class SentWebAppMessage(Object):
 
     @staticmethod
     def _parse(obj: "raw.types.WebViewMessageSent"):
-        return SentWebAppMessage(
-            inline_message_id=utils.pack_inline_message_id(obj.msg_id)
-        )
+        return SentWebAppMessage(inline_message_id=utils.pack_inline_message_id(obj.msg_id))

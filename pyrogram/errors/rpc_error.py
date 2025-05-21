@@ -1,28 +1,27 @@
-#  Pyrofork - Telegram MTProto API Client Library for Python
+#  Pyrogram - Telegram MTProto API Client Library for Python
 #  Copyright (C) 2017-present Dan <https://github.com/delivrance>
-#  Copyright (C) 2022-present Mayuri-Chan <https://github.com/Mayuri-Chan>
 #
-#  This file is part of Pyrofork.
+#  This file is part of Pyrogram.
 #
-#  Pyrofork is free software: you can redistribute it and/or modify
+#  Pyrogram is free software: you can redistribute it and/or modify
 #  it under the terms of the GNU Lesser General Public License as published
 #  by the Free Software Foundation, either version 3 of the License, or
 #  (at your option) any later version.
 #
-#  Pyrofork is distributed in the hope that it will be useful,
+#  Pyrogram is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU Lesser General Public License for more details.
 #
 #  You should have received a copy of the GNU Lesser General Public License
-#  along with Pyrofork.  If not, see <http://www.gnu.org/licenses/>.
+#  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 import re
 from datetime import datetime
 from importlib import import_module
 from typing import Type, Union
 
-from pyrogram import __version__, raw
+from pyrogram import raw
 from pyrogram.raw.core import TLObject
 from .exceptions.all import exceptions
 
@@ -40,13 +39,12 @@ class RPCError(Exception):
         is_unknown: bool = False,
         is_signed: bool = False
     ):
-        super().__init__("Telegram says: [{}{} {}] {} Pyrogram {} thinks: {}".format(
+        super().__init__("Telegram says: [{}{} {}] - {} {}".format(
             "-" if is_signed else "",
             self.CODE,
             self.ID or self.NAME,
-            f'(caused by "{rpc_name}")' if rpc_name else "",
-            __version__,
             self.MESSAGE.format(value=value),
+            f'(caused by "{rpc_name}")' if rpc_name else ""
         ))
 
         try:

@@ -20,14 +20,7 @@ from typing import Union
 
 import pyrogram
 from pyrogram import raw
-from pyrogram.file_id import (
-    FileId,
-    FileType,
-    FileUniqueId,
-    FileUniqueType,
-    ThumbnailSource,
-)
-
+from pyrogram.file_id import FileId, FileType, FileUniqueId, FileUniqueType, ThumbnailSource
 from ..object import Object
 
 
@@ -60,6 +53,7 @@ class ChatPhoto(Object):
         small_photo_unique_id: str,
         big_file_id: str,
         big_photo_unique_id: str
+
     ):
         super().__init__(client)
 
@@ -73,11 +67,9 @@ class ChatPhoto(Object):
         client,
         chat_photo: Union["raw.types.UserProfilePhoto", "raw.types.ChatPhoto"],
         peer_id: int,
-        peer_access_hash: int,
+        peer_access_hash: int
     ):
-        if not isinstance(
-            chat_photo, (raw.types.UserProfilePhoto, raw.types.ChatPhoto)
-        ):
+        if not isinstance(chat_photo, (raw.types.UserProfilePhoto, raw.types.ChatPhoto)):
             return None
 
         return ChatPhoto(
@@ -90,10 +82,11 @@ class ChatPhoto(Object):
                 thumbnail_source=ThumbnailSource.CHAT_PHOTO_SMALL,
                 local_id=0,
                 chat_id=peer_id,
-                chat_access_hash=peer_access_hash,
+                chat_access_hash=peer_access_hash
             ).encode(),
             small_photo_unique_id=FileUniqueId(
-                file_unique_type=FileUniqueType.DOCUMENT, media_id=chat_photo.photo_id
+                file_unique_type=FileUniqueType.DOCUMENT,
+                media_id=chat_photo.photo_id
             ).encode(),
             big_file_id=FileId(
                 file_type=FileType.CHAT_PHOTO,
@@ -104,10 +97,11 @@ class ChatPhoto(Object):
                 thumbnail_source=ThumbnailSource.CHAT_PHOTO_BIG,
                 local_id=0,
                 chat_id=peer_id,
-                chat_access_hash=peer_access_hash,
+                chat_access_hash=peer_access_hash
             ).encode(),
             big_photo_unique_id=FileUniqueId(
-                file_unique_type=FileUniqueType.DOCUMENT, media_id=chat_photo.photo_id
+                file_unique_type=FileUniqueType.DOCUMENT,
+                media_id=chat_photo.photo_id
             ).encode(),
-            client=client,
+            client=client
         )

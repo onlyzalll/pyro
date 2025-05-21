@@ -33,7 +33,6 @@ from .pin_stories import PinStories
 from .read_stories import ReadStories
 from .send_story import SendStory
 
-
 class Stories(
     CanSendStory,
     CopyStory,

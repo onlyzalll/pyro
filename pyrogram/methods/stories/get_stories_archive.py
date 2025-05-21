@@ -16,10 +16,11 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import AsyncGenerator, Optional, Union
+from typing import AsyncGenerator, Union, Optional
 
 import pyrogram
-from pyrogram import raw, types
+from pyrogram import raw
+from pyrogram import types
 
 
 class GetStoriesArchive:
@@ -27,7 +28,7 @@ class GetStoriesArchive:
         self: "pyrogram.Client",
         chat_id: Union[int, str],
         limit: int = 0,
-        offset_id: int = 0,
+        offset_id: int = 0
     ) -> Optional[AsyncGenerator["types.Story", None]]:
         """Get stories archive.
 
@@ -64,7 +65,9 @@ class GetStoriesArchive:
             peer = await self.resolve_peer(chat_id)
             r = await self.invoke(
                 raw.functions.stories.GetStoriesArchive(
-                    peer=peer, offset_id=offset_id, limit=limit
+                    peer=peer,
+                    offset_id=offset_id,
+                    limit=limit
                 )
             )
 
@@ -78,7 +81,13 @@ class GetStoriesArchive:
             chats = {i.id: i for i in r.chats}
 
             for story in r.stories:
-                yield await types.Story._parse(self, story, users, chats, peer)
+                yield await types.Story._parse(
+                    self,
+                    story,
+                    users,
+                    chats,
+                    peer
+                )
 
                 current += 1
 

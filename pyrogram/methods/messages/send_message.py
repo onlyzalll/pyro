@@ -17,10 +17,11 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import Union, List, Optional
 
 import pyrogram
-from pyrogram import enums, raw, types, utils
+from pyrogram import raw, utils, enums
+from pyrogram import types
 
 
 class SendMessage:
@@ -44,8 +45,8 @@ class SendMessage:
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
             "types.ReplyKeyboardRemove",
-            "types.ForceReply",
-        ] = None,
+            "types.ForceReply"
+        ] = None
     ) -> "types.Message":
         """Send text messages.
 
@@ -141,15 +142,9 @@ class SendMessage:
                         ]))
         """
 
-        message, entities = (
-            await utils.parse_text_entities(self, text, parse_mode, entities)
-        ).values()
+        message, entities = (await utils.parse_text_entities(self, text, parse_mode, entities)).values()
 
-        quote_text, quote_entities = (
-            await utils.parse_text_entities(
-                self, quote_text, parse_mode, quote_entities
-            )
-        ).values()
+        quote_text, quote_entities = (await utils.parse_text_entities(self, quote_text, parse_mode, quote_entities)).values()
 
         peer = await self.resolve_peer(chat_id)
         r = await self.invoke(
@@ -160,11 +155,7 @@ class SendMessage:
                 reply_to=utils.get_reply_to(
                     reply_to_message_id=reply_to_message_id,
                     message_thread_id=message_thread_id,
-                    reply_to_peer=(
-                        await self.resolve_peer(reply_to_chat_id)
-                        if reply_to_chat_id
-                        else None
-                    ),
+                    reply_to_peer=await self.resolve_peer(reply_to_chat_id) if reply_to_chat_id else None,
                     reply_to_story_id=reply_to_story_id,
                     quote_text=quote_text,
                     quote_entities=quote_entities,
@@ -174,7 +165,7 @@ class SendMessage:
                 reply_markup=await reply_markup.write(self) if reply_markup else None,
                 message=message,
                 entities=entities,
-                noforwards=protect_content,
+                noforwards=protect_content
             )
         )
 
@@ -189,35 +180,29 @@ class SendMessage:
 
             return types.Message(
                 id=r.id,
-                chat=types.Chat(id=peer_id, type=enums.ChatType.PRIVATE, client=self),
+                chat=types.Chat(
+                    id=peer_id,
+                    type=enums.ChatType.PRIVATE,
+                    client=self
+                ),
                 text=message,
                 date=utils.timestamp_to_datetime(r.date),
                 outgoing=r.out,
                 reply_markup=reply_markup,
-                entities=(
-                    [
-                        types.MessageEntity._parse(None, entity, {})
-                        for entity in entities
-                    ]
-                    if entities
-                    else None
-                ),
-                client=self,
+                entities=[
+                    types.MessageEntity._parse(None, entity, {})
+                    for entity in entities
+                ] if entities else None,
+                client=self
             )
 
         for i in r.updates:
-            if isinstance(
-                i,
-                (
-                    raw.types.UpdateNewMessage,
-                    raw.types.UpdateNewChannelMessage,
-                    raw.types.UpdateNewScheduledMessage,
-                ),
-            ):
+            if isinstance(i, (raw.types.UpdateNewMessage,
+                              raw.types.UpdateNewChannelMessage,
+                              raw.types.UpdateNewScheduledMessage)):
                 return await types.Message._parse(
-                    self,
-                    i.message,
+                    self, i.message,
                     {i.id: i for i in r.users},
                     {i.id: i for i in r.chats},
-                    is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage),
+                    is_scheduled=isinstance(i, raw.types.UpdateNewScheduledMessage)
                 )

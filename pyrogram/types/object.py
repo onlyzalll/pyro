@@ -60,16 +60,16 @@ class Object:
         if isinstance(obj, datetime):
             return str(obj)
 
-        if not hasattr(obj, "__dict__"):
-            return obj.__class__.__name__
-
         return {
             "_": obj.__class__.__name__,
             **{
-                attr: ("*" * 9 if attr == "phone_number" else getattr(obj, attr))
+                attr: (
+                    "*" * 9 if attr == "phone_number" else
+                    getattr(obj, attr)
+                )
                 for attr in filter(lambda x: not x.startswith("_"), obj.__dict__)
                 if getattr(obj, attr) is not None
-            },
+            }
         }
 
     def __str__(self) -> str:
@@ -82,7 +82,7 @@ class Object:
                 f"{attr}={repr(getattr(self, attr))}"
                 for attr in filter(lambda x: not x.startswith("_"), self.__dict__)
                 if getattr(self, attr) is not None
-            ),
+            )
         )
 
     def __eq__(self, other: "Object") -> bool:

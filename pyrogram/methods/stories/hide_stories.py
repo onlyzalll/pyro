@@ -24,7 +24,9 @@ from pyrogram import raw
 
 class HideStories:
     async def hide_stories(
-        self: "pyrogram.Client", chat_id: Union[int, str], hidden: bool = None
+        self: "pyrogram.Client",
+        chat_id: Union[int, str],
+        hidden: bool = None
     ) -> bool:
         """Toggle peer stories hidden
 
@@ -47,7 +49,8 @@ class HideStories:
         """
         r = await self.invoke(
             raw.functions.stories.TogglePeerStoriesHidden(
-                peer=await self.resolve_peer(chat_id), hidden=hidden
+                peer=await self.resolve_peer(chat_id),
+                hidden=hidden
             )
         )
 

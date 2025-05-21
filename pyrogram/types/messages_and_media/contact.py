@@ -18,7 +18,6 @@
 
 import pyrogram
 from pyrogram import raw
-
 from ..object import Object
 
 
@@ -61,14 +60,12 @@ class Contact(Object):
         self.vcard = vcard
 
     @staticmethod
-    def _parse(
-        client: "pyrogram.Client", contact: "raw.types.MessageMediaContact"
-    ) -> "Contact":
+    def _parse(client: "pyrogram.Client", contact: "raw.types.MessageMediaContact") -> "Contact":
         return Contact(
             phone_number=contact.phone_number,
             first_name=contact.first_name,
             last_name=contact.last_name or None,
             vcard=contact.vcard or None,
             user_id=contact.user_id or None,
-            client=client,
+            client=client
         )

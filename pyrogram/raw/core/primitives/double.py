@@ -17,8 +17,8 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from io import BytesIO
-from struct import pack, unpack
-from typing import Any, cast
+from struct import unpack, pack
+from typing import cast, Any
 
 from ..tl_object import TLObject
 

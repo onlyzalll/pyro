@@ -16,7 +16,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional, Union
+from typing import Union, Optional
 
 import pyrogram
 from pyrogram import raw
@@ -24,7 +24,9 @@ from pyrogram import raw
 
 class SetChatUsername:
     async def set_chat_username(
-        self: "pyrogram.Client", chat_id: Union[int, str], username: Optional[str]
+        self: "pyrogram.Client",
+        chat_id: Union[int, str],
+        username: Optional[str]
     ) -> bool:
         """Set a channel or a supergroup username.
 
@@ -57,7 +59,8 @@ class SetChatUsername:
             return bool(
                 await self.invoke(
                     raw.functions.channels.UpdateUsername(
-                        channel=peer, username=username or ""
+                        channel=peer,
+                        username=username or ""
                     )
                 )
             )

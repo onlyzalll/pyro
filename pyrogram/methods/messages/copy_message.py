@@ -18,10 +18,10 @@
 
 import logging
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import Union, List, Optional
 
 import pyrogram
-from pyrogram import enums, types
+from pyrogram import types, enums, utils
 
 log = logging.getLogger(__name__)
 
@@ -45,8 +45,8 @@ class CopyMessage:
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
             "types.ReplyKeyboardRemove",
-            "types.ForceReply",
-        ] = None,
+            "types.ForceReply"
+        ] = None
     ) -> "types.Message":
         """Copy messages of any kind.
 
@@ -128,5 +128,5 @@ class CopyMessage:
             schedule_date=schedule_date,
             protect_content=protect_content,
             has_spoiler=has_spoiler,
-            reply_markup=reply_markup,
+            reply_markup=reply_markup
         )

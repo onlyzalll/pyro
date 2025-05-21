@@ -16,10 +16,11 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import AsyncGenerator, Optional
+from typing import AsyncGenerator, Union, Optional
 
 import pyrogram
-from pyrogram import raw, types
+from pyrogram import raw
+from pyrogram import types
 
 
 class GetAllStories:
@@ -48,7 +49,11 @@ class GetAllStories:
         """
 
         r = await self.invoke(
-            raw.functions.stories.GetAllStories(next=next, hidden=hidden, state=state)
+            raw.functions.stories.GetAllStories(
+                next=next,
+                hidden=hidden,
+                state=state
+            )
         )
 
         users = {i.id: i for i in r.users}
@@ -57,5 +62,9 @@ class GetAllStories:
         for peer_story in r.peer_stories:
             for story in peer_story.stories:
                 yield await types.Story._parse(
-                    self, story, users, chats, peer_story.peer
+                    self,
+                    story,
+                    users,
+                    chats,
+                    peer_story.peer
                 )

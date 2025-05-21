@@ -17,7 +17,6 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from pyrogram import raw
-
 from ..object import Object
 
 
@@ -47,5 +46,5 @@ class Restriction(Object):
         return Restriction(
             platform=restriction.platform,
             reason=restriction.reason,
-            text=restriction.text,
+            text=restriction.text
         )

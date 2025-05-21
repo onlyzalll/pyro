@@ -23,13 +23,12 @@ from .on_chosen_inline_result import OnChosenInlineResult
 from .on_deleted_messages import OnDeletedMessages
 from .on_disconnect import OnDisconnect
 from .on_edited_message import OnEditedMessage
-from .on_error import OnError
 from .on_inline_query import OnInlineQuery
 from .on_message import OnMessage
 from .on_poll import OnPoll
 from .on_raw_update import OnRawUpdate
-from .on_story import OnStory
 from .on_user_status import OnUserStatus
+from .on_story import OnStory
 
 
 class Decorators(
@@ -45,7 +44,6 @@ class Decorators(
     OnChosenInlineResult,
     OnChatMemberUpdated,
     OnChatJoinRequest,
-    OnStory,
-    OnError,
+    OnStory
 ):
     pass

@@ -17,7 +17,6 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from pyrogram import raw
-
 from ..object import Object
 
 
@@ -34,7 +33,9 @@ class InputReplyToMessage(Object):
     """
 
     def __init__(
-        self, *, reply_to_message_id: int = None, message_thread_id: int = None
+        self, *,
+        reply_to_message_id: int = None,
+        message_thread_id: int = None
     ):
         super().__init__()
 

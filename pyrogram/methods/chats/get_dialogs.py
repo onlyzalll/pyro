@@ -19,12 +19,13 @@
 from typing import AsyncGenerator, Optional
 
 import pyrogram
-from pyrogram import raw, types, utils
+from pyrogram import types, raw, utils
 
 
 class GetDialogs:
     async def get_dialogs(
-        self: "pyrogram.Client", limit: int = 0
+        self: "pyrogram.Client",
+        limit: int = 0
     ) -> Optional[AsyncGenerator["types.Dialog", None]]:
         """Get a user's dialogs sequentially.
 
@@ -60,9 +61,9 @@ class GetDialogs:
                     offset_id=offset_id,
                     offset_peer=offset_peer,
                     limit=limit,
-                    hash=0,
+                    hash=0
                 ),
-                sleep_threshold=60,
+                sleep_threshold=60
             )
 
             users = {i.id: i for i in r.users}
@@ -75,9 +76,7 @@ class GetDialogs:
                     continue
 
                 chat_id = utils.get_peer_id(message.peer_id)
-                messages[chat_id] = await types.Message._parse(
-                    self, message, users, chats
-                )
+                messages[chat_id] = await types.Message._parse(self, message, users, chats)
 
             dialogs = []
 
@@ -85,9 +84,7 @@ class GetDialogs:
                 if not isinstance(dialog, raw.types.Dialog):
                     continue
 
-                dialogs.append(
-                    types.Dialog._parse(self, dialog, messages, users, chats)
-                )
+                dialogs.append(types.Dialog._parse(self, dialog, messages, users, chats))
 
             if not dialogs:
                 return

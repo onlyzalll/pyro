@@ -17,7 +17,6 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from pyrogram import raw
-
 from ..object import Object
 
 
@@ -45,5 +44,5 @@ class Username(Object):
         return Username(
             username=username.username,
             editable=username.editable,
-            active=username.active,
+            active=username.active
         )

@@ -19,7 +19,8 @@
 from typing import Union
 
 import pyrogram
-from pyrogram import raw, types
+from pyrogram import raw
+from pyrogram import types
 
 
 class ExportStoryLink:
@@ -52,7 +53,8 @@ class ExportStoryLink:
         """
         r = await self.invoke(
             raw.functions.stories.ExportStoryLink(
-                peer=await self.resolve_peer(chat_id), id=story_id
+                peer=await self.resolve_peer(chat_id),
+                id=story_id
             )
         )
 

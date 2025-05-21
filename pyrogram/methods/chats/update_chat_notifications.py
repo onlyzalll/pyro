@@ -20,8 +20,9 @@ import datetime
 from typing import Union
 
 import pyrogram
-from pyrogram import raw, types, utils
-
+from pyrogram import raw
+from pyrogram import types
+from pyrogram import utils
 
 class UpdateChatNotifications:
     async def update_chat_notifications(
@@ -31,7 +32,7 @@ class UpdateChatNotifications:
         mute_until: datetime = None,
         stories_muted: bool = None,
         stories_hide_sender: bool = None,
-        show_previews: bool = None,
+        show_previews: bool = None
     ) -> "types.Chat":
         """Update the notification settings for the selected chat
 
@@ -88,7 +89,7 @@ class UpdateChatNotifications:
                     mute_until=utils.datetime_to_timestamp(mute_until),
                     stories_muted=stories_muted,
                     stories_hide_sender=stories_hide_sender,
-                ),
+                )
             )
         )
 

@@ -18,7 +18,7 @@
 
 from io import BytesIO
 from json import dumps
-from typing import Any, Dict, List, Union, cast
+from typing import cast, List, Any, Union, Dict
 
 from ..all import objects
 
@@ -30,9 +30,7 @@ class TLObject:
 
     @classmethod
     def read(cls, b: BytesIO, *args: Any) -> Any:
-        return cast(TLObject, objects[int.from_bytes(b.read(4), "little")]).read(
-            b, *args
-        )
+        return cast(TLObject, objects[int.from_bytes(b.read(4), "little")]).read(b, *args)
 
     def write(self, *args: Any) -> bytes:
         pass
@@ -48,7 +46,7 @@ class TLObject:
                 attr: getattr(obj, attr)
                 for attr in obj.__slots__
                 if getattr(obj, attr) is not None
-            },
+            }
         }
 
     def __str__(self) -> str:
@@ -64,7 +62,7 @@ class TLObject:
                 f"{attr}={repr(getattr(self, attr))}"
                 for attr in self.__slots__
                 if getattr(self, attr) is not None
-            ),
+            )
         )
 
     def __eq__(self, other: Any) -> bool:

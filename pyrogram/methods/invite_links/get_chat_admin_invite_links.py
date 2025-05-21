@@ -16,10 +16,11 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import AsyncGenerator, Optional, Union
+from typing import Union, Optional, AsyncGenerator
 
 import pyrogram
-from pyrogram import raw, types
+from pyrogram import raw
+from pyrogram import types
 
 
 class GetChatAdminInviteLinks:
@@ -78,7 +79,7 @@ class GetChatAdminInviteLinks:
                     limit=limit,
                     revoked=revoked,
                     offset_date=offset_date,
-                    offset_link=offset_link,
+                    offset_link=offset_link
                 )
             )
 

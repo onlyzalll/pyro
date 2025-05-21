@@ -21,7 +21,6 @@ from typing import Dict
 
 import pyrogram
 from pyrogram import raw, types, utils
-
 from ..object import Object
 
 
@@ -79,5 +78,5 @@ class ChatJoiner(Object):
                 if joiner.approved_by
                 else None
             ),
-            client=client,
+            client=client
         )

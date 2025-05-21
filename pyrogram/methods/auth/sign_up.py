@@ -19,7 +19,8 @@
 import logging
 
 import pyrogram
-from pyrogram import raw, types
+from pyrogram import raw
+from pyrogram import types
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +31,7 @@ class SignUp:
         phone_number: str,
         phone_code_hash: str,
         first_name: str,
-        last_name: str = "",
+        last_name: str = ""
     ) -> "types.User":
         """Register a new user in Telegram.
 
@@ -62,7 +63,7 @@ class SignUp:
                 phone_number=phone_number,
                 first_name=first_name,
                 last_name=last_name,
-                phone_code_hash=phone_code_hash,
+                phone_code_hash=phone_code_hash
             )
         )
 

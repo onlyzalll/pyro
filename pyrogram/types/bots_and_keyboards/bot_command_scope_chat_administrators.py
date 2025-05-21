@@ -20,7 +20,6 @@ from typing import Union
 
 import pyrogram
 from pyrogram import raw
-
 from .bot_command_scope import BotCommandScope
 
 

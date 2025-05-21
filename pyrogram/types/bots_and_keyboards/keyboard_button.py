@@ -17,7 +17,6 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from pyrogram import raw, types
-
 from ..object import Object
 
 
@@ -51,7 +50,7 @@ class KeyboardButton(Object):
         text: str,
         request_contact: bool = None,
         request_location: bool = None,
-        web_app: "types.WebAppInfo" = None,
+        web_app: "types.WebAppInfo" = None
     ):
         super().__init__()
 
@@ -66,13 +65,24 @@ class KeyboardButton(Object):
             return b.text
 
         if isinstance(b, raw.types.KeyboardButtonRequestPhone):
-            return KeyboardButton(text=b.text, request_contact=True)
+            return KeyboardButton(
+                text=b.text,
+                request_contact=True
+            )
 
         if isinstance(b, raw.types.KeyboardButtonRequestGeoLocation):
-            return KeyboardButton(text=b.text, request_location=True)
+            return KeyboardButton(
+                text=b.text,
+                request_location=True
+            )
 
         if isinstance(b, raw.types.KeyboardButtonSimpleWebView):
-            return KeyboardButton(text=b.text, web_app=types.WebAppInfo(url=b.url))
+            return KeyboardButton(
+                text=b.text,
+                web_app=types.WebAppInfo(
+                    url=b.url
+                )
+            )
 
     def write(self):
         if self.request_contact:
@@ -80,8 +90,6 @@ class KeyboardButton(Object):
         elif self.request_location:
             return raw.types.KeyboardButtonRequestGeoLocation(text=self.text)
         elif self.web_app:
-            return raw.types.KeyboardButtonSimpleWebView(
-                text=self.text, url=self.web_app.url
-            )
+            return raw.types.KeyboardButtonSimpleWebView(text=self.text, url=self.web_app.url)
         else:
             return raw.types.KeyboardButton(text=self.text)

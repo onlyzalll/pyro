@@ -52,7 +52,8 @@ class IncrementStoryViews:
         """
         r = await self.invoke(
             raw.functions.stories.IncrementStoryViews(
-                peer=await self.resolve_peer(chat_id), id=story_id
+                peer=await self.resolve_peer(chat_id),
+                id=story_id
             )
         )
 

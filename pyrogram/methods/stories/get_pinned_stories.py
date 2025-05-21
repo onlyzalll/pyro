@@ -16,10 +16,12 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import AsyncGenerator, Optional, Union
+from typing import AsyncGenerator, Union, Optional
 
 import pyrogram
-from pyrogram import raw, types, utils
+from pyrogram import raw
+from pyrogram import types
+from pyrogram import utils
 
 
 class GetPinnedStories:
@@ -64,7 +66,9 @@ class GetPinnedStories:
         while True:
             r = await self.invoke(
                 raw.functions.stories.GetPinnedStories(
-                    peer=peer, offset_id=offset_id, limit=limit
+                    peer=peer,
+                    offset_id=offset_id,
+                    limit=limit
                 )
             )
 
@@ -77,16 +81,20 @@ class GetPinnedStories:
             if isinstance(peer, raw.types.InputPeerChannel):
                 peer_id = utils.get_input_peer_id(peer)
                 if peer_id not in r.chats:
-                    channel = await self.invoke(
-                        raw.functions.channels.GetChannels(id=[peer])
-                    )
+                    channel = await self.invoke(raw.functions.channels.GetChannels(id=[peer]))
                     chats.update({peer_id: channel.chats[0]})
 
             last = r.stories[-1]
             offset_id = last.id
 
             for story in r.stories:
-                yield await types.Story._parse(self, story, users, chats, peer)
+                yield await types.Story._parse(
+                    self,
+                    story,
+                    users,
+                    chats,
+                    peer
+                )
 
                 current += 1
 

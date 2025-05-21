@@ -17,10 +17,10 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 import pyrogram
-from pyrogram import raw, types
-
-from ... import utils
+from pyrogram import raw
+from pyrogram import types
 from ..object import Object
+from ... import utils
 
 
 class Dialog(Object):
@@ -75,5 +75,5 @@ class Dialog(Object):
             unread_mentions_count=dialog.unread_mentions_count,
             unread_mark=dialog.unread_mark,
             is_pinned=dialog.pinned,
-            client=client,
+            client=client
         )

@@ -16,10 +16,11 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import List, Optional, Union
+from typing import Union, List, Optional
 
 import pyrogram
-from pyrogram import enums, raw, types, utils
+from pyrogram import raw, enums, types
+from pyrogram import utils
 
 
 class SendInlineBotResult:
@@ -34,7 +35,7 @@ class SendInlineBotResult:
         reply_to_chat_id: Union[int, str] = None,
         quote_text: str = None,
         parse_mode: Optional["enums.ParseMode"] = None,
-        quote_entities: List["types.MessageEntity"] = None,
+        quote_entities: List["types.MessageEntity"] = None
     ) -> "raw.base.Updates":
         """Send an inline bot result.
         Bot results can be retrieved using :meth:`~pyrogram.Client.get_inline_bot_results`
@@ -85,11 +86,7 @@ class SendInlineBotResult:
 
                 await app.send_inline_bot_result(chat_id, query_id, result_id)
         """
-        quote_text, quote_entities = (
-            await utils.parse_text_entities(
-                self, quote_text, parse_mode, quote_entities
-            )
-        ).values()
+        quote_text, quote_entities = (await utils.parse_text_entities(self, quote_text, parse_mode, quote_entities)).values()
 
         return await self.invoke(
             raw.functions.messages.SendInlineBotResult(
@@ -100,14 +97,10 @@ class SendInlineBotResult:
                 silent=disable_notification or None,
                 reply_to=utils.get_reply_to(
                     reply_to_message_id=reply_to_message_id,
-                    reply_to_peer=(
-                        await self.resolve_peer(reply_to_chat_id)
-                        if reply_to_chat_id
-                        else None
-                    ),
+                    reply_to_peer=await self.resolve_peer(reply_to_chat_id) if reply_to_chat_id else None,
                     message_thread_id=message_thread_id,
                     quote_text=quote_text,
-                    quote_entities=quote_entities,
-                ),
+                    quote_entities=quote_entities
+                )
             )
         )

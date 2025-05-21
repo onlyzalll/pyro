@@ -19,13 +19,16 @@
 from typing import Union
 
 import pyrogram
-from pyrogram import raw, types
+from pyrogram import raw
+from pyrogram import types
 from pyrogram.errors import UserNotParticipant
 
 
 class GetChatMember:
     async def get_chat_member(
-        self: "pyrogram.Client", chat_id: Union[int, str], user_id: Union[int, str]
+        self: "pyrogram.Client",
+        chat_id: Union[int, str],
+        user_id: Union[int, str]
     ) -> "types.ChatMember":
         """Get information about one member of a chat.
 
@@ -54,7 +57,9 @@ class GetChatMember:
 
         if isinstance(chat, raw.types.InputPeerChat):
             r = await self.invoke(
-                raw.functions.messages.GetFullChat(chat_id=chat.chat_id)
+                raw.functions.messages.GetFullChat(
+                    chat_id=chat.chat_id
+                )
             )
 
             members = getattr(r.full_chat.participants, "participants", [])
@@ -73,7 +78,10 @@ class GetChatMember:
                 raise UserNotParticipant
         elif isinstance(chat, raw.types.InputPeerChannel):
             r = await self.invoke(
-                raw.functions.channels.GetParticipant(channel=chat, participant=user)
+                raw.functions.channels.GetParticipant(
+                    channel=chat,
+                    participant=user
+                )
             )
 
             users = {i.id: i for i in r.users}

@@ -16,8 +16,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from pyrogram import enums, raw
-
+from pyrogram import raw, enums
 from ..object import Object
 
 
@@ -40,8 +39,7 @@ class SentCode(Object):
     """
 
     def __init__(
-        self,
-        *,
+        self, *,
         type: "enums.SentCodeType",
         phone_code_hash: str,
         next_type: "enums.NextCodeType" = None,
@@ -59,10 +57,6 @@ class SentCode(Object):
         return SentCode(
             type=enums.SentCodeType(type(sent_code.type)),
             phone_code_hash=sent_code.phone_code_hash,
-            next_type=(
-                enums.NextCodeType(type(sent_code.next_type))
-                if sent_code.next_type
-                else None
-            ),
-            timeout=sent_code.timeout,
+            next_type=enums.NextCodeType(type(sent_code.next_type)) if sent_code.next_type else None,
+            timeout=sent_code.timeout
         )

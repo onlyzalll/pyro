@@ -19,12 +19,15 @@
 from typing import Union
 
 import pyrogram
-from pyrogram import errors, raw
+from pyrogram import raw
+from pyrogram import errors
 
 
 class ToggleForumTopics:
     async def toggle_forum_topics(
-        self: "pyrogram.Client", chat_id: Union[int, str], enabled: bool = False
+        self: "pyrogram.Client",
+        chat_id: Union[int, str],
+        enabled: bool = False
     ) -> bool:
         """Enable or disable forum functionality in a supergroup.
 
@@ -52,7 +55,8 @@ class ToggleForumTopics:
         try:
             r = await self.invoke(
                 raw.functions.channels.ToggleForum(
-                    channel=await self.resolve_peer(chat_id), enabled=enabled
+                    channel=await self.resolve_peer(chat_id),
+                    enabled=enabled
                 )
             )
 

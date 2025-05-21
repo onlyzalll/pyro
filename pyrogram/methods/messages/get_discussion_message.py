@@ -19,7 +19,8 @@
 from typing import Union
 
 import pyrogram
-from pyrogram import raw, types
+from pyrogram import raw
+from pyrogram import types
 
 
 class GetDiscussionMessage:
@@ -53,7 +54,8 @@ class GetDiscussionMessage:
         """
         r = await self.invoke(
             raw.functions.messages.GetDiscussionMessage(
-                peer=await self.resolve_peer(chat_id), msg_id=message_id
+                peer=await self.resolve_peer(chat_id),
+                msg_id=message_id
             )
         )
 
