@@ -16,7 +16,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Union, List
+from typing import Union
 
 import pyrogram
 from pyrogram import raw
@@ -27,28 +27,27 @@ class SendReaction:
         self: "pyrogram.Client",
         chat_id: Union[int, str],
         message_id: int = None,
-        emoji: Union[int, str, List[Union[int, str]]] = None,
         story_id: int = None,
-        big: bool = False
+        emoji: Union[int, str] = None,
+        big: bool = False,
     ) -> bool:
-        """Send a reaction to a message or story.
+        """Send a reaction to a message.
 
-        .. include:: /_includes/usable-by/users-bots.rst
+        .. include:: /_includes/usable-by/users.rst
 
         Parameters:
             chat_id (``int`` | ``str``):
                 Unique identifier (int) or username (str) of the target chat.
 
-            message_id (``int``, *optional*):
+            message_id (``int``):
                 Identifier of the message.
 
-            emoji (``int`` | ``str`` | List of ``int`` | ``str``, *optional*):
-                Reaction emoji.
-                Pass None as emoji (default) to retract the reaction.
-                Pass list of int or str to react multiple emojis.
-
-            story_id (``int``, *optional*):
+            story_id (``int``):
                 Identifier of the story.
+
+            emoji (``int`` | ``str``, *optional*):
+                Reaction emoji.
+                Pass "" as emoji (default) to retract the reaction.
 
             big (``bool``, *optional*):
                 Pass True to show a bigger and longer reaction.
@@ -61,45 +60,28 @@ class SendReaction:
             .. code-block:: python
 
                 # Send a reaction
-                await app.send_reaction(chat_id, message_id=message_id, emoji="🔥")
-
-                # Send a multiple reactions
-                await app.send_reaction(chat_id, message_id=message_id, emoji=["🔥", "❤️"])
-
-                # Send a reaction with premium emoji
-                await app.send_reaction(chat_id, message_id=message_id, emoji=5319161050128459957)
-
-                # Send a reaction to story
-                await app.send_reaction(chat_id, story_id=story_id, emoji="❤️")
+                await app.send_reaction(chat_id, message_id, "🔥")
 
                 # Retract a reaction
-                await app.send_reaction(chat_id, message_id=message_id)
+                await app.send_reaction(chat_id, message_id)
         """
-        if isinstance(emoji, list):
-            emoji = [
-                    raw.types.ReactionCustomEmoji(document_id=i)
-                    if isinstance(i, int)
-                    else raw.types.ReactionEmoji(emoticon=i)
-                    for i in emoji
-            ] if emoji else None
+        if isinstance(emoji, int):
+            emoji = [raw.types.ReactionCustomEmoji(document_id=emoji)]
         else:
-            if isinstance(emoji, int):
-                emoji = [raw.types.ReactionCustomEmoji(document_id=emoji)]
-            else:
-                emoji = [raw.types.ReactionEmoji(emoticon=emoji)] if emoji else None
+            emoji = [raw.types.ReactionEmoji(emoticon=emoji)] if emoji else None
 
         if story_id:
             rpc = raw.functions.stories.SendReaction(
                 peer=await self.resolve_peer(chat_id),
                 story_id=story_id,
-                reaction=emoji[0] if emoji else raw.types.ReactionEmpty(),
+                reaction=emoji[0],
             )
         else:
             rpc = raw.functions.messages.SendReaction(
                 peer=await self.resolve_peer(chat_id),
                 msg_id=message_id,
                 reaction=emoji,
-                big=big
+                big=big,
             )
 
         await self.invoke(rpc)

@@ -16,47 +16,31 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Callable, Optional
+from typing import Callable
 
 import pyrogram
-from pyrogram.filters import Filter
 
 
 class OnRawUpdate:
-    def on_raw_update(
-        self: Optional["OnRawUpdate"] = None,
-        filters=None,
-        group: int = 0,
-    ) -> Callable:
+    def on_raw_update(self=None, group: int = 0) -> Callable:
         """Decorator for handling raw updates.
 
         This does the same thing as :meth:`~pyrogram.Client.add_handler` using the
         :obj:`~pyrogram.handlers.RawUpdateHandler`.
 
-        .. include:: /_includes/usable-by/users-bots.rst
-
         Parameters:
-            filters (:obj:`~pyrogram.filters`, *optional*):
-                Pass one or more filters to allow only a subset of updates to be passed
-                in your function.
-
             group (``int``, *optional*):
                 The group identifier, defaults to 0.
         """
 
         def decorator(func: Callable) -> Callable:
             if isinstance(self, pyrogram.Client):
-                self.add_handler(pyrogram.handlers.RawUpdateHandler(func, filters), group)
-            elif isinstance(self, Filter) or self is None:
+                self.add_handler(pyrogram.handlers.RawUpdateHandler(func), group)
+            else:
                 if not hasattr(func, "handlers"):
                     func.handlers = []
 
-                func.handlers.append(
-                    (
-                        pyrogram.handlers.RawUpdateHandler(func, self),
-                        group if filters is None else filters
-                    )
-                )
+                func.handlers.append((pyrogram.handlers.RawUpdateHandler(func), group))
 
             return func
 

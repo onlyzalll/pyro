@@ -17,8 +17,8 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 import pyrogram
-from pyrogram import raw
-from pyrogram import types
+from pyrogram import raw, types
+
 from ..object import Object
 
 
@@ -68,31 +68,32 @@ class Game(Object):
         self.animation = animation
 
     @staticmethod
-    def _parse(client, media: "raw.types.MessageMediaGame") -> "Game":
+    def _parse(client, message: "raw.types.Message") -> "Game":
+        game: "raw.types.Game" = message.media.game
         animation = None
 
-        if media.game.document:
-            attributes = {type(i): i for i in media.game.document.attributes}
+        if game.document:
+            attributes = {type(i): i for i in game.document.attributes}
 
             file_name = getattr(
-                attributes.get(
-                    raw.types.DocumentAttributeFilename, None
-                ), "file_name", None
+                attributes.get(raw.types.DocumentAttributeFilename, None),
+                "file_name",
+                None,
             )
 
             animation = types.Animation._parse(
                 client,
-                media.game.document,
+                game.document,
                 attributes.get(raw.types.DocumentAttributeVideo, None),
-                file_name
+                file_name,
             )
 
         return Game(
-            id=media.game.id,
-            title=media.game.title,
-            short_name=media.game.short_name,
-            description=media.game.description,
-            photo=types.Photo._parse(client, media.game.photo),
+            id=game.id,
+            title=game.title,
+            short_name=game.short_name,
+            description=game.description,
+            photo=types.Photo._parse(client, game.photo),
             animation=animation,
-            client=client
+            client=client,
         )

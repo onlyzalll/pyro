@@ -16,11 +16,11 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional, List, Union, BinaryIO
+from typing import BinaryIO, List, Optional, Union
 
-from .input_media import InputMedia
-from ..messages_and_media import MessageEntity
 from ... import enums
+from ..messages_and_media import MessageEntity
+from .input_media import InputMedia
 
 
 class InputMediaDocument(InputMedia):
@@ -50,10 +50,6 @@ class InputMediaDocument(InputMedia):
 
         caption_entities (List of :obj:`~pyrogram.types.MessageEntity`):
             List of special entities that appear in the caption, which can be specified instead of *parse_mode*.
-
-        file_name (``str``, *optional*):
-            File name of the document sent.
-            Defaults to file's path basename.
     """
 
     def __init__(
@@ -63,9 +59,7 @@ class InputMediaDocument(InputMedia):
         caption: str = "",
         parse_mode: Optional["enums.ParseMode"] = None,
         caption_entities: List[MessageEntity] = None,
-        file_name: str = None
     ):
         super().__init__(media, caption, parse_mode, caption_entities)
 
         self.thumb = thumb
-        self.file_name = file_name

@@ -17,8 +17,8 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 import pyrogram
-
 from pyrogram import raw
+
 from ..object import Object
 
 
@@ -31,31 +31,19 @@ class Location(Object):
 
         latitude (``float``):
             Latitude as defined by sender.
-
-        accuracy_radius (``int``, *optional*):
-            The estimated horizontal accuracy of the location, in meters as defined by the sender.
     """
 
     def __init__(
-        self,
-        *,
-        client: "pyrogram.Client" = None,
-        longitude: float,
-        latitude: float,
-        accuracy_radius: int = None
+        self, *, client: "pyrogram.Client" = None, longitude: float, latitude: float
     ):
         super().__init__(client)
 
         self.longitude = longitude
         self.latitude = latitude
-        self.accuracy_radius = accuracy_radius
 
     @staticmethod
     def _parse(client, geo_point: "raw.types.GeoPoint") -> "Location":
         if isinstance(geo_point, raw.types.GeoPoint):
             return Location(
-                longitude=geo_point.long,
-                latitude=geo_point.lat,
-                accuracy_radius=getattr(geo_point, "accuracy_radius", None),
-                client=client
+                longitude=geo_point.long, latitude=geo_point.lat, client=client
             )

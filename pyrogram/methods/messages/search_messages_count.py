@@ -16,20 +16,19 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Union, Optional
+from typing import Union
 
 import pyrogram
-from pyrogram import raw, enums
+from pyrogram import enums, raw
 
 
 class SearchMessagesCount:
     async def search_messages_count(
         self: "pyrogram.Client",
         chat_id: Union[int, str],
-        query: Optional[str] = "",
-        filter: Optional["enums.MessagesFilter"] = enums.MessagesFilter.EMPTY,
-        from_user: Optional[Union[int, str]] = None,
-        message_thread_id: Optional[int] = None
+        query: str = "",
+        filter: "enums.MessagesFilter" = enums.MessagesFilter.EMPTY,
+        from_user: Union[int, str] = None,
     ) -> int:
         """Get the count of messages resulting from a search inside a chat.
 
@@ -55,10 +54,6 @@ class SearchMessagesCount:
             from_user (``int`` | ``str``, *optional*):
                 Unique identifier (int) or username (str) of the target user you want to search for messages from.
 
-            message_thread_id (``int``, *optional*):
-                Unique identifier for the target message thread (topic) of the forum.
-                For supergroups only.
-
         Returns:
             ``int``: On success, the messages count is returned.
         """
@@ -74,13 +69,8 @@ class SearchMessagesCount:
                 limit=1,
                 min_id=0,
                 max_id=0,
-                from_id=(
-                    await self.resolve_peer(from_user)
-                    if from_user
-                    else None
-                ),
-                top_msg_id=message_thread_id,
-                hash=0
+                from_id=(await self.resolve_peer(from_user) if from_user else None),
+                hash=0,
             )
         )
 

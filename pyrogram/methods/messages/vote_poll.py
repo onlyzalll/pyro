@@ -16,19 +16,18 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Union, List
+from typing import List, Union
 
 import pyrogram
-from pyrogram import raw
-from pyrogram import types
+from pyrogram import raw, types
 
 
 class VotePoll:
     async def vote_poll(
         self: "pyrogram.Client",
         chat_id: Union[int, str],
-        message_id: int,
-        options: Union[int, List[int]]
+        message_id: id,
+        options: Union[int, List[int]],
     ) -> "types.Poll":
         """Vote a poll.
 
@@ -43,7 +42,7 @@ class VotePoll:
             message_id (``int``):
                 Identifier of the original message with the poll.
 
-            options (``int`` | List of ``int``):
+            options (``Int`` | List of ``int``):
                 Index or list of indexes (for multiple answers) of the poll option(s) you want to vote for (0 to 9).
 
         Returns:
@@ -55,14 +54,14 @@ class VotePoll:
                 await app.vote_poll(chat_id, message_id, 6)
         """
 
-        poll = (await self.get_messages(chat_id=chat_id, message_ids=message_id)).poll
+        poll = (await self.get_messages(chat_id, message_id)).poll
         options = [options] if not isinstance(options, list) else options
 
         r = await self.invoke(
             raw.functions.messages.SendVote(
                 peer=await self.resolve_peer(chat_id),
                 msg_id=message_id,
-                options=[poll.options[option].data for option in options]
+                options=[poll.options[option].data for option in options],
             )
         )
 

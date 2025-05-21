@@ -16,11 +16,10 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
-from typing import Union, List, Optional
+from typing import List, Optional, Union
 
 import pyrogram
-from pyrogram import types, enums
+from pyrogram import enums, types
 
 
 class EditMessageCaption:
@@ -31,8 +30,7 @@ class EditMessageCaption:
         caption: str,
         parse_mode: Optional["enums.ParseMode"] = None,
         caption_entities: List["types.MessageEntity"] = None,
-        schedule_date: datetime = None,
-        reply_markup: "types.InlineKeyboardMarkup" = None
+        reply_markup: "types.InlineKeyboardMarkup" = None,
     ) -> "types.Message":
         """Edit the caption of media messages.
 
@@ -57,9 +55,6 @@ class EditMessageCaption:
             caption_entities (List of :obj:`~pyrogram.types.MessageEntity`):
                 List of special entities that appear in the caption, which can be specified instead of *parse_mode*.
 
-            schedule_date (:py:obj:`~datetime.datetime`, *optional*):
-                Date when the message will be automatically sent.
-
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
 
@@ -77,6 +72,5 @@ class EditMessageCaption:
             text=caption,
             parse_mode=parse_mode,
             entities=caption_entities,
-            schedule_date=schedule_date,
-            reply_markup=reply_markup
+            reply_markup=reply_markup,
         )

@@ -16,24 +16,18 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Callable, Optional, Union
+from typing import Callable
 
 import pyrogram
 from pyrogram.filters import Filter
 
 
 class OnStory:
-    def on_story(
-        self: Union["OnStory", Filter, None] = None,
-        filters: Optional[Filter] = None,
-        group: int = 0,
-    ) -> Callable:
+    def on_story(self=None, filters=None, group: int = 0) -> Callable:
         """Decorator for handling new stories.
 
         This does the same thing as :meth:`~pyrogram.Client.add_handler` using the
         :obj:`~pyrogram.handlers.StoryHandler`.
-
-        .. include:: /_includes/usable-by/users.rst
 
         Parameters:
             filters (:obj:`~pyrogram.filters`, *optional*):
@@ -54,7 +48,7 @@ class OnStory:
                 func.handlers.append(
                     (
                         pyrogram.handlers.StoryHandler(func, self),
-                        group if filters is None else filters
+                        group if filters is None else filters,
                     )
                 )
 

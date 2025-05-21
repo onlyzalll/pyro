@@ -16,14 +16,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from .active_session import ActiveSession
-from .active_sessions import ActiveSessions
 from .sent_code import SentCode
 from .terms_of_service import TermsOfService
 
-__all__ = [
-    "ActiveSession",
-    "ActiveSessions",
-    "SentCode",
-    "TermsOfService",
-]
+__all__ = ["TermsOfService", "SentCode"]

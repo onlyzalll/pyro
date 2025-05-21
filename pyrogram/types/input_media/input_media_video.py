@@ -25,8 +25,7 @@ from .input_media import InputMedia
 
 class InputMediaVideo(InputMedia):
     """A video to be sent inside an album.
-
-    It is intended to be used with :obj:`~pyrogram.Client.send_media_group` or :obj:`~pyrogram.Client.send_paid_media`.
+    It is intended to be used with :obj:`~pyrogram.Client.send_media_group`.
 
     Parameters:
         media (``str`` | ``BinaryIO``):
@@ -62,29 +61,11 @@ class InputMediaVideo(InputMedia):
         duration (``int``, *optional*):
             Video duration.
 
-        file_name (``str``, *optional*):
-            File name of the video sent.
-            Defaults to file's path basename.
-
         supports_streaming (``bool``, *optional*):
             Pass True, if the uploaded video is suitable for streaming.
 
         has_spoiler (``bool``, *optional*):
             Pass True if the photo needs to be covered with a spoiler animation.
-
-        no_sound (``bool``, *optional*):
-            Pass True, if the uploaded video is a video message with no sound.
-            Doesn't work for external links.
-
-        video_start_timestamp (``int``, *optional*):
-            Video startpoint, in seconds.
-
-        video_cover (``str`` | ``BinaryIO``, *optional*):
-            Video cover.
-            Pass a file_id as string to attach a photo that exists on the Telegram servers,
-            pass an HTTP URL as a string for Telegram to get a photo from the Internet,
-            pass a file path as string to upload a new photo that exists on your local machine, or
-            pass a binary file-like object with its attribute ".name" set for in-memory uploads.
     """
 
     def __init__(
@@ -97,12 +78,8 @@ class InputMediaVideo(InputMedia):
         width: int = 0,
         height: int = 0,
         duration: int = 0,
-        file_name: str = None,
         supports_streaming: bool = True,
         has_spoiler: bool = None,
-        no_sound: bool = None,
-        video_start_timestamp: int = None,
-        video_cover: Union[str, BinaryIO] = None,
     ):
         super().__init__(media, caption, parse_mode, caption_entities)
 
@@ -110,9 +87,5 @@ class InputMediaVideo(InputMedia):
         self.width = width
         self.height = height
         self.duration = duration
-        self.file_name = file_name
         self.supports_streaming = supports_streaming
         self.has_spoiler = has_spoiler
-        self.no_sound = no_sound
-        self.video_start_timestamp = video_start_timestamp
-        self.video_cover = video_cover

@@ -16,16 +16,13 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from datetime import datetime
 import io
 import os
 import re
 from typing import Union
 
 import pyrogram
-from pyrogram import raw
-from pyrogram import types
-from pyrogram import utils
+from pyrogram import raw, types, utils
 from pyrogram.file_id import FileType
 
 
@@ -35,19 +32,14 @@ class EditMessageMedia:
         chat_id: Union[int, str],
         message_id: int,
         media: "types.InputMedia",
-        show_caption_above_media: bool = None,
-        schedule_date: datetime = None,
+        invert_media: bool = None,
         reply_markup: "types.InlineKeyboardMarkup" = None,
-        file_name: str = None
+        file_name: str = None,
     ) -> "types.Message":
-        """Edit animation, audio, document, photo or video messages, or to add media to text messages.
+        """Edit animation, audio, document, photo or video messages.
 
-        If a message is part of a message album, then it can be edited only to an audio for audio albums, only to a document for document albums and to a photo or a video otherwise.
-        Otherwise, the message type can be changed arbitrarily.
-
-        .. note::
-
-           Business messages that were not sent by the bot and do not contain an inline keyboard can only be edited within 48 hours from the time they were sent.
+        If a message is a part of a message album, then it can be edited only to a photo or a video. Otherwise, the
+        message type can be changed arbitrarily.
 
         .. include:: /_includes/usable-by/users-bots.rst
 
@@ -63,11 +55,8 @@ class EditMessageMedia:
             media (:obj:`~pyrogram.types.InputMedia`):
                 One of the InputMedia objects describing an animation, audio, document, photo or video.
 
-            show_caption_above_media (``bool``, *optional*):
-                Pass True, if the caption must be shown above the message media.
-
-            schedule_date (:py:obj:`~datetime.datetime`, *optional*):
-                Date when the message will be automatically sent.
+            invert_media (``bool``, *optional*):
+                Invert media.
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
@@ -98,12 +87,11 @@ class EditMessageMedia:
         """
         caption = media.caption
         parse_mode = media.parse_mode
-        caption_entities = media.caption_entities
 
         message, entities = None, None
 
         if caption is not None:
-            message, entities = (await utils.parse_text_entities(self, caption, parse_mode, caption_entities)).values()
+            message, entities = (await self.parser.parse(caption, parse_mode)).values()
 
         if isinstance(media, types.InputMediaPhoto):
             if isinstance(media.media, io.BytesIO) or os.path.isfile(media.media):
@@ -112,8 +100,8 @@ class EditMessageMedia:
                         peer=await self.resolve_peer(chat_id),
                         media=raw.types.InputMediaUploadedPhoto(
                             file=await self.save_file(media.media),
-                            spoiler=media.has_spoiler
-                        )
+                            spoiler=media.has_spoiler,
+                        ),
                     )
                 )
 
@@ -121,17 +109,18 @@ class EditMessageMedia:
                     id=raw.types.InputPhoto(
                         id=uploaded_media.photo.id,
                         access_hash=uploaded_media.photo.access_hash,
-                        file_reference=uploaded_media.photo.file_reference
+                        file_reference=uploaded_media.photo.file_reference,
                     ),
-                    spoiler=media.has_spoiler
+                    spoiler=media.has_spoiler,
                 )
             elif re.match("^https?://", media.media):
                 media = raw.types.InputMediaPhotoExternal(
-                    url=media.media,
-                    spoiler=media.has_spoiler
+                    url=media.media, spoiler=media.has_spoiler
                 )
             else:
-                media = utils.get_input_media_from_file_id(media.media, FileType.PHOTO, has_spoiler=media.has_spoiler)
+                media = utils.get_input_media_from_file_id(
+                    media.media, FileType.PHOTO, has_spoiler=media.has_spoiler
+                )
         elif isinstance(media, types.InputMediaVideo):
             if isinstance(media.media, io.BytesIO) or os.path.isfile(media.media):
                 uploaded_media = await self.invoke(
@@ -147,13 +136,13 @@ class EditMessageMedia:
                                     supports_streaming=media.supports_streaming or None,
                                     duration=media.duration,
                                     w=media.width,
-                                    h=media.height
+                                    h=media.height,
                                 ),
                                 raw.types.DocumentAttributeFilename(
                                     file_name=file_name or os.path.basename(media.media)
-                                )
-                            ]
-                        )
+                                ),
+                            ],
+                        ),
                     )
                 )
 
@@ -161,17 +150,18 @@ class EditMessageMedia:
                     id=raw.types.InputDocument(
                         id=uploaded_media.document.id,
                         access_hash=uploaded_media.document.access_hash,
-                        file_reference=uploaded_media.document.file_reference
+                        file_reference=uploaded_media.document.file_reference,
                     ),
-                    spoiler=media.has_spoiler
+                    spoiler=media.has_spoiler,
                 )
             elif re.match("^https?://", media.media):
                 media = raw.types.InputMediaDocumentExternal(
-                    url=media.media,
-                    spoiler=media.has_spoiler
+                    url=media.media, spoiler=media.has_spoiler
                 )
             else:
-                media = utils.get_input_media_from_file_id(media.media, FileType.VIDEO, has_spoiler=media.has_spoiler)
+                media = utils.get_input_media_from_file_id(
+                    media.media, FileType.VIDEO, has_spoiler=media.has_spoiler
+                )
         elif isinstance(media, types.InputMediaAudio):
             if isinstance(media.media, io.BytesIO) or os.path.isfile(media.media):
                 media = await self.invoke(
@@ -185,13 +175,13 @@ class EditMessageMedia:
                                 raw.types.DocumentAttributeAudio(
                                     duration=media.duration,
                                     performer=media.performer,
-                                    title=media.title
+                                    title=media.title,
                                 ),
                                 raw.types.DocumentAttributeFilename(
                                     file_name=file_name or os.path.basename(media.media)
-                                )
-                            ]
-                        )
+                                ),
+                            ],
+                        ),
                     )
                 )
 
@@ -199,13 +189,11 @@ class EditMessageMedia:
                     id=raw.types.InputDocument(
                         id=media.document.id,
                         access_hash=media.document.access_hash,
-                        file_reference=media.document.file_reference
+                        file_reference=media.document.file_reference,
                     )
                 )
             elif re.match("^https?://", media.media):
-                media = raw.types.InputMediaDocumentExternal(
-                    url=media.media
-                )
+                media = raw.types.InputMediaDocumentExternal(url=media.media)
             else:
                 media = utils.get_input_media_from_file_id(media.media, FileType.AUDIO)
         elif isinstance(media, types.InputMediaAnimation):
@@ -223,14 +211,14 @@ class EditMessageMedia:
                                     supports_streaming=True,
                                     duration=media.duration,
                                     w=media.width,
-                                    h=media.height
+                                    h=media.height,
                                 ),
                                 raw.types.DocumentAttributeFilename(
                                     file_name=file_name or os.path.basename(media.media)
                                 ),
-                                raw.types.DocumentAttributeAnimated()
-                            ]
-                        )
+                                raw.types.DocumentAttributeAnimated(),
+                            ],
+                        ),
                     )
                 )
 
@@ -238,32 +226,34 @@ class EditMessageMedia:
                     id=raw.types.InputDocument(
                         id=uploaded_media.document.id,
                         access_hash=uploaded_media.document.access_hash,
-                        file_reference=uploaded_media.document.file_reference
+                        file_reference=uploaded_media.document.file_reference,
                     ),
-                    spoiler=media.has_spoiler
+                    spoiler=media.has_spoiler,
                 )
             elif re.match("^https?://", media.media):
                 media = raw.types.InputMediaDocumentExternal(
-                    url=media.media,
-                    spoiler=media.has_spoiler
+                    url=media.media, spoiler=media.has_spoiler
                 )
             else:
-                media = utils.get_input_media_from_file_id(media.media, FileType.ANIMATION, has_spoiler=media.has_spoiler)
+                media = utils.get_input_media_from_file_id(
+                    media.media, FileType.ANIMATION, has_spoiler=media.has_spoiler
+                )
         elif isinstance(media, types.InputMediaDocument):
             if isinstance(media.media, io.BytesIO) or os.path.isfile(media.media):
                 media = await self.invoke(
                     raw.functions.messages.UploadMedia(
                         peer=await self.resolve_peer(chat_id),
                         media=raw.types.InputMediaUploadedDocument(
-                            mime_type=self.guess_mime_type(media.media) or "application/zip",
+                            mime_type=self.guess_mime_type(media.media)
+                            or "application/zip",
                             thumb=await self.save_file(media.thumb),
                             file=await self.save_file(media.media),
                             attributes=[
                                 raw.types.DocumentAttributeFilename(
                                     file_name=file_name or os.path.basename(media.media)
                                 )
-                            ]
-                        )
+                            ],
+                        ),
                     )
                 )
 
@@ -271,33 +261,35 @@ class EditMessageMedia:
                     id=raw.types.InputDocument(
                         id=media.document.id,
                         access_hash=media.document.access_hash,
-                        file_reference=media.document.file_reference
+                        file_reference=media.document.file_reference,
                     )
                 )
             elif re.match("^https?://", media.media):
-                media = raw.types.InputMediaDocumentExternal(
-                    url=media.media
-                )
+                media = raw.types.InputMediaDocumentExternal(url=media.media)
             else:
-                media = utils.get_input_media_from_file_id(media.media, FileType.DOCUMENT)
+                media = utils.get_input_media_from_file_id(
+                    media.media, FileType.DOCUMENT
+                )
 
         r = await self.invoke(
             raw.functions.messages.EditMessage(
                 peer=await self.resolve_peer(chat_id),
                 id=message_id,
-                invert_media=show_caption_above_media,
+                invert_media=invert_media,
                 media=media,
-                schedule_date=utils.datetime_to_timestamp(schedule_date),
                 reply_markup=await reply_markup.write(self) if reply_markup else None,
                 message=message,
-                entities=entities
+                entities=entities,
             )
         )
 
         for i in r.updates:
-            if isinstance(i, (raw.types.UpdateEditMessage, raw.types.UpdateEditChannelMessage)):
+            if isinstance(
+                i, (raw.types.UpdateEditMessage, raw.types.UpdateEditChannelMessage)
+            ):
                 return await types.Message._parse(
-                    self, i.message,
+                    self,
+                    i.message,
                     {i.id: i for i in r.users},
-                    {i.id: i for i in r.chats}
+                    {i.id: i for i in r.chats},
                 )

@@ -28,22 +28,10 @@ class DeleteMessages:
         chat_id: Union[int, str],
         message_ids: Union[int, Iterable[int]],
         revoke: bool = True,
-        is_scheduled: bool = None
     ) -> int:
         """Delete messages, including service messages.
 
         .. include:: /_includes/usable-by/users-bots.rst
-
-        .. note::
-
-            - **For BOTS Only**: A message can only be deleted if it was sent less than 48 hours ago.
-            - Service messages about a supergroup, channel, or forum topic creation can't be deleted.
-            - A dice message in a private chat can only be deleted if it was sent more than 24 hours ago.
-            - :obj:`~pyrogram.Client` can delete outgoing messages in private chats, groups, and supergroups.
-            - :obj:`~pyrogram.Client` can delete incoming messages in private chats.
-            - :obj:`~pyrogram.Client` granted can_post_messages permissions can delete outgoing messages in channels.
-            - If the :obj:`~pyrogram.Client` is an administrator of a group, it can delete any message there.
-            - If the :obj:`~pyrogram.Client` has can_delete_messages permission in a supergroup or a channel, it can delete any message there.
 
         Parameters:
             chat_id (``int`` | ``str``):
@@ -60,10 +48,6 @@ class DeleteMessages:
                 channels and supergroups are always revoked (i.e.: deleted for everyone).
                 Defaults to True.
 
-            is_scheduled (``bool``, *optional*):
-                If True, the message will be deleted from the scheduled messages.
-                For userbots only.
-
         Returns:
             ``int``: Amount of affected messages
 
@@ -78,33 +62,19 @@ class DeleteMessages:
 
                 # Delete messages only on your side (without revoking)
                 await app.delete_messages(chat_id, message_id, revoke=False)
-
-                # Delete scheduled messages
-                await app.delete_messages(chat_id, message_id, is_scheduled=True)
         """
         peer = await self.resolve_peer(chat_id)
-        message_ids = list(message_ids) if not isinstance(message_ids, int) else [message_ids]
+        message_ids = (
+            list(message_ids) if not isinstance(message_ids, int) else [message_ids]
+        )
 
-        if is_scheduled:
+        if isinstance(peer, raw.types.InputPeerChannel):
             r = await self.invoke(
-                raw.functions.messages.DeleteScheduledMessages(
-                    peer=peer,
-                    id=message_ids
-                )
-            )
-        elif isinstance(peer, raw.types.InputPeerChannel):
-            r = await self.invoke(
-                raw.functions.channels.DeleteMessages(
-                    channel=peer,
-                    id=message_ids
-                )
+                raw.functions.channels.DeleteMessages(channel=peer, id=message_ids)
             )
         else:
             r = await self.invoke(
-                raw.functions.messages.DeleteMessages(
-                    id=message_ids,
-                    revoke=revoke
-                )
+                raw.functions.messages.DeleteMessages(id=message_ids, revoke=revoke)
             )
 
-        return len(r.updates[0].messages) if is_scheduled else r.pts_count
+        return r.pts_count

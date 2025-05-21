@@ -16,14 +16,12 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-import logging
 from datetime import datetime
 from typing import List, Optional, Union
 
 import pyrogram
 from pyrogram import enums, raw, types, utils
 
-log = logging.getLogger(__name__)
 
 class CopyMediaGroup:
     async def copy_media_group(
@@ -32,22 +30,16 @@ class CopyMediaGroup:
         from_chat_id: Union[int, str],
         message_id: int,
         captions: Union[List[str], str] = None,
-        has_spoilers: Union[List[bool], bool] = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
-        schedule_date: datetime = None,
-        show_caption_above_media: bool = None,
-        allow_paid_broadcast: bool = None,
-        paid_message_star_count: int = None,
-        reply_parameters: "types.ReplyParameters" = None,
-
         reply_to_message_id: int = None,
         reply_to_chat_id: Union[int, str] = None,
         reply_to_story_id: int = None,
         quote_text: str = None,
         parse_mode: Optional["enums.ParseMode"] = None,
         quote_entities: List["types.MessageEntity"] = None,
-        quote_offset: int = None,
+        schedule_date: datetime = None,
+        invert_media: bool = None,
     ) -> List["types.Message"]:
         """Copy a media group by providing one of the message ids.
 
@@ -82,25 +74,32 @@ class CopyMediaGroup:
 
             message_thread_id (``int``, *optional*):
                 Unique identifier for the target message thread (topic) of the forum.
-                For supergroups only.
+                for forum supergroups only.
 
-            reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
-                Describes reply parameters for the message that is being sent.
+            reply_to_message_id (``int``, *optional*):
+                If the message is a reply, ID of the original message.
+
+            reply_to_chat_id (``int``, *optional*):
+                If the message is a reply, ID of the original chat.
+
+            reply_to_story_id (``int``, *optional*):
+                Unique identifier for the target story.
+
+            quote_text (``str``):
+                Text of the quote to be sent.
+
+            parse_mode (:obj:`~pyrogram.enums.ParseMode`, *optional*):
+                By default, texts are parsed using both Markdown and HTML styles.
+                You can combine both syntaxes together.
+
+            quote_entities (List of :obj:`~pyrogram.types.MessageEntity`):
+                List of special entities that appear in quote text, which can be specified instead of *parse_mode*.
 
             schedule_date (:py:obj:`~datetime.datetime`, *optional*):
                 Date when the message will be automatically sent.
 
-            show_caption_above_media (``bool``, *optional*):
-                Pass True, if the caption must be shown above the message media.
-
-            allow_paid_broadcast (``bool``, *optional*):
-                If True, you will be allowed to send up to 1000 messages per second.
-                Ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message.
-                The relevant Stars will be withdrawn from the bot's balance.
-                For bots only.
-
-            paid_message_star_count (``int``, *optional*):
-                The number of Telegram Stars the user agreed to pay to send the messages.
+            invert_media (``bool``, *optional*):
+                Invert media.
 
         Returns:
             List of :obj:`~pyrogram.types.Message`: On success, a list of copied messages is returned.
@@ -116,61 +115,11 @@ class CopyMediaGroup:
                 await app.copy_media_group(to_chat, from_chat, 123,
                     captions=["caption 1", None, ""])
         """
-        if any(
-            (
-                reply_to_message_id is not None,
-                reply_to_chat_id is not None,
-                reply_to_story_id is not None,
-                quote_text is not None,
-                parse_mode is not None,
-                quote_entities is not None,
-                quote_offset is not None,
+        quote_text, quote_entities = (
+            await utils.parse_text_entities(
+                self, quote_text, parse_mode, quote_entities
             )
-        ):
-            if reply_to_message_id is not None:
-                log.warning(
-                    "`reply_to_message_id` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
-                )
-
-            if reply_to_chat_id is not None:
-                log.warning(
-                    "`reply_to_chat_id` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
-                )
-
-            if reply_to_story_id is not None:
-                log.warning(
-                    "`reply_to_story_id` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
-                )
-
-            if quote_text is not None:
-                log.warning(
-                    "`quote_text` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
-                )
-
-            if parse_mode is not None:
-                log.warning(
-                    "`parse_mode` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
-                )
-
-            if quote_entities is not None:
-                log.warning(
-                    "`quote_entities` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
-                )
-
-            if quote_offset is not None:
-                log.warning(
-                    "`quote_offset` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
-                )
-
-            reply_parameters = types.ReplyParameters(
-                message_id=reply_to_message_id,
-                chat_id=reply_to_chat_id,
-                story_id=reply_to_story_id,
-                quote=quote_text,
-                quote_parse_mode=parse_mode,
-                quote_entities=quote_entities,
-                quote_position=quote_offset
-            )
+        ).values()
 
         media_group = await self.get_media_group(from_chat_id, message_id)
         multi_media = []
@@ -187,28 +136,28 @@ class CopyMediaGroup:
             else:
                 raise ValueError("Message with this type can't be copied.")
 
-            media = utils.get_input_media_from_file_id(
-                file_id=file_id,
-                has_spoiler=(
-                    has_spoilers[i]
-                    if isinstance(has_spoilers, list)
-                    and i < len(has_spoilers)
-                    else (
-                        has_spoilers
-                        if isinstance(has_spoilers, bool)
-                        else message.has_media_spoiler
-                    )
-                ),
-            )
+            media = utils.get_input_media_from_file_id(file_id=file_id)
             multi_media.append(
                 raw.types.InputSingleMedia(
                     media=media,
                     random_id=self.rnd_id(),
                     **await self.parser.parse(
-                        captions[i] if isinstance(captions, list) and i < len(captions) and captions[i] else
-                        captions if isinstance(captions, str) and i == 0 else
-                        message.caption if message.caption and message.caption != "None" and not type(
-                            captions) is str else "")
+                        captions[i]
+                        if isinstance(captions, list)
+                        and i < len(captions)
+                        and captions[i]
+                        else (
+                            captions
+                            if isinstance(captions, str) and i == 0
+                            else (
+                                message.caption
+                                if message.caption
+                                and message.caption != "None"
+                                and not type(captions) is str
+                                else ""
+                            )
+                        )
+                    )
                 )
             )
 
@@ -218,28 +167,41 @@ class CopyMediaGroup:
                 multi_media=multi_media,
                 silent=disable_notification or None,
                 reply_to=utils.get_reply_to(
-                    self,
-                    reply_parameters,
-                    message_thread_id
+                    reply_to_message_id=reply_to_message_id,
+                    message_thread_id=message_thread_id,
+                    reply_to_peer=(
+                        await self.resolve_peer(reply_to_chat_id)
+                        if reply_to_chat_id
+                        else None
+                    ),
+                    reply_to_story_id=reply_to_story_id,
+                    quote_text=quote_text,
+                    quote_entities=quote_entities,
                 ),
                 schedule_date=utils.datetime_to_timestamp(schedule_date),
-                invert_media=show_caption_above_media,
-                allow_paid_floodskip=allow_paid_broadcast,
-                allow_paid_stars=paid_message_star_count
+                invert_media=invert_media,
             ),
-            sleep_threshold=60
+            sleep_threshold=60,
         )
 
         return await utils.parse_messages(
             self,
             raw.types.messages.Messages(
-                messages=[m.message for m in filter(
-                    lambda u: isinstance(u, (raw.types.UpdateNewMessage,
-                                             raw.types.UpdateNewChannelMessage,
-                                             raw.types.UpdateNewScheduledMessage)),
-                    r.updates
-                )],
+                messages=[
+                    m.message
+                    for m in filter(
+                        lambda u: isinstance(
+                            u,
+                            (
+                                raw.types.UpdateNewMessage,
+                                raw.types.UpdateNewChannelMessage,
+                                raw.types.UpdateNewScheduledMessage,
+                            ),
+                        ),
+                        r.updates,
+                    )
+                ],
                 users=r.users,
-                chats=r.chats
-            )
+                chats=r.chats,
+            ),
         )

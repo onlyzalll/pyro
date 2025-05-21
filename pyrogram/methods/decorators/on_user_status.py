@@ -16,23 +16,17 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Callable, Optional, Union
+from typing import Callable
 
 import pyrogram
 from pyrogram.filters import Filter
 
 
 class OnUserStatus:
-    def on_user_status(
-        self: Union["OnUserStatus", Filter, None] = None,
-        filters: Optional[Filter] = None,
-        group: int = 0,
-    ) -> Callable:
+    def on_user_status(self=None, filters=None, group: int = 0) -> Callable:
         """Decorator for handling user status updates.
         This does the same thing as :meth:`~pyrogram.Client.add_handler` using the
         :obj:`~pyrogram.handlers.UserStatusHandler`.
-
-        .. include:: /_includes/usable-by/users.rst
 
         Parameters:
             filters (:obj:`~pyrogram.filters`, *optional*):
@@ -44,7 +38,9 @@ class OnUserStatus:
 
         def decorator(func: Callable) -> Callable:
             if isinstance(self, pyrogram.Client):
-                self.add_handler(pyrogram.handlers.UserStatusHandler(func, filters), group)
+                self.add_handler(
+                    pyrogram.handlers.UserStatusHandler(func, filters), group
+                )
             elif isinstance(self, Filter) or self is None:
                 if not hasattr(func, "handlers"):
                     func.handlers = []
@@ -52,7 +48,7 @@ class OnUserStatus:
                 func.handlers.append(
                     (
                         pyrogram.handlers.UserStatusHandler(func, self),
-                        group if filters is None else filters
+                        group if filters is None else filters,
                     )
                 )
 

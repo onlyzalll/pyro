@@ -17,11 +17,10 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
-from typing import Union, List, Iterable
+from typing import Iterable, List, Union
 
 import pyrogram
-from pyrogram import raw
-from pyrogram import types
+from pyrogram import raw, types
 
 log = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ class GetForumTopicsByID:
     async def get_forum_topics_by_id(
         self: "pyrogram.Client",
         chat_id: Union[int, str],
-        topic_ids: Union[int, Iterable[int]]
+        topic_ids: Union[int, Iterable[int]],
     ) -> Union["types.ForumTopic", List["types.ForumTopic"]]:
         """Get one or more topic from a chat by using topic identifiers.
 
@@ -65,17 +64,13 @@ class GetForumTopicsByID:
 
         r = await self.invoke(
             raw.functions.channels.GetForumTopicsByID(
-                channel=await self.resolve_peer(chat_id),
-                topics=ids
+                channel=await self.resolve_peer(chat_id), topics=ids
             )
         )
 
-        users = {i.id: i for i in r.users}
-        chats = {i.id: i for i in r.chats}
-
         topics = types.List()
 
-        for i in r.topics:
-            topics.append(types.ForumTopic._parse(self, i, users=users, chats=chats))
+        for i in r:
+            topics.append(types.ForumTopic._parse(i))
 
-        return topics if is_iterable else topics[0] if topics else None
+        return topics if is_iterable else topics[0]

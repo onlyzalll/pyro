@@ -17,6 +17,7 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from pyrogram import raw
+
 from .auto_name import AutoName
 
 
@@ -27,10 +28,10 @@ class MessageEntityType(AutoName):
     "``@username``"
 
     HASHTAG = raw.types.MessageEntityHashtag
-    "``#hashtag`` or ``#hashtag@username``"
+    "``#hashtag``"
 
     CASHTAG = raw.types.MessageEntityCashtag
-    "``$USD`` or ``$USD@username``"
+    "``$USD``"
 
     BOT_COMMAND = raw.types.MessageEntityBotCommand
     "``/start@pyrogrambot``"
@@ -67,6 +68,9 @@ class MessageEntityType(AutoName):
 
     BLOCKQUOTE = raw.types.MessageEntityBlockquote
     "Blockquote text"
+
+    # EXPANDABLE_BLOCKQUOTE = raw.types.MessageEntityBlockquote
+    # "collapsed-by-default block quotation"
 
     TEXT_LINK = raw.types.MessageEntityTextUrl
     "For clickable text URLs"

@@ -19,7 +19,7 @@
 from .advanced import Advanced
 from .auth import Auth
 from .bots import Bots
-from .business import Business
+from .calls import Calls
 from .chats import Chats
 from .contacts import Contacts
 from .decorators import Decorators
@@ -27,9 +27,9 @@ from .invite_links import InviteLinks
 from .messages import Messages
 from .password import Password
 from .premium import Premium
-from .phone import Phone
-from .users import Users
+from .stickers import Stickers
 from .stories import Stories
+from .users import Users
 from .utilities import Utilities
 
 
@@ -37,14 +37,14 @@ class Methods(
     Advanced,
     Auth,
     Bots,
-    Business,
+    Calls,
     Contacts,
     Password,
     Premium,
-    Phone,
     Chats,
     Users,
     Stories,
+    Stickers,
     Messages,
     Decorators,
     Utilities,

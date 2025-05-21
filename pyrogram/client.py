@@ -196,8 +196,6 @@ class Client(Methods):
     # Interval of seconds in which the updates watchdog will kick in
     UPDATES_WATCHDOG_INTERVAL = 5 * 60
 
-    MAX_TOPIC_CACHE_SIZE = 1000
-    
     MAX_CONCURRENT_TRANSMISSIONS = 1
 
     mimetypes = MimeTypes()
@@ -224,10 +222,6 @@ class Client(Methods):
         workers: int = WORKERS,
         workdir: str = WORKDIR,
         plugins: dict = None,
-        max_topic_cache_size: int = MAX_TOPIC_CACHE_SIZE,
-        fetch_replies: Optional[bool] = True,
-        fetch_topics: Optional[bool] = True,
-        fetch_stories: Optional[bool] = True,
         parse_mode: "enums.ParseMode" = enums.ParseMode.DEFAULT,
         no_updates: bool = None,
         takeout: bool = None,
@@ -261,10 +255,6 @@ class Client(Methods):
         self.takeout = takeout
         self.sleep_threshold = sleep_threshold
         self.hide_password = hide_password
-        self.max_topic_cache_size = max_topic_cache_size
-        self.fetch_replies = fetch_replies
-        self.fetch_topics = fetch_topics
-        self.fetch_stories = fetch_stories
         self.max_concurrent_transmissions = max_concurrent_transmissions
 
         self.executor = ThreadPoolExecutor(self.workers, thread_name_prefix="Handler")
@@ -283,8 +273,6 @@ class Client(Methods):
         self.parser = Parser(self)
 
         self.session = None
-        
-        self.business_connections = {}
 
         self.media_sessions = {}
         self.media_sessions_lock = asyncio.Lock()
@@ -298,7 +286,6 @@ class Client(Methods):
         self.takeout_id = None
 
         self.disconnect_handler = None
-        self.topic_cache = Cache(self.max_topic_cache_size)
 
         self.me: Optional[User] = None
 
@@ -310,6 +297,7 @@ class Client(Methods):
         self.updates_watchdog_task = None
         self.updates_watchdog_event = asyncio.Event()
         self.last_update_time = datetime.now()
+        self.listeners = {listener_type: [] for listener_type in pyrogram.enums.ListenerTypes}
 
         self.loop = asyncio.get_event_loop()
 

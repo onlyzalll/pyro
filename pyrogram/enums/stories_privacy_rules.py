@@ -17,11 +17,12 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from enum import auto
+
 from .auto_name import AutoName
 
 
 class StoriesPrivacyRules(AutoName):
-    """Stories privacy rules type enumeration used in :meth:`~pyrogram.Client.send_story`."""
+    """Stories privacy rules type enumeration used in :obj:`~pyrogram.method.SendStory`."""
 
     PUBLIC = auto()
     "Public stories"
