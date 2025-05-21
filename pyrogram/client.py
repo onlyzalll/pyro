@@ -54,7 +54,6 @@ from pyrogram.session import Auth, Session
 from pyrogram.storage import Storage, FileStorage, MemoryStorage
 from pyrogram.types import User, TermsOfService
 from pyrogram.utils import ainput
-from pyrogram.qrlogin import QRLogin
 from .connection import Connection
 from .connection.transport import TCP, TCPAbridged
 from .dispatcher import Dispatcher
@@ -544,38 +543,6 @@ class Client(Methods):
             await self.accept_terms_of_service(signed_in.id)
 
         return signed_up
-
-    async def authorize_qr(self, except_ids: List[int] = []) -> User:
-        from qrcode import QRCode
-        qr_login = QRLogin(self, except_ids)
-
-        while True:
-            try:
-                log.info("Waiting for QR code being scanned.")
-
-                signed_in = await qr_login.wait()
-
-                if signed_in:
-                    log.info(f"Logged in successfully as {signed_in.full_name}")
-                    return signed_in
-            except asyncio.TimeoutError:
-                log.info("Recreating QR code.")
-                await qr_login.recreate()
-                print("\x1b[2J")
-                print(f"Welcome to Pyrogram (version {__version__})")
-                print(f"Pyrogram is free software and comes with ABSOLUTELY NO WARRANTY. Licensed\n"
-                      f"under the terms of the {__license__}.\n")
-                print("Scan the QR code below to login")
-                print("Settings -> Privacy and Security -> Active Sessions -> Scan QR Code.\n")
-
-                qrcode = QRCode(version=1)
-                qrcode.add_data(qr_login.url)
-                qrcode.print_ascii(invert=True)
-            except SessionPasswordNeeded:
-                print(f"Password hint: {await self.get_password_hint()}")
-                return await self.check_password(
-                    await ainput("Enter 2FA password: ", hide=self.hide_password, loop=self.loop)
-                )
 
     def set_parse_mode(self, parse_mode: Optional["enums.ParseMode"]):
         """Set the parse mode to be used globally by the client.
