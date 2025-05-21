@@ -53,6 +53,8 @@ from pyrogram.types import TermsOfService, User
 from pyrogram.utils import ainput
 
 from .dispatcher import Dispatcher
+from .connection import Connection
+from .connection.transport import TCP, TCPAbridged
 from .file_id import FileId, FileType, ThumbnailSource
 from .mime_types import mime_types
 from .parser import Parser
