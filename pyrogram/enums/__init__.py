@@ -21,6 +21,7 @@ from .chat_event_action import ChatEventAction
 from .chat_member_status import ChatMemberStatus
 from .chat_members_filter import ChatMembersFilter
 from .chat_type import ChatType
+from .client_platform import ClientPlatform
 from .message_entity_type import MessageEntityType
 from .message_media_type import MessageMediaType
 from .message_origin_type import MessageOriginType
@@ -40,6 +41,7 @@ __all__ = [
     "ChatMemberStatus",
     "ChatMembersFilter",
     "ChatType",
+    "ClientPlatform",
     "MessageEntityType",
     "MessageMediaType",
     "MessageServiceType",
