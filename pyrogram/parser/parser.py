@@ -20,6 +20,7 @@ from typing import Optional
 
 import pyrogram
 from pyrogram import enums
+
 from .html import HTML
 from .markdown import Markdown
 
@@ -30,8 +31,8 @@ class Parser:
         self.html = HTML(client)
         self.markdown = Markdown(client)
 
-    async def parse(self, text: str, mode: Optional[enums.ParseMode] = None) -> dict:
-        text = str(text or "").strip()
+    async def parse(self, text: str, mode: Optional[enums.ParseMode] = None):
+        text = str(text if text else "").strip()
 
         if mode is None:
             if self.client:
@@ -54,7 +55,7 @@ class Parser:
         raise ValueError(f'Invalid parse mode "{mode}"')
 
     @staticmethod
-    def unparse(text: str, entities: list, is_html: bool) -> str:
+    def unparse(text: str, entities: list, is_html: bool):
         if is_html:
             return HTML.unparse(text, entities)
         else:
