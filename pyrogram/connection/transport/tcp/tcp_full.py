@@ -16,28 +16,27 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-import asyncio
 import logging
 from binascii import crc32
 from struct import pack, unpack
-from typing import Optional, Tuple
+from typing import Optional
 
-from .tcp import TCP, Proxy
+from .tcp import TCP
 
 log = logging.getLogger(__name__)
 
 
 class TCPFull(TCP):
-    def __init__(self, ipv6: bool, proxy: Proxy, loop: Optional[asyncio.AbstractEventLoop] = None) -> None:
-        super().__init__(ipv6, proxy, loop)
+    def __init__(self, ipv6: bool, proxy: dict):
+        super().__init__(ipv6, proxy)
 
-        self.seq_no: Optional[int] = None
+        self.seq_no = None
 
-    async def connect(self, address: Tuple[str, int]) -> None:
+    async def connect(self, address: tuple):
         await super().connect(address)
         self.seq_no = 0
 
-    async def send(self, data: bytes, *args) -> None:
+    async def send(self, data: bytes, *args):
         data = pack("<II", len(data) + 12, self.seq_no) + data
         data += pack("<I", crc32(data))
         self.seq_no += 1
