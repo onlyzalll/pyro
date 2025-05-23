@@ -16,6 +16,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+from .accent_color import AccentColor
 from .chat_action import ChatAction
 from .chat_event_action import ChatEventAction
 from .chat_member_status import ChatMemberStatus
@@ -35,6 +36,7 @@ from .stories_privacy_rules import StoriesPrivacyRules
 from .user_status import UserStatus
 
 __all__ = [
+    "AccentColor",
     "ChatAction",
     "ChatEventAction",
     "ChatMemberStatus",
