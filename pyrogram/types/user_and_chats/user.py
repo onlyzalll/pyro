@@ -21,9 +21,7 @@ from datetime import datetime
 from typing import List, Optional
 
 import pyrogram
-from pyrogram import enums, utils
-from pyrogram import raw
-from pyrogram import types
+from pyrogram import enums, utils, raw, types
 from ..object import Object
 from ..update import Update
 
@@ -66,6 +64,21 @@ class User(Object, Update):
         id (``int``):
             Unique identifier for this user or bot.
 
+        first_name (``str``, *optional*):
+            User's or bot's first name.
+
+        last_name (``str``, *optional*):
+            User's or bot's last name.
+
+        username (``str``, *optional*):
+            User's or bot's username.
+
+        language_code (``str``, *optional*):
+            IETF language tag of the user's language.
+
+        is_premium (``bool``, *optional*):
+            True, if this user is a premium user.
+
         is_self(``bool``, *optional*):
             True, if this user is you yourself.
 
@@ -77,9 +90,6 @@ class User(Object, Update):
 
         is_deleted(``bool``, *optional*):
             True, if this user is deleted.
-
-        is_bot (``bool``, *optional*):
-            True, if this user is a bot.
 
         is_verified (``bool``, *optional*):
             True, if this user has been verified by Telegram.
@@ -97,26 +107,8 @@ class User(Object, Update):
         is_support (``bool``, *optional*):
             True, if this user is part of the Telegram support team.
 
-        is_premium (``bool``, *optional*):
-            True, if this user is a premium user.
-
-        is_close_friend (``bool``):
-            True, if this user is a close friend.
-
-        is_stories_hidden (``bool``):
-            True, if this user has hidden stories.
-
-        is_stories_unavailable (``bool``):
-            True, if this chat stories is unavailable.
-
-        first_name (``str``, *optional*):
-            User's or bot's first name.
-
-        last_name (``str``, *optional*):
-            User's or bot's last name.
-
-        full_name (``str``, *property*):
-            Full name of the other party in a private chat, for private chats and bots.
+        restricts_new_chats (``bool``, *optional*):
+            True, if the user may restrict new chats with non-contacts.
 
         status (:obj:`~pyrogram.enums.UserStatus`, *optional*):
             User's last seen & online status. ``None``, for bots.
@@ -126,15 +118,6 @@ class User(Object, Update):
 
         next_offline_date (:py:obj:`~datetime.datetime`, *optional*):
             Date when a user will automatically go offline. Only available in case status is :obj:`~pyrogram.enums.UserStatus.ONLINE`.
-
-        username (``str``, *optional*):
-            User's or bot's username.
-
-        usernames (List of :obj:`~pyrogram.types.Username`, *optional*):
-            The list of user's collectible (and basic) usernames if available.
-
-        language_code (``str``, *optional*):
-            IETF language tag of the user's language.
 
         emoji_status (:obj:`~pyrogram.types.EmojiStatus`, *optional*):
             Emoji status.
@@ -151,21 +134,70 @@ class User(Object, Update):
         photo (:obj:`~pyrogram.types.ChatPhoto`, *optional*):
             User's or bot's current profile photo. Suitable for downloads only.
 
+        active_usernames (List of :obj:`~pyrogram.types.Username`, *optional*):
+            If non-empty, the list of all `active chat usernames <https://telegram.org/blog/topics-in-groups-collectible-usernames#collectible-usernames>`_; for private chats, supergroups and channels.
+
         restrictions (List of :obj:`~pyrogram.types.Restriction`, *optional*):
             The list of reasons why this bot might be unavailable to some users.
             This field is available only in case *is_restricted* is True.
+
+        is_bot (``bool``, *optional*):
+            True, if this user is a bot.
+
+        can_be_added_to_attachment_menu (``bool``, *optional*):
+            True, if the bot can be added to attachment or side menu.
+
+        added_to_attachment_menu (``bool``, *optional*):
+            True, if this user added the bot to the attachment menu.
+
+        can_join_groups (``bool``, *optional*):
+            True, if the bot can be invited to groups. Returned only in get_me.
+
+        can_read_all_group_messages (``bool``, *optional*):
+            True, if privacy mode is disabled for the bot. Returned only in get_me.
+
+        supports_inline_queries (``bool``, *optional*):
+            True, if the bot supports inline queries. Returned only in get_me.
+
+        can_connect_to_business (``bool``, *optional*):
+            True, if the bot can be connected to a Telegram Business account to receive its messages.
+
+        inline_query_placeholder (``str``, *optional*):
+            Placeholder for inline queries (displayed on the application input field)
+
+        inline_need_location (``bool``, *optional*):
+            True, if the bot supports inline `user location <https://core.telegram.org/bots/inline#location-based-results>`_ requests. Returned only in get_me.
+        
+        can_be_edited (``bool``, *optional*):
+            True, if the current user can edit this bot's profile picture.
+
+        is_close_friend (``bool``, *optional*):
+            True, if the user is a close friend of the current user; implies that the user is a contact
+
+        accent_color (:obj:`~pyrogram.types.ChatColor`, *optional*):
+            Chat accent color.
+
+        profile_color (:obj:`~pyrogram.types.ChatColor`, *optional*):
+            Chat profile color.
+        
+        have_access (``bool``, *optional*):
+            If False, the user is inaccessible, and the only information known about the user is inside this class. Identifier of the user can't be passed to any method.
+
+        has_main_web_app (``bool``, *optional*):
+            True, if the bot has a main Web App. Returned only in get_me.
+
+        active_user_count (``int``, *optional*):
+            The number of recently active users of the bot.
 
         mention (``str``, *property*):
             Generate a text mention for this user.
             You can use ``user.mention()`` to mention the user using their first name (styled using html), or
             ``user.mention("another name")`` for a custom name. To choose a different style
-            ("html" or "md"/"markdown") use ``user.mention(style="md")``.
+            ("HTML" or "MARKDOWN") use ``user.mention(style=ParseMode.MARKDOWN)``.
+        
+        full_name (``str``, *property*):
+            Full name of the other party in a private chat, for private chats and bots.
 
-        color (``int``, *optional*)
-            Chat color.
-
-        background_emoji_id (``int``, *optional*)
-            Chat background emoji id.
     """
 
     def __init__(
@@ -184,24 +216,36 @@ class User(Object, Update):
         is_fake: bool = None,
         is_support: bool = None,
         is_premium: bool = None,
-        is_close_friend: bool = None,
-        is_stories_hidden: bool = None,
-        is_stories_unavailable: bool = None,
         first_name: str = None,
         last_name: str = None,
         status: "enums.UserStatus" = None,
         last_online_date: datetime = None,
         next_offline_date: datetime = None,
         username: str = None,
-        usernames: List["types.Username"] = None,
         language_code: str = None,
         emoji_status: Optional["types.EmojiStatus"] = None,
         dc_id: int = None,
         phone_number: str = None,
         photo: "types.ChatPhoto" = None,
+        active_usernames: List["types.Username"] = None,
         restrictions: List["types.Restriction"] = None,
-        color: int = None,
-        background_emoji_id: int = None
+        added_to_attachment_menu: bool = None,
+        can_be_added_to_attachment_menu: bool = None,
+        can_join_groups: bool = None,
+        can_read_all_group_messages: bool = None,
+        supports_inline_queries: bool = None,
+        restricts_new_chats: bool = None,
+        inline_need_location: bool = None,
+        can_be_edited: bool = None,
+        can_connect_to_business: bool = None,
+        inline_query_placeholder: str = None,
+        is_close_friend: bool = None,
+        accent_color: "types.ChatColor" = None,
+        profile_color: "types.ChatColor" = None,
+        have_access: bool = None,
+        has_main_web_app: bool = None,
+        active_user_count: int = None,
+        raw: "raw.base.User" = None
     ):
         super().__init__(client)
 
@@ -217,28 +261,36 @@ class User(Object, Update):
         self.is_fake = is_fake
         self.is_support = is_support
         self.is_premium = is_premium
-        self.is_close_friend = is_close_friend
-        self.is_stories_hidden = is_stories_hidden
-        self.is_stories_unavailable = is_stories_unavailable
         self.first_name = first_name
         self.last_name = last_name
         self.status = status
         self.last_online_date = last_online_date
         self.next_offline_date = next_offline_date
         self.username = username
-        self.usernames = usernames
         self.language_code = language_code
         self.emoji_status = emoji_status
         self.dc_id = dc_id
         self.phone_number = phone_number
         self.photo = photo
         self.restrictions = restrictions
-        self.color = color
-        self.background_emoji_id = background_emoji_id
-
-    @property
-    def full_name(self) -> str:
-        return " ".join(filter(None, [self.first_name, self.last_name])) or None
+        self.added_to_attachment_menu = added_to_attachment_menu
+        self.can_be_added_to_attachment_menu = can_be_added_to_attachment_menu
+        self.can_join_groups = can_join_groups
+        self.can_read_all_group_messages = can_read_all_group_messages
+        self.supports_inline_queries = supports_inline_queries
+        self.restricts_new_chats = restricts_new_chats
+        self.inline_need_location = inline_need_location
+        self.can_be_edited = can_be_edited
+        self.can_connect_to_business = can_connect_to_business
+        self.inline_query_placeholder = inline_query_placeholder
+        self.active_usernames = active_usernames
+        self.is_close_friend = is_close_friend
+        self.accent_color = accent_color
+        self.profile_color = profile_color
+        self.have_access = have_access
+        self.has_main_web_app = has_main_web_app
+        self.active_user_count = active_user_count
+        self.raw = raw
 
     @property
     def mention(self):
@@ -248,12 +300,44 @@ class User(Object, Update):
             self._client.parse_mode
         )
 
+    @property
+    def full_name(self) -> str:
+        return " ".join(
+            filter(
+                None,
+                [
+                    self.first_name,
+                    self.last_name
+                ]
+            )
+        ) or None
+
     @staticmethod
     def _parse(client, user: "raw.base.User") -> Optional["User"]:
-        if user is None or isinstance(user, raw.types.UserEmpty):
+        if user is None:
             return None
 
-        return User(
+        if isinstance(user, raw.types.UserEmpty):
+            return User(
+                id=user.id,
+                client=client,
+                rawi=user
+            )
+
+        active_usernames = types.List(
+            [
+                types.Username._parse(u)
+                for u in getattr(user, "usernames", [])
+            ]
+        ) or None
+        _tmp_username = None
+        if (
+            active_usernames and
+            len(active_usernames) > 0
+        ):
+            _tmp_username = active_usernames[0].username
+
+        parsed_user = User(
             id=user.id,
             is_self=user.is_self,
             is_contact=user.contact,
@@ -266,27 +350,51 @@ class User(Object, Update):
             is_fake=user.fake,
             is_support=user.support,
             is_premium=user.premium,
-            is_close_friend=user.close_friend,
-            is_stories_hidden=user.stories_hidden,
-            is_stories_unavailable=user.stories_unavailable,
             first_name=user.first_name,
             last_name=user.last_name,
             **User._parse_status(user.status, user.bot),
-            username=user.username,
-            usernames=types.List([types.Username._parse(r) for r in user.usernames]) or None,
+            username=user.username or _tmp_username,
             language_code=user.lang_code,
             emoji_status=types.EmojiStatus._parse(client, user.emoji_status),
             dc_id=getattr(user.photo, "dc_id", None),
             phone_number=user.phone,
             photo=types.ChatPhoto._parse(client, user.photo, user.id, user.access_hash),
             restrictions=types.List([types.Restriction._parse(r) for r in user.restriction_reason]) or None,
-            color=getattr(user, "color", None),
-            background_emoji_id=getattr(user, "background_emoji_id", None),
-            client=client
+            client=client,
+            restricts_new_chats=getattr(user, "contact_require_premium", None),
+            active_usernames=active_usernames,
+            is_close_friend=getattr(user, "close_friend", None),
+            accent_color=types.ChatColor._parse(getattr(user, "color", None)),
+            profile_color=types.ChatColor._parse_profile_color(getattr(user, "profile_color", None)),
+            have_access=not bool(getattr(user, "min", False)),  # apply_min_photo
+            raw=user
         )
+        if parsed_user.is_bot:
+            parsed_user.added_to_attachment_menu = getattr(user, "attach_menu_enabled", None)
+            parsed_user.can_be_added_to_attachment_menu = getattr(user, "bot_attach_menu", None)
+            parsed_user.can_join_groups = not bool(getattr(user, "bot_nochats", None))
+            parsed_user.can_read_all_group_messages = getattr(user, "bot_chat_history", None)
+            parsed_user.inline_query_placeholder = getattr(
+                user, "bot_inline_placeholder", None
+            )
+            parsed_user.supports_inline_queries = bool(parsed_user.inline_query_placeholder)
+            parsed_user.inline_need_location = bool(
+                getattr(user, "bot_inline_geo", None)
+            )
+            parsed_user.can_connect_to_business = bool(
+                getattr(user, "bot_business", None)
+            )
+            parsed_user.has_main_web_app = bool(getattr(user, "bot_has_main_app", None))
+            parsed_user.active_user_count = getattr(user, "bot_active_users", None)
+        if parsed_user.is_bot:
+            parsed_user.can_be_edited = bool(
+                getattr(user, "bot_can_edit", None)
+            )
+        return parsed_user
 
     @staticmethod
     def _parse_status(user_status: "raw.base.UserStatus", is_bot: bool = False):
+        # TODO
         if isinstance(user_status, raw.types.UserStatusOnline):
             status, date = enums.UserStatus.ONLINE, user_status.expires
         elif isinstance(user_status, raw.types.UserStatusOffline):
