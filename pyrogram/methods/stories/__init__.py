@@ -26,6 +26,7 @@ from .get_all_stories import GetAllStories
 from .get_peer_stories import GetPeerStories
 from .get_pinned_stories import GetPinnedStories
 from .get_stories import GetStories
+from .get_chat_stories import GetChatStories
 from .get_stories_archive import GetStoriesArchive
 from .hide_stories import HideStories
 from .increment_story_views import IncrementStoryViews
@@ -39,6 +40,7 @@ class Stories(
     DeleteStories,
     EditStory,
     ExportStoryLink,
+    GetChatStories,
     ForwardStory,
     GetAllStories,
     GetPeerStories,
