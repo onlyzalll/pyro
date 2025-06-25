@@ -22,7 +22,7 @@ from typing import Callable, Union, List, Pattern, Optional
 
 import pyrogram
 from pyrogram import enums
-from pyrogram.types import Message, CallbackQuery, InlineQuery, InlineKeyboardMarkup, ReplyKeyboardMarkup, Update
+from pyrogram.types import Message, CallbackQuery, InlineQuery, PreCheckoutQuery, InlineKeyboardMarkup, ReplyKeyboardMarkup, Update
 
 
 class Filter:
@@ -549,7 +549,7 @@ private = create(private_filter)
 
 # region group_filter
 async def group_filter(_, __, m: Message):
-    return bool(m.chat and m.chat.type in {enums.ChatType.GROUP, enums.ChatType.SUPERGROUP})
+    return bool(m.chat and m.chat.type in {enums.ChatType.GROUP, enums.ChatType.SUPERGROUP, enums.ChatType.FORUM})
 
 
 group = create(group_filter)
@@ -565,6 +565,17 @@ async def channel_filter(_, __, m: Message):
 
 channel = create(channel_filter)
 """Filter messages sent in channels."""
+
+
+# endregion
+
+# region direct_filter
+async def direct_filter(_, __, m: Message):
+    return bool(m.chat and m.chat.type == enums.ChatType.DIRECT)
+
+
+direct = create(direct_filter)
+"""Filter messages sent in direct."""
 
 
 # endregion
@@ -1017,6 +1028,8 @@ def regex(pattern: Union[str, Pattern], flags: int = 0):
             value = update.data
         elif isinstance(update, InlineQuery):
             value = update.query
+        elif isinstance(update, PreCheckoutQuery):
+            value = update.invoice_payload
         else:
             raise ValueError(f"Regex filter doesn't work with {type(update)}")
 

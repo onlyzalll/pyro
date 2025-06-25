@@ -29,7 +29,7 @@ class GetBoosts:
     ) -> bool:
         """Get your boosts list
 
-        .. include:: /_includes/usable-by/users-bots.rst
+        .. include:: /_includes/usable-by/users.rst
 
         Returns:
             List of :obj:`~pyrogram.types.MyBoost`: On success.
@@ -38,7 +38,7 @@ class GetBoosts:
             .. code-block:: python
 
                 # get boosts list
-                app.get_boosts()
+                await app.get_boosts()
         """
         r = await self.invoke(
             raw.functions.premium.GetMyBoosts()

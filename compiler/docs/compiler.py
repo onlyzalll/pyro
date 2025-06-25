@@ -20,6 +20,8 @@ import ast
 import os
 import re
 import shutil
+from dataclasses import dataclass
+from typing import Literal
 
 HOME = "compiler/docs"
 DESTINATION = "docs/source/telegram"
@@ -39,6 +41,64 @@ def snek(s: str):
     return re.sub(r"([a-z0-9])([A-Z])", r"\1_\2", s).lower()
 
 
+def _extract_union_name(node: ast.AST) -> str | None:
+    """Extract the name of a variable that is assigned a Union type.
+
+    :param node: The AST node to extract the variable name from.
+    :return: The variable name if it is assigned a Union type, otherwise None.
+
+    >>> import ast
+    >>> parsed_ast = ast.parse("User = Union[raw.types.UserEmpty]")
+    >>> _extract_union_name(parsed_ast.body[0])
+    'User'
+    """
+
+    # Check if the assigned value is a Union type
+    if isinstance(node, ast.Assign) and isinstance(node.value, ast.Subscript):
+        if isinstance(node.value.value, ast.Name) and node.value.value.id == "Union":
+            # Extract variable name
+            if isinstance(node.targets[0], ast.Name):
+                return node.targets[0].id  # Variable name
+
+
+def _extract_class_name(node: ast.AST) -> str | None:
+    """Extract the name of a class.
+
+    :param node: The AST node to extract the class name from.
+    :return: The class name if it is a class, otherwise None.
+
+    >>> import ast
+    >>> parsed_ast = ast.parse("class User: pass")
+    >>> _extract_class_name(parsed_ast.body[0])
+    'User'
+    """
+
+    if isinstance(node, ast.ClassDef):
+        return node.name  # Class name
+
+
+NodeType = Literal["class", "union"]
+
+
+@dataclass
+class NodeInfo:
+    name: str
+    type: NodeType
+
+
+def parse_node_info(node: ast.AST) -> NodeInfo | None:
+    """Parse an AST node and extract the class or variable name."""
+    class_name = _extract_class_name(node)
+    if class_name:
+        return NodeInfo(name=class_name, type="class")
+
+    union_name = _extract_union_name(node)
+    if union_name:
+        return NodeInfo(name=union_name, type="union")
+
+    return None
+
+
 def generate(source_path, base):
     all_entities = {}
 
@@ -54,13 +114,13 @@ def generate(source_path, base):
                     p = ast.parse(f.read())
 
                 for node in ast.walk(p):
-                    if isinstance(node, ast.ClassDef):
-                        name = node.name
+                    node_info = parse_node_info(node)
+                    if node_info:
                         break
                 else:
                     continue
 
-                full_path = os.path.basename(path) + "/" + snek(name).replace("_", "-") + ".rst"
+                full_path = os.path.basename(path) + "/" + snek(node_info.name).replace("_", "-") + ".rst"
 
                 if level:
                     full_path = base + "/" + full_path
@@ -69,25 +129,42 @@ def generate(source_path, base):
                 if namespace in ["base", "types", "functions"]:
                     namespace = ""
 
-                full_name = f"{(namespace + '.') if namespace else ''}{name}"
+                full_name = f"{(namespace + '.') if namespace else ''}{node_info.name}"
 
                 os.makedirs(os.path.dirname(DESTINATION + "/" + full_path), exist_ok=True)
 
                 with open(DESTINATION + "/" + full_path, "w", encoding="utf-8") as f:
+                    title_markup = "=" * len(full_name)
+                    full_class_path = "pyrogram.raw.{}".format(
+                        ".".join(full_path.split("/")[:-1]) + "." + node_info.name
+                    )
+
+                    if node_info.type == "class":
+                        directive_type = "autoclass"
+                        directive_suffix = "()"
+                        directive_option = "members"
+                    elif node_info.type == "union":
+                        directive_type = "autodata"
+                        directive_suffix = ""
+                        directive_option = "annotation"
+                    else:
+                        raise ValueError(f"Unknown node type: `{node_info.type}`")
+
                     f.write(
                         page_template.format(
                             title=full_name,
-                            title_markup="=" * len(full_name),
-                            full_class_path="pyrogram.raw.{}".format(
-                                ".".join(full_path.split("/")[:-1]) + "." + name
-                            )
+                            title_markup=title_markup,
+                            directive_type=directive_type,
+                            full_class_path=full_class_path,
+                            directive_suffix=directive_suffix,
+                            directive_option=directive_option,
                         )
                     )
 
                 if last not in all_entities:
                     all_entities[last] = []
 
-                all_entities[last].append(name)
+                all_entities[last].append(node_info.name)
 
     build(source_path)
 
@@ -135,126 +212,115 @@ def pyrogram_api():
     categories = dict(
         utilities="""
         Utilities
-            run
             start
             stop
+            run
             restart
-            export_session_string
             add_handler
             remove_handler
             stop_transmission
+            export_session_string
             set_parse_mode
-        """,
-        authorization="""
-        Authorization
-            initialize
-            sign_up
-            accept_terms_of_service
-            sign_in
-            sign_in_bot
-            connect
-            send_code
-            resend_code
-            recover_password
-            send_recovery_code
-            get_password_hint
-            check_password
-            log_out
-            disconnect
-            terminate
-            get_me
-            get_active_sessions
-            terminate_session
-            terminate_all_other_sessions
         """,
         messages="""
         Messages
             send_message
+            forward_media_group
             forward_messages
             copy_message
+            copy_media_group
             send_photo
             send_audio
             send_document
+            send_screenshot_notification
+            send_sticker
             send_video
             send_animation
             send_voice
             send_video_note
-            send_cached_media
-            send_paid_media
             send_media_group
-            get_media_group
-            copy_media_group
             send_location
             send_venue
             send_contact
-            send_poll
-            send_dice
-            send_chat_action
-            add_paid_message_reaction
-            set_reaction
-            download_media
-            stream_media
+            send_cached_media
+            send_reaction
             edit_message_text
-            edit_inline_text
             edit_message_caption
-            edit_inline_caption
             edit_message_media
-            edit_inline_media
             edit_message_reply_markup
+            edit_inline_text
+            edit_inline_caption
+            edit_inline_media
             edit_inline_reply_markup
-            edit_cached_media
-            stop_poll
+            send_chat_action
             delete_messages
-            get_chat_sponsored_messages
+            get_available_effects
+            get_messages
+            get_scheduled_messages
+            get_stickers
+            get_media_group
             get_chat_history
             get_chat_history_count
             read_chat_history
-            get_messages
-            get_chat_pinned_message
-            get_callback_query_message
-            get_replied_message
+            send_poll
             view_messages
+            vote_poll
+            stop_poll
+            retract_vote
+            send_dice
+            search_messages
+            search_messages_count
+            search_posts
+            search_posts_count
+            search_global
+            search_global_count
+            download_media
+            stream_media
+            translate_message_text
+            translate_text
             get_discussion_message
             get_discussion_replies
             get_discussion_replies_count
-            search_global
-            search_global_count
-            search_messages
-            search_messages_count
-            search_public_messages_by_tag
-            count_public_messages_by_tag
-            vote_poll
-            retract_vote
-            translate_text
-            translate_message_text
+            get_custom_emoji_stickers
+            get_direct_messages_chat_topic_history
+            delete_direct_messages_chat_topic_history
+            set_direct_messages_chat_topic_is_marked_as_unread
+            send_web_page
+            start_bot
+            delete_chat_history
+            send_paid_media
+            send_paid_reaction
+            add_to_gifs
         """,
         chats="""
         Chats
+            join_chat
+            leave_chat
             ban_chat_member
             unban_chat_member
             restrict_chat_member
             promote_chat_member
             set_administrator_title
-            set_chat_permissions
             set_chat_photo
             delete_chat_photo
             set_chat_title
             set_chat_description
+            set_chat_direct_messages_group
+            set_chat_permissions
             pin_chat_message
             unpin_chat_message
+            pin_forum_topic
+            unpin_forum_topic
             unpin_all_chat_messages
-            search_chats
-            join_chat
-            leave_chat
             get_chat
+            get_chat_member
             get_chat_members
             get_chat_members_count
-            get_chat_member
-            
             get_dialogs
             get_dialogs_count
+            get_direct_messages_topics_by_id
+            get_direct_messages_topics
             set_chat_username
-            get_nearby_chats
             archive_chats
             unarchive_chats
             add_chat_members
@@ -265,57 +331,47 @@ def pyrogram_api():
             delete_supergroup
             delete_user_history
             set_slow_mode
-            set_chat_message_auto_delete_time
             mark_chat_unread
             get_chat_event_log
             get_chat_online_count
             get_send_as_chats
             set_send_as_chat
             set_chat_protected_content
-            get_created_chats
-            transfer_chat_ownership
-        """,
-        invite_links="""
-        Invite Links
-            export_chat_invite_link
-            create_chat_invite_link
-            edit_chat_invite_link
-            revoke_chat_invite_link
-            get_chat_admin_invite_links
-            get_chat_admin_invite_links_count
-            get_chat_admins_with_invite_links
-            get_chat_invite_link
-            get_chat_invite_link_joiners
-            get_chat_invite_link_joiners_count
-            delete_chat_invite_link
-            delete_chat_admin_invite_links
-            get_chat_join_requests
-            approve_chat_join_request
-            approve_all_chat_join_requests
-            decline_chat_join_request
-            decline_all_chat_join_requests            
-        """,
-        chat_topics="""
-        Chat Forum Topics
-            get_forum_topic_icon_stickers
-            create_forum_topic
-            edit_forum_topic
             close_forum_topic
-            reopen_forum_topic
+            create_forum_topic
             delete_forum_topic
-            hide_forum_topic
-            unhide_forum_topic
+            edit_forum_topic
             get_forum_topics
-            get_forum_topic
-            toggle_forum_topic_is_pinned
+            get_forum_topics_by_id
+            update_color
+            update_chat_notifications
+            toggle_forum_topics
+            export_folder_link
+            get_folders
+            create_folder
+            delete_folder
+            reorder_folders
+            edit_folder
+            get_similar_channels
+            join_folder
+            leave_folder
+            toggle_join_to_send
+            toggle_folder_tags
+            set_chat_ttl
+            get_personal_channels
+            get_chat_settings
+            transfer_chat_ownership
+            get_suitable_discussion_chats
+            set_chat_discussion_group
         """,
         users="""
         Users
+            get_me
+            get_users
             get_chat_photos
             get_chat_photos_count
-            get_users
-            
             set_profile_photo
+            set_personal_channel
             delete_profile_photos
             set_username
             update_profile
@@ -324,10 +380,29 @@ def pyrogram_api():
             get_common_chats
             get_default_emoji_statuses
             set_emoji_status
-            set_birthdate
-            set_personal_chat
-            delete_account
             update_status
+            check_username
+            update_birthday
+        """,
+        invite_links="""
+        Invite Links
+            get_chat_invite_link
+            export_chat_invite_link
+            create_chat_invite_link
+            edit_chat_invite_link
+            revoke_chat_invite_link
+            delete_chat_invite_link
+            get_chat_invite_link_joiners
+            get_chat_invite_link_joiners_count
+            get_chat_admin_invite_links
+            get_chat_admin_invite_links_count
+            get_chat_admins_with_invite_links
+            get_chat_join_requests
+            delete_chat_admin_invite_links
+            approve_chat_join_request
+            approve_all_chat_join_requests
+            decline_chat_join_request
+            decline_all_chat_join_requests
         """,
         contacts="""
         Contacts
@@ -336,6 +411,34 @@ def pyrogram_api():
             import_contacts
             get_contacts
             get_contacts_count
+            search_contacts
+        """,
+        payments="""
+        Payments
+            apply_gift_code
+            check_gift_code
+            convert_gift_to_stars
+            get_available_gifts
+            get_chat_gifts
+            get_chat_gifts_count
+            get_gift_upgrade_preview
+            get_payment_form
+            get_stars_balance
+            get_upgraded_gift
+            hide_gift
+            search_gifts_for_resale
+            send_gift
+            send_payment_form
+            send_resold_gift
+            set_gift_resale_price
+            set_pinned_gifts
+            show_gift
+            transfer_gift
+            upgrade_gift
+        """,
+        phone="""
+        Phone
+            get_call_members
         """,
         password="""
         Password
@@ -345,75 +448,108 @@ def pyrogram_api():
         """,
         bots="""
         Bots
+            get_inline_bot_results
+            send_inline_bot_result
+            send_invoice
             answer_callback_query
+            answer_inline_query
             request_callback_answer
+            send_game
+            set_game_score
+            get_game_high_scores
             set_bot_commands
-            delete_bot_commands
             get_bot_commands
-            set_bot_name
-            get_bot_name
+            delete_bot_commands
+            set_bot_default_privileges
+            get_bot_default_privileges
+            set_chat_menu_button
+            get_chat_menu_button
+            answer_web_app_query
+            answer_pre_checkout_query
+            answer_shipping_query
+            create_invoice_link
+            refund_star_payment
             set_bot_info_description
             get_bot_info_description
             set_bot_info_short_description
             get_bot_info_short_description
-            set_chat_menu_button
-            get_chat_menu_button
-            set_bot_default_privileges
-            get_bot_default_privileges
-            send_game
-            set_game_score
-            get_game_high_scores
-            answer_inline_query
-            get_inline_bot_results
-            send_inline_bot_result
-            answer_web_app_query
-            send_web_app_custom_request
+            set_bot_name
+            get_bot_name
             get_owned_bots
-            get_similar_bots
         """,
-        phone="""
-        Phone
-            create_video_chat
-            discard_group_call
-            get_video_chat_rtmp_url
-            invite_group_call_participants
-            load_group_call_participants
-        """,
-        stickers="""
-        Stickers
-            send_sticker
-            get_custom_emoji_stickers
-            get_message_effects
-            get_stickers
-        """,
-        stories="""
-        Stories
-            get_stories
-        """,
-        payments="""
-        Payments
-            send_invoice
-            create_invoice_link
-            answer_shipping_query
-            answer_pre_checkout_query
-            refund_star_payment
+        business="""
+        Business
+            delete_business_messages
+            get_business_account_gifts
+            get_business_account_star_balance
             get_business_connection
-            get_collectible_item_info
-            get_payment_form
-            send_payment_form
-            get_available_gifts
-            get_user_gifts
-            sell_gift
-            send_gift
-            toggle_gift_is_saved
-            get_owned_star_count
+            transfer_business_account_stars
+        """,
+        authorization="""
+        Authorization
+            connect
+            disconnect
+            initialize
+            terminate
+            send_code
+            resend_code
+            sign_in
+            sign_in_bot
+            sign_up
+            get_password_hint
+            check_password
+            send_recovery_code
+            recover_password
+            accept_terms_of_service
+            log_out
+            get_active_sessions
+            reset_session
+            reset_sessions
         """,
         advanced="""
         Advanced
             invoke
             resolve_peer
-            get_file
             save_file
+        """,
+        stories="""
+        Stories
+            can_post_stories
+            copy_story
+            delete_stories
+            edit_story_caption
+            edit_story_media
+            edit_story_privacy
+            forward_story
+            get_all_stories
+            get_chat_stories
+            get_pinned_stories
+            get_archived_stories
+            get_stories
+            hide_chat_stories
+            show_chat_stories
+            view_stories
+            pin_chat_stories
+            unpin_chat_stories
+            read_chat_stories
+            send_story
+            enable_stealth_mode
+            get_story_views
+        """,
+        premium="""
+        Premium
+            apply_boost
+            get_boosts
+            get_boosts_status
+        """,
+        account="""
+        Account
+            get_account_ttl
+            set_account_ttl
+            set_privacy
+            get_privacy
+            set_global_privacy_settings
+            get_global_privacy_settings
         """
     )
 
@@ -455,185 +591,177 @@ def pyrogram_api():
     categories = dict(
         users_chats="""
         Users & Chats
-            Birthdate
+            AcceptedGiftTypes
+            Birthday
+            BusinessConnection
+            BusinessIntro
+            BusinessRecipients
+            BusinessWeeklyOpen
+            BusinessWorkingHours
             User
-            Chat
             Username
-            ChatShared
-            WriteAccessAllowed
-            UsersShared
+            VerificationStatus
+            Chat
+            ChatPhoto
+            ChatMember
+            ChatPermissions
+            ChatPrivileges
+            ChatInviteLink
             ChatAdminWithInviteLinks
-            ChatColor
             ChatEvent
             ChatEventFilter
-            ChatInviteLink
-            ChatJoiner
-            ChatJoinRequest
-            ChatMember
             ChatMemberUpdated
-            ChatPermissions
-            ChatPhoto
-            ChatPrivileges
-            ChatReactions
-            VideoChatScheduled
-            VideoChatStarted
-            VideoChatEnded
-            VideoChatParticipantsInvited
+            ChatJoinRequest
+            ChatJoiner
             Dialog
-            EmojiStatus
-            GroupCallParticipant
-            InviteLinkImporter
             Restriction
-            RtmpUrl
+            EmojiStatus
+            Folder
+            GroupCallMember
+            ChatColor
+            FoundContacts
+            PrivacyRule
+            StoriesStealthMode
+            BotVerification
+            BusinessBotRights
+            ChatSettings
+            GlobalPrivacySettings
+            HistoryCleared
         """,
         messages_media="""
         Messages & Media
+            BusinessMessage
             Message
             MessageEntity
-            TextQuote
-            ExternalReplyInfo
-            ReplyParameters
-            MessageOrigin
-            MessageOriginUser
-            MessageOriginHiddenUser
-            MessageOriginChat
             MessageOriginChannel
-            MessageImportInfo
+            MessageOriginChat
+            MessageOriginHiddenUser
+            MessageOriginImport
+            MessageOriginUser
+            MessageOrigin
             Photo
-            AlternativeVideo
-            Animation
-            Audio
-            Document
-            Story
-            Video
-            VideoNote
-            Voice
-            PaidMediaInfo
-            PaidMedia
-            PaidMediaPreview
-            PaidMediaPhoto
-            PaidMediaVideo
-            Contact
-            Dice
-            PollOption
-            InputPollOption
-            Poll
-            PollAnswer
-            Location
-            Venue
-            Gift
-            UserGift
-            UpgradedGift
-            WebAppData
-            MessageAutoDeleteTimerChanged
-            ChatBoostAdded
-            ChatBackground
-            Game
-            GiftCode
-            GiftedPremium
-            GiftedStars
-            Giveaway
-            GiveawayCreated
-            GiveawayCompleted
-            GiveawayWinners
-            MessageEffect
-            MessageReactionCountUpdated
-            MessageReactionUpdated
-            MessageReactions
-            Reaction
-            ReactionCount
-            ReactionType
-            ReactionTypeEmoji
-            ReactionTypeCustomEmoji
-            ReactionTypePaid
             Thumbnail
-            TranslatedText
             StrippedThumbnail
-            SponsoredMessage
-            Sticker
-            WebPage
-            ContactRegistered
-            ScreenshotTaken
-            DraftMessage
-        """,
-        chat_topics="""
-        Chat Forum Topics
+            Audio
+            AvailableEffect
+            Document
+            ExternalReplyInfo
+            FactCheck
+            FormattedText
             ForumTopic
-            ForumTopicCreated
             ForumTopicClosed
+            ForumTopicCreated
             ForumTopicEdited
             ForumTopicReopened
             GeneralForumTopicHidden
             GeneralForumTopicUnhidden
-        """,
-        bot_commands="""
-        Bot Commands
-            BotCommand
-            BotCommandScope
-            BotCommandScopeAllChatAdministrators
-            BotCommandScopeAllGroupChats
-            BotCommandScopeAllPrivateChats
-            BotCommandScopeChat
-            BotCommandScopeChatAdministrators
-            BotCommandScopeChatMember
-            BotCommandScopeDefault
+            Animation
+            Video
+            Voice
+            VideoNote
+            Contact
+            Location
+            MediaArea
+            Venue
+            Sticker
+            Game
+            WebPage
+            Poll
+            ProximityAlertTriggered
+            PollOption
+            Dice
+            Reaction
+            RestrictionReason
+            Gift
+            VideoChatScheduled
+            VideoChatStarted
+            VideoChatEnded
+            VideoChatMembersInvited
+            PhoneCallStarted
+            PhoneCallEnded
+            WebAppData
+            MessageReactions
+            ChatReactions
+            Story
+            MyBoost
+            BoostsStatus
+            Giveaway
+            GiveawayCreated
+            GiveawayPrizeStars
+            GiveawayCompleted
+            GiveawayWinners
+            Invoice
+            LinkPreviewOptions
+            GiftCode
+            GiftUpgradePreview
+            CheckedGiftCode
+            RefundedPayment
+            ReplyParameters
+            SuccessfulPayment
+            TextQuote
+            PaidMediaInfo
+            PaidMediaPreview
+            PaidMessagesRefunded
+            PaidMessagesPriceChanged
+            DirectMessagePriceChanged
+            DirectMessagesTopic
+            PaymentForm
+            ChatBoost
+            ContactRegistered
+            ScreenshotTaken
+            WriteAccessAllowed
+            GiftAttribute
+            StoryView
+            GiftedPremium
+            ChatBackground
+            ChatTheme
+            GiftedStars
+            UpgradedGiftAttributeId
         """,
         bot_keyboards="""
         Bot keyboards
-            CallbackGame
-            CallbackQuery
-            CopyTextButton
-            ForceReply
-            GameHighScore
-            InlineKeyboardButton
-            InlineKeyboardMarkup
-            KeyboardButton
-            KeyboardButtonPollType
-            KeyboardButtonPollTypeRegular
-            KeyboardButtonPollTypeQuiz
-            KeyboardButtonRequestChat
-            KeyboardButtonRequestUsers
             ReplyKeyboardMarkup
+            KeyboardButton
             ReplyKeyboardRemove
+            InlineKeyboardMarkup
+            InlineKeyboardButton
             LoginUrl
+            ForceReply
+            CallbackQuery
+            GameHighScore
+            CallbackGame
             WebAppInfo
             MenuButton
             MenuButtonCommands
             MenuButtonWebApp
             MenuButtonDefault
             SentWebAppMessage
-            SwitchInlineQueryChosenChat
+            KeyboardButtonRequestChat
+            KeyboardButtonRequestUsers
+            KeyboardButtonPollType
+            OrderInfo
+            PreCheckoutQuery
+            ShippingAddress
+            ShippingQuery
+            MessageReactionUpdated
+            MessageReactionCountUpdated
+            ChatBoostUpdated
+            ShippingOption
+            PurchasedPaidMedia
+            ChatShared
+            UsersShared
         """,
-        inline_mode="""
-        Inline Mode
-            ChosenInlineResult
-            InlineQuery
-            InlineQueryResult
-            InlineQueryResultCachedAnimation
-            InlineQueryResultCachedAudio
-            InlineQueryResultCachedDocument
-            InlineQueryResultCachedPhoto
-            InlineQueryResultCachedSticker
-            InlineQueryResultCachedVideo
-            InlineQueryResultCachedVoice
-            InlineQueryResultAnimation
-            InlineQueryResultAudio
-            InlineQueryResultDocument
-            InlineQueryResultPhoto
-            InlineQueryResultVideo
-            InlineQueryResultVoice
-            InlineQueryResultArticle
-            InlineQueryResultContact
-            InlineQueryResultGame
-            InlineQueryResultLocation
-            InlineQueryResultVenue
-        """,
-        authorization="""
-        Authorization
-            ActiveSession
-            ActiveSessions
-            SentCode
-            TermsOfService
+        bot_commands="""
+        Bot commands
+            BotCommand
+            BotCommandScope
+            BotCommandScopeDefault
+            BotCommandScopeAllPrivateChats
+            BotCommandScopeAllGroupChats
+            BotCommandScopeAllChatAdministrators
+            BotCommandScopeChat
+            BotCommandScopeChatAdministrators
+            BotCommandScopeChatMember
         """,
         input_media="""
         Input Media
@@ -644,47 +772,61 @@ def pyrogram_api():
             InputMediaAnimation
             InputMediaDocument
             InputPhoneContact
-            LinkPreviewOptions
         """,
-        input_paid_media="""
-        Input Paid Media
-            InputPaidMedia
-            InputPaidMediaPhoto
-            InputPaidMediaVideo
-            PaidMediaPurchased
+        inline_mode="""
+        Inline Mode
+            InlineQuery
+            InlineQueryResult
+            InlineQueryResultCachedAudio
+            InlineQueryResultCachedDocument
+            InlineQueryResultCachedAnimation
+            InlineQueryResultCachedPhoto
+            InlineQueryResultCachedSticker
+            InlineQueryResultCachedVideo
+            InlineQueryResultCachedVoice
+            InlineQueryResultArticle
+            InlineQueryResultAudio
+            InlineQueryResultContact
+            InlineQueryResultDocument
+            InlineQueryResultAnimation
+            InlineQueryResultLocation
+            InlineQueryResultPhoto
+            InlineQueryResultVenue
+            InlineQueryResultVideo
+            InlineQueryResultVoice
+            ChosenInlineResult
         """,
         input_message_content="""
         InputMessageContent
             InputMessageContent
-            InputTextMessageContent
-            InputLocationMessageContent
-            InputVenueMessageContent
             InputContactMessageContent
             InputInvoiceMessageContent
+            InputLocationMessageContent
+            InputTextMessageContent
+            InputVenueMessageContent
         """,
-        payments="""
-        Payments
-            BusinessConnection
-            BusinessIntro
-            BusinessLocation
-            BusinessOpeningHours
-            BusinessOpeningHoursInterval
-            CollectibleItemInfo
-            LabeledPrice
-            Invoice
-            ShippingAddress
-            OrderInfo
-            ShippingOption
-            PaymentForm
-            SuccessfulPayment
-            RefundedPayment
-            ShippingQuery
-            PreCheckoutQuery
-            StarAmount
-            PaidReactionType
-            PaidReactionTypeAnonymous
-            PaidReactionTypeChat
-            PaidReactionTypeRegular
+        authorization="""
+        Authorization
+            ActiveSession
+            ActiveSessions
+            SentCode
+            TermsOfService
+        """,
+        input_privacy_rule="""
+        InputPrivacyRule
+            InputPrivacyRule
+            InputPrivacyRuleAllowAll
+            InputPrivacyRuleAllowBots
+            InputPrivacyRuleAllowChats
+            InputPrivacyRuleAllowCloseFriends
+            InputPrivacyRuleAllowContacts
+            InputPrivacyRuleAllowPremium
+            InputPrivacyRuleAllowUsers
+            InputPrivacyRuleDisallowAll
+            InputPrivacyRuleDisallowBots
+            InputPrivacyRuleDisallowChats
+            InputPrivacyRuleDisallowContacts
+            InputPrivacyRuleDisallowUsers
         """
     )
 
@@ -724,11 +866,11 @@ def pyrogram_api():
             Message.download
             Message.forward
             Message.copy
+            Message.copy_media_group
             Message.pin
             Message.unpin
             Message.edit
             Message.edit_text
-            Message.edit_cached_media
             Message.edit_caption
             Message.edit_media
             Message.edit_reply_markup
@@ -751,15 +893,12 @@ def pyrogram_api():
             Message.reply_video
             Message.reply_video_note
             Message.reply_voice
-            Message.reply_invoice
+            Message.reply_web_page
             Message.get_media_group
             Message.react
             Message.read
             Message.view
-            Message.translate
             Message.pay
-            Message.star
-            UserGift.toggle
         """,
         chat="""
         Chat
@@ -768,19 +907,22 @@ def pyrogram_api():
             Chat.set_title
             Chat.set_description
             Chat.set_photo
+            Chat.set_ttl
             Chat.ban_member
             Chat.unban_member
             Chat.restrict_member
             Chat.promote_member
+            Chat.join
+            Chat.leave
+            Chat.export_invite_link
             Chat.get_member
             Chat.get_members
             Chat.add_members
-            Chat.join
-            Chat.leave
             Chat.mark_unread
             Chat.set_protected_content
             Chat.unpin_all_messages
-            Chat.set_message_auto_delete_time
+            Chat.mute
+            Chat.unmute
         """,
         user="""
         User
@@ -788,6 +930,7 @@ def pyrogram_api():
             User.unarchive
             User.block
             User.unblock
+            User.get_common_chats
         """,
         callback_query="""
         Callback Query
@@ -796,10 +939,6 @@ def pyrogram_api():
             CallbackQuery.edit_message_caption
             CallbackQuery.edit_message_media
             CallbackQuery.edit_message_reply_markup
-            ChosenInlineResult.edit_message_text
-            ChosenInlineResult.edit_message_caption
-            ChosenInlineResult.edit_message_media
-            ChosenInlineResult.edit_message_reply_markup
         """,
         inline_query="""
         InlineQuery
@@ -820,13 +959,57 @@ def pyrogram_api():
         """,
         story="""
         Story
+            Story.reply
+            Story.reply_text
+            Story.reply_animation
+            Story.reply_audio
+            Story.reply_cached_media
+            Story.reply_media_group
+            Story.reply_photo
+            Story.reply_sticker
+            Story.reply_video
+            Story.reply_video_note
+            Story.reply_voice
+            Story.copy
+            Story.delete
+            Story.edit_media
+            Story.edit_caption
+            Story.edit_privacy
             Story.react
+            Story.forward
             Story.download
+            Story.read
+            Story.view
+        """,
+        folder="""
+        Folder
+            Folder.delete
+            Folder.edit
+            Folder.include_chat
+            Folder.exclude_chat
+            Folder.update_color
+            Folder.pin_chat
+            Folder.remove_chat
+            Folder.export_link
         """,
         active_session="""
         ActiveSession
-            ActiveSession.terminate
+            ActiveSession.reset
         """,
+        gift="""
+        Gift
+            Gift.show
+            Gift.hide
+            Gift.convert
+            Gift.upgrade
+            Gift.transfer
+            Gift.wear
+            Gift.buy
+        """,
+        animation="""
+        Animation
+            Animation.add_to_gifs
+        """
     )
 
     root = PYROGRAM_API_DEST + "/bound-methods"
@@ -858,29 +1041,41 @@ def pyrogram_api():
 
         f.write(template.format(**fmt_keys))
 
+
     # Enumerations
 
     categories = dict(
         enums="""
         Enumerations
+            BusinessSchedule
             ChatAction
             ChatEventAction
+            ChatJoinType
             ChatMemberStatus
             ChatMembersFilter
             ChatType
-            ChatJoinType
             ClientPlatform
+            FolderColor
             MessageEntityType
             MessageMediaType
+            MessageOriginType
             MessageServiceType
             MessagesFilter
-            ParseMode
-            PollType
-            ProfileColor
-            AccentColor
-            SentCodeType
             NextCodeType
+            ParseMode
+            PhoneCallDiscardReason
+            PollType
+            PrivacyKey
+            ProfileColor
+            ReplyColor
+            SentCodeType
+            StoriesPrivacyRules
             UserStatus
+            GiftAttributeType
+            MediaAreaType
+            PrivacyRuleType
+            GiftForResaleOrder
+            PaymentFormType
         """,
     )
 
@@ -897,6 +1092,7 @@ def pyrogram_api():
   document
     .querySelectorAll("em.property")
     .forEach((elem, i) => i !== 0 ? elem.remove() : true)
+
   document
     .querySelectorAll("a.headerlink")
     .forEach((elem, i) => [0, 1].includes(i) ? true : elem.remove())

@@ -20,7 +20,6 @@ from typing import Optional
 
 import pyrogram
 from pyrogram import raw
-
 from ..object import Object
 
 
@@ -40,6 +39,9 @@ class Reaction(Object):
         chosen_order (``int``, *optional*):
             Chosen reaction order.
             Available for chosen reactions.
+
+        is_paid (``bool``, *optional*):
+            True, if reaction is paid.
     """
 
     def __init__(
@@ -49,7 +51,8 @@ class Reaction(Object):
         emoji: Optional[str] = None,
         custom_emoji_id: Optional[int] = None,
         count: Optional[int] = None,
-        chosen_order: Optional[int] = None
+        chosen_order: Optional[int] = None,
+        is_paid: Optional[bool] = None
     ):
         super().__init__(client)
 
@@ -57,18 +60,35 @@ class Reaction(Object):
         self.custom_emoji_id = custom_emoji_id
         self.count = count
         self.chosen_order = chosen_order
+        self.is_paid = is_paid
 
     @staticmethod
-    def _parse(client: "pyrogram.Client", reaction: "raw.base.Reaction") -> "Reaction":
+    def _parse(
+        client: "pyrogram.Client",
+        reaction: "raw.base.Reaction"
+    ) -> "Reaction":
         if isinstance(reaction, raw.types.ReactionEmoji):
-            return Reaction(client=client, emoji=reaction.emoticon)
+            return Reaction(
+                client=client,
+                emoji=reaction.emoticon
+            )
 
         if isinstance(reaction, raw.types.ReactionCustomEmoji):
-            return Reaction(client=client, custom_emoji_id=reaction.document_id)
+            return Reaction(
+                client=client,
+                custom_emoji_id=reaction.document_id
+            )
+
+        if isinstance(reaction, raw.types.ReactionPaid):
+            return Reaction(
+                client=client,
+                is_paid=True
+            )
 
     @staticmethod
     def _parse_count(
-        client: "pyrogram.Client", reaction_count: "raw.base.ReactionCount"
+        client: "pyrogram.Client",
+        reaction_count: "raw.base.ReactionCount"
     ) -> "Reaction":
         reaction = Reaction._parse(client, reaction_count.reaction)
         reaction.count = reaction_count.count

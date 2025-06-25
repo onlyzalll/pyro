@@ -89,7 +89,7 @@ InlineQuery
     {inline_query_toctree}
 
 PreCheckoutQuery
------------------
+----------------
 
 .. hlist::
     :columns: 2
@@ -102,7 +102,7 @@ PreCheckoutQuery
     {pre_checkout_query_toctree}
 
 ShippingQuery
---------------
+----------------
 
 .. hlist::
     :columns: 2
@@ -128,10 +128,10 @@ ChatJoinRequest
     {chat_join_request_toctree}
 
 Story
-------
+-----
 
 .. hlist::
-    :columns: 2
+    :columns: 3
 
     {story_hlist}
 
@@ -139,6 +139,19 @@ Story
     :hidden:
 
     {story_toctree}
+
+Folder
+------
+
+.. hlist::
+    :columns: 2
+
+    {folder_hlist}
+
+.. toctree::
+    :hidden:
+
+    {folder_toctree}
 
 ActiveSession
 -------------
@@ -152,3 +165,29 @@ ActiveSession
     :hidden:
 
     {active_session_toctree}
+
+Gift
+--------
+
+.. hlist::
+    :columns: 2
+
+    {gift_hlist}
+
+.. toctree::
+    :hidden:
+
+    {gift_toctree}
+
+Animation
+---------
+
+.. hlist::
+    :columns: 2
+
+    {animation_hlist}
+
+.. toctree::
+    :hidden:
+
+    {animation_toctree}

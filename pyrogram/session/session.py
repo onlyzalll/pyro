@@ -22,6 +22,7 @@ import logging
 import os
 from hashlib import sha1
 from io import BytesIO
+from typing import Optional
 
 import pyrogram
 from pyrogram import raw
@@ -30,11 +31,13 @@ from pyrogram.crypto import mtproto
 from pyrogram.errors import (
     AuthKeyDuplicated,
     BadMsgNotification,
+    FloodPremiumWait,
     FloodWait,
     InternalServerError,
     RPCError,
     SecurityCheckMismatch,
     ServiceUnavailable,
+    Unauthorized,
 )
 from pyrogram.raw.all import layer
 from pyrogram.raw.core import FutureSalts, Int, MsgContainer, TLObject
@@ -62,7 +65,7 @@ class Session:
     TRANSPORT_ERRORS = {
         404: "auth key not found",
         429: "transport flood",
-        444: "invalid DC",
+        444: "invalid DC"
     }
 
     def __init__(
@@ -72,7 +75,7 @@ class Session:
         auth_key: bytes,
         test_mode: bool,
         is_media: bool = False,
-        is_cdn: bool = False,
+        is_cdn: bool = False
     ):
         self.client = client
         self.dc_id = dc_id
@@ -81,7 +84,7 @@ class Session:
         self.is_media = is_media
         self.is_cdn = is_cdn
 
-        self.connection = None
+        self.connection: Optional[Connection] = None
 
         self.auth_key_id = sha1(auth_key).digest()[-8:]
 
@@ -103,26 +106,24 @@ class Session:
 
         self.is_started = asyncio.Event()
 
-        self.loop = asyncio.get_event_loop()
-
     async def start(self):
         while True:
-            self.connection = Connection(
-                self.dc_id,
-                self.test_mode,
-                self.client.ipv6,
-                self.client.proxy,
-                self.is_media,
+            self.connection = self.client.connection_factory(
+                dc_id=self.dc_id,
+                test_mode=self.test_mode,
+                ipv6=self.client.ipv6,
+                proxy=self.client.proxy,
+                media=self.is_media,
+                protocol_factory=self.client.protocol_factory,
+                loop=self.client.loop
             )
 
             try:
                 await self.connection.connect()
 
-                self.recv_task = self.loop.create_task(self.recv_worker())
+                self.recv_task = self.client.loop.create_task(self.recv_worker())
 
-                await self.send(
-                    raw.functions.Ping(ping_id=0), timeout=self.START_TIMEOUT
-                )
+                await self.send(raw.functions.Ping(ping_id=0), timeout=self.START_TIMEOUT)
 
                 if not self.is_cdn:
                     await self.send(
@@ -133,27 +134,27 @@ class Session:
                                 app_version=self.client.app_version,
                                 device_model=self.client.device_model,
                                 system_version=self.client.system_version,
-                                system_lang_code=self.client.lang_code,
+                                system_lang_code=self.client.system_lang_code,
+                                lang_pack=self.client.lang_pack,
                                 lang_code=self.client.lang_code,
-                                lang_pack="",
                                 query=raw.functions.help.GetConfig(),
-                            ),
+                                params=self.client.init_connection_params,
+                            )
                         ),
-                        timeout=self.START_TIMEOUT,
+                        timeout=self.START_TIMEOUT
                     )
 
-                self.ping_task = self.loop.create_task(self.ping_worker())
+                self.ping_task = self.client.loop.create_task(self.ping_worker())
 
-                log.info("Session initialized: Layer %s", layer)
-                log.info(
-                    "Device: %s - %s", self.client.device_model, self.client.app_version
-                )
-                log.info(
-                    "System: %s (%s)", self.client.system_version, self.client.lang_code
-                )
-            except AuthKeyDuplicated as e:
+                log.info("Session initialized: Pyrogram v%s (Layer %s)", pyrogram.__version__, layer)
+                log.info("Device: %s - %s", self.client.device_model, self.client.app_version)
+                log.info("System: %s (%s)", self.client.system_version, self.client.lang_code)
+            except (AuthKeyDuplicated, Unauthorized) as e:
                 await self.stop()
                 raise e
+            except ConnectionError as e:
+                await self.stop()
+                # raise e
             except (OSError, RPCError):
                 await self.stop()
             except Exception as e:
@@ -166,7 +167,19 @@ class Session:
 
         log.info("Session started")
 
+        if callable(self.client.connect_handler):
+            try:
+                await self.client.connect_handler(self.client, self)
+            except Exception as e:
+                log.exception(e)
+
     async def stop(self):
+        if callable(self.client.disconnect_handler):
+            try:
+                await self.client.disconnect_handler(self.client, self)
+            except Exception as e:
+                log.exception(e)
+
         self.is_started.clear()
 
         self.stored_msg_ids.clear()
@@ -183,12 +196,6 @@ class Session:
         if self.recv_task:
             await self.recv_task
 
-        if not self.is_media and callable(self.client.disconnect_handler):
-            try:
-                await self.client.disconnect_handler(self.client)
-            except Exception as e:
-                log.exception(e)
-
         log.info("Session stopped")
 
     async def restart(self):
@@ -196,16 +203,25 @@ class Session:
         await self.start()
 
     async def handle_packet(self, packet):
-        data = await self.loop.run_in_executor(
-            pyrogram.crypto_executor,
-            mtproto.unpack,
-            BytesIO(packet),
-            self.session_id,
-            self.auth_key,
-            self.auth_key_id,
-        )
+        try:
+            data = await self.client.loop.run_in_executor(
+                pyrogram.crypto_executor,
+                mtproto.unpack,
+                BytesIO(packet),
+                self.session_id,
+                self.auth_key,
+                self.auth_key_id
+            )
+        except ValueError as e:
+            log.debug(e)
+            self.client.loop.create_task(self.restart())
+            return
 
-        messages = data.body.messages if isinstance(data.body, MsgContainer) else [data]
+        messages = (
+            data.body.messages
+            if isinstance(data.body, MsgContainer)
+            else [data]
+        )
 
         log.debug("Received: %s", data)
 
@@ -218,32 +234,24 @@ class Session:
 
             try:
                 if len(self.stored_msg_ids) > Session.STORED_MSG_IDS_MAX_SIZE:
-                    del self.stored_msg_ids[: Session.STORED_MSG_IDS_MAX_SIZE // 2]
+                    del self.stored_msg_ids[:Session.STORED_MSG_IDS_MAX_SIZE // 2]
 
                 if self.stored_msg_ids:
                     if msg.msg_id < self.stored_msg_ids[0]:
-                        raise SecurityCheckMismatch(
-                            "The msg_id is lower than all the stored values"
-                        )
+                        raise SecurityCheckMismatch("The msg_id is lower than all the stored values")
 
                     if msg.msg_id in self.stored_msg_ids:
-                        raise SecurityCheckMismatch(
-                            "The msg_id is equal to any of the stored values"
-                        )
+                        raise SecurityCheckMismatch("The msg_id is equal to any of the stored values")
 
-                    time_diff = (msg.msg_id - MsgId()) / 2**32
+                    time_diff = (msg.msg_id - MsgId()) / 2 ** 32
 
                     if time_diff > 30:
-                        raise SecurityCheckMismatch(
-                            "The msg_id belongs to over 30 seconds in the future. "
-                            "Most likely the client time has to be synchronized."
-                        )
+                        raise SecurityCheckMismatch("The msg_id belongs to over 30 seconds in the future. "
+                                                    "Most likely the client time has to be synchronized.")
 
                     if time_diff < -300:
-                        raise SecurityCheckMismatch(
-                            "The msg_id belongs to over 300 seconds in the past. "
-                            "Most likely the client time has to be synchronized."
-                        )
+                        raise SecurityCheckMismatch("The msg_id belongs to over 300 seconds in the past. "
+                                                    "Most likely the client time has to be synchronized.")
             except SecurityCheckMismatch as e:
                 log.info("Discarding packet: %s", e)
                 await self.connection.close()
@@ -251,9 +259,7 @@ class Session:
             else:
                 bisect.insort(self.stored_msg_ids, msg.msg_id)
 
-            if isinstance(
-                msg.body, (raw.types.MsgDetailedInfo, raw.types.MsgNewDetailedInfo)
-            ):
+            if isinstance(msg.body, (raw.types.MsgDetailedInfo, raw.types.MsgNewDetailedInfo)):
                 self.pending_acks.add(msg.body.answer_msg_id)
                 continue
 
@@ -262,9 +268,7 @@ class Session:
 
             msg_id = None
 
-            if isinstance(
-                msg.body, (raw.types.BadMsgNotification, raw.types.BadServerSalt)
-            ):
+            if isinstance(msg.body, (raw.types.BadMsgNotification, raw.types.BadServerSalt)):
                 msg_id = msg.body.bad_msg_id
             elif isinstance(msg.body, (FutureSalts, raw.types.RpcResult)):
                 msg_id = msg.body.req_msg_id
@@ -272,7 +276,7 @@ class Session:
                 msg_id = msg.body.msg_id
             else:
                 if self.client is not None:
-                    self.loop.create_task(self.client.handle_updates(msg.body))
+                    self.client.loop.create_task(self.client.handle_updates(msg.body))
 
             if msg_id in self.results:
                 self.results[msg_id].value = getattr(msg.body, "result", msg.body)
@@ -282,9 +286,7 @@ class Session:
             log.debug("Sending %s acks", len(self.pending_acks))
 
             try:
-                await self.send(
-                    raw.types.MsgsAck(msg_ids=list(self.pending_acks)), False
-                )
+                await self.send(raw.types.MsgsAck(msg_ids=list(self.pending_acks)), False)
             except OSError:
                 pass
             else:
@@ -305,10 +307,12 @@ class Session:
                 await self.send(
                     raw.functions.PingDelayDisconnect(
                         ping_id=0, disconnect_delay=self.WAIT_TIMEOUT + 10
-                    ),
-                    False,
+                    ), False
                 )
-            except (OSError, RPCError):
+            except OSError:
+                self.client.loop.create_task(self.restart())
+                break
+            except RPCError:
                 pass
 
         log.info("PingTask stopped")
@@ -323,24 +327,27 @@ class Session:
                 if packet:
                     error_code = -Int.read(BytesIO(packet))
 
+                    if error_code == 404:
+                        raise Unauthorized(
+                            "Auth key not found in the system. You must delete your session file "
+                            "and log in again with your phone number or bot token."
+                        )
+
                     log.warning(
                         "Server sent transport error: %s (%s)",
-                        error_code,
-                        Session.TRANSPORT_ERRORS.get(error_code, "unknown error"),
+                        error_code, Session.TRANSPORT_ERRORS.get(error_code, "unknown error")
                     )
 
                 if self.is_started.is_set():
-                    self.loop.create_task(self.restart())
+                    self.client.loop.create_task(self.restart())
 
                 break
 
-            self.loop.create_task(self.handle_packet(packet))
+            self.client.loop.create_task(self.handle_packet(packet))
 
         log.info("NetworkTask stopped")
 
-    async def send(
-        self, data: TLObject, wait_response: bool = True, timeout: float = WAIT_TIMEOUT
-    ):
+    async def send(self, data: TLObject, wait_response: bool = True, timeout: float = WAIT_TIMEOUT):
         message = self.msg_factory(data)
         msg_id = message.msg_id
 
@@ -349,14 +356,14 @@ class Session:
 
         log.debug("Sent: %s", message)
 
-        payload = await self.loop.run_in_executor(
+        payload = await self.client.loop.run_in_executor(
             pyrogram.crypto_executor,
             mtproto.pack,
             message,
             self.salt,
             self.session_id,
             self.auth_key,
-            self.auth_key_id,
+            self.auth_key_id
         )
 
         try:
@@ -377,23 +384,13 @@ class Session:
                 raise TimeoutError("Request timed out")
 
             if isinstance(result, raw.types.RpcError):
-                if isinstance(
-                    data,
-                    (
-                        raw.functions.InvokeWithoutUpdates,
-                        raw.functions.InvokeWithTakeout,
-                    ),
-                ):
+                if isinstance(data, (raw.functions.InvokeWithoutUpdates, raw.functions.InvokeWithTakeout)):
                     data = data.query
 
                 RPCError.raise_it(result, type(data))
 
             if isinstance(result, raw.types.BadMsgNotification):
-                log.warning(
-                    "%s: %s",
-                    BadMsgNotification.__name__,
-                    BadMsgNotification(result.error_code),
-                )
+                log.warning("%s: %s", BadMsgNotification.__name__, BadMsgNotification(result.error_code))
 
             if isinstance(result, raw.types.BadServerSalt):
                 self.salt = result.new_server_salt
@@ -406,16 +403,14 @@ class Session:
         query: TLObject,
         retries: int = MAX_RETRIES,
         timeout: float = WAIT_TIMEOUT,
-        sleep_threshold: float = SLEEP_THRESHOLD,
+        sleep_threshold: float = SLEEP_THRESHOLD
     ):
         try:
             await asyncio.wait_for(self.is_started.wait(), self.WAIT_TIMEOUT)
         except asyncio.TimeoutError:
             pass
 
-        if isinstance(
-            query, (raw.functions.InvokeWithoutUpdates, raw.functions.InvokeWithTakeout)
-        ):
+        if isinstance(query, (raw.functions.InvokeWithoutUpdates, raw.functions.InvokeWithTakeout)):
             inner_query = query.query
         else:
             inner_query = query
@@ -425,18 +420,14 @@ class Session:
         while True:
             try:
                 return await self.send(query, timeout=timeout)
-            except FloodWait as e:
+            except (FloodWait, FloodPremiumWait) as e:
                 amount = e.value
 
                 if amount > sleep_threshold >= 0:
                     raise
 
-                log.warning(
-                    '[%s] Waiting for %s seconds before continuing (required by "%s")',
-                    self.client.name,
-                    amount,
-                    query_name,
-                )
+                log.warning('[%s] Waiting for %s seconds before continuing (required by "%s")',
+                            self.client.name, amount, query_name)
 
                 await asyncio.sleep(amount)
             except (OSError, InternalServerError, ServiceUnavailable) as e:
@@ -446,8 +437,7 @@ class Session:
                 (log.warning if retries < 2 else log.info)(
                     '[%s] Retrying "%s" due to: %s',
                     Session.MAX_RETRIES - retries + 1,
-                    query_name,
-                    str(e) or repr(e),
+                    query_name, str(e) or repr(e)
                 )
 
                 await asyncio.sleep(0.5)

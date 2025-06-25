@@ -16,6 +16,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
+import logging
 import os
 import re
 from datetime import datetime
@@ -26,6 +27,7 @@ from pyrogram import StopTransmission, enums, raw, types, utils
 from pyrogram.errors import FilePartMissing
 from pyrogram.file_id import FileType
 
+log = logging.getLogger(__name__)
 
 class SendAudio:
     async def send_audio(
@@ -42,21 +44,29 @@ class SendAudio:
         file_name: str = None,
         disable_notification: bool = None,
         message_thread_id: int = None,
+        direct_messages_chat_topic_id: int = None,
+        effect_id: int = None,
+        reply_parameters: "types.ReplyParameters" = None,
+        schedule_date: datetime = None,
+        protect_content: bool = None,
+        business_connection_id: str = None,
+        allow_paid_broadcast: bool = None,
+        paid_message_star_count: int = None,
+        reply_markup: Union[
+            "types.InlineKeyboardMarkup",
+            "types.ReplyKeyboardMarkup",
+            "types.ReplyKeyboardRemove",
+            "types.ForceReply"
+        ] = None,
+        progress: Callable = None,
+        progress_args: tuple = (),
+
         reply_to_message_id: int = None,
         reply_to_chat_id: Union[int, str] = None,
         reply_to_story_id: int = None,
         quote_text: str = None,
         quote_entities: List["types.MessageEntity"] = None,
-        schedule_date: datetime = None,
-        protect_content: bool = None,
-        reply_markup: Union[
-            "types.InlineKeyboardMarkup",
-            "types.ReplyKeyboardMarkup",
-            "types.ReplyKeyboardRemove",
-            "types.ForceReply",
-        ] = None,
-        progress: Callable = None,
-        progress_args: tuple = (),
+        quote_offset: int = None,
     ) -> Optional["types.Message"]:
         """Send audio files.
 
@@ -112,28 +122,36 @@ class SendAudio:
 
             message_thread_id (``int``, *optional*):
                 Unique identifier for the target message thread (topic) of the forum.
-                for forum supergroups only.
+                For forums only.
 
-            reply_to_message_id (``int``, *optional*):
-                If the message is a reply, ID of the original message.
+            direct_messages_chat_topic_id (``int``, *optional*):
+                Unique identifier of the topic in a channel direct messages chat administered by the current user.
+                For directs only only.
 
-            reply_to_chat_id (``int``, *optional*):
-                If the message is a reply, ID of the original chat.
+            effect_id (``int``, *optional*):
+                Unique identifier of the message effect.
+                For private chats only.
 
-            reply_to_story_id (``int``, *optional*):
-                Unique identifier for the target story.
-
-            quote_text (``str``):
-                Text of the quote to be sent.
-
-            quote_entities (List of :obj:`~pyrogram.types.MessageEntity`):
-                List of special entities that appear in quote text, which can be specified instead of *parse_mode*.
+            reply_parameters (:obj:`~pyrogram.types.ReplyParameters`, *optional*):
+                Describes reply parameters for the message that is being sent.
 
             schedule_date (:py:obj:`~datetime.datetime`, *optional*):
                 Date when the message will be automatically sent.
 
             protect_content (``bool``, *optional*):
                 Protects the contents of the sent message from forwarding and saving.
+
+            business_connection_id (``str``, *optional*):
+                Unique identifier of the business connection on behalf of which the message will be sent.
+
+            allow_paid_broadcast (``bool``, *optional*):
+                If True, you will be allowed to send up to 1000 messages per second.
+                Ignoring broadcasting limits for a fee of 0.1 Telegram Stars per message.
+                The relevant Stars will be withdrawn from the bot's balance.
+                For bots only.
+
+            paid_message_star_count (``int``, *optional*):
+                The number of Telegram Stars the user agreed to pay to send the messages.
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
@@ -185,57 +203,104 @@ class SendAudio:
 
                 await app.send_audio("me", "audio.mp3", progress=progress)
         """
+        if any(
+            (
+                reply_to_message_id is not None,
+                reply_to_chat_id is not None,
+                reply_to_story_id is not None,
+                quote_text is not None,
+                quote_entities is not None,
+                quote_offset is not None,
+            )
+        ):
+            if reply_to_message_id is not None:
+                log.warning(
+                    "`reply_to_message_id` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
+                )
+
+            if reply_to_chat_id is not None:
+                log.warning(
+                    "`reply_to_chat_id` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
+                )
+
+            if reply_to_story_id is not None:
+                log.warning(
+                    "`reply_to_story_id` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
+                )
+
+            if quote_text is not None:
+                log.warning(
+                    "`quote_text` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
+                )
+
+            if quote_entities is not None:
+                log.warning(
+                    "`quote_entities` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
+                )
+
+            if quote_offset is not None:
+                log.warning(
+                    "`quote_offset` is deprecated and will be removed in future updates. Use `reply_parameters` instead."
+                )
+
+            reply_parameters = types.ReplyParameters(
+                message_id=reply_to_message_id,
+                chat_id=reply_to_chat_id,
+                story_id=reply_to_story_id,
+                quote=quote_text,
+                quote_parse_mode=parse_mode,
+                quote_entities=quote_entities,
+                quote_position=quote_offset
+            )
+
         file = None
 
         try:
             if isinstance(audio, str):
                 if os.path.isfile(audio):
+                    mime_type = self.guess_mime_type(audio) or "audio/mpeg"
+                    if mime_type == "audio/ogg":
+                        mime_type = "audio/opus"
                     thumb = await self.save_file(thumb)
-                    file = await self.save_file(
-                        audio, progress=progress, progress_args=progress_args
-                    )
+                    file = await self.save_file(audio, progress=progress, progress_args=progress_args)
                     media = raw.types.InputMediaUploadedDocument(
-                        mime_type=self.guess_mime_type(audio) or "audio/mpeg",
+                        mime_type=mime_type,
                         file=file,
                         thumb=thumb,
                         attributes=[
                             raw.types.DocumentAttributeAudio(
-                                duration=duration, performer=performer, title=title
+                                duration=duration,
+                                performer=performer,
+                                title=title
                             ),
-                            raw.types.DocumentAttributeFilename(
-                                file_name=file_name or os.path.basename(audio)
-                            ),
-                        ],
+                            raw.types.DocumentAttributeFilename(file_name=file_name or os.path.basename(audio))
+                        ]
                     )
                 elif re.match("^https?://", audio):
-                    media = raw.types.InputMediaDocumentExternal(url=audio)
+                    media = raw.types.InputMediaDocumentExternal(
+                        url=audio
+                    )
                 else:
                     media = utils.get_input_media_from_file_id(audio, FileType.AUDIO)
             else:
+                mime_type = self.guess_mime_type(file_name or audio.name) or "audio/mpeg"
+                if mime_type == "audio/ogg":
+                    mime_type = "audio/opus"
                 thumb = await self.save_file(thumb)
-                file = await self.save_file(
-                    audio, progress=progress, progress_args=progress_args
-                )
+                file = await self.save_file(audio, progress=progress, progress_args=progress_args)
                 media = raw.types.InputMediaUploadedDocument(
-                    mime_type=self.guess_mime_type(file_name or audio.name)
-                    or "audio/mpeg",
+                    mime_type=mime_type,
                     file=file,
                     thumb=thumb,
                     attributes=[
                         raw.types.DocumentAttributeAudio(
-                            duration=duration, performer=performer, title=title
+                            duration=duration,
+                            performer=performer,
+                            title=title
                         ),
-                        raw.types.DocumentAttributeFilename(
-                            file_name=file_name or audio.name
-                        ),
-                    ],
+                        raw.types.DocumentAttributeFilename(file_name=file_name or audio.name)
+                    ]
                 )
-
-            quote_text, quote_entities = (
-                await utils.parse_text_entities(
-                    self, quote_text, parse_mode, quote_entities
-                )
-            ).values()
 
             while True:
                 try:
@@ -245,49 +310,28 @@ class SendAudio:
                             peer=peer,
                             media=media,
                             silent=disable_notification or None,
-                            reply_to=utils.get_reply_to(
-                                reply_to_message_id=reply_to_message_id,
-                                message_thread_id=message_thread_id,
-                                reply_to_peer=(
-                                    await self.resolve_peer(reply_to_chat_id)
-                                    if reply_to_chat_id
-                                    else None
-                                ),
-                                reply_to_story_id=reply_to_story_id,
-                                quote_text=quote_text,
-                                quote_entities=quote_entities,
+                            reply_to=await utils.get_reply_to(
+                                self,
+                                reply_parameters,
+                                message_thread_id,
+                                direct_messages_chat_topic_id
                             ),
                             random_id=self.rnd_id(),
                             schedule_date=utils.datetime_to_timestamp(schedule_date),
                             noforwards=protect_content,
-                            reply_markup=(
-                                await reply_markup.write(self) if reply_markup else None
-                            ),
-                            **await utils.parse_text_entities(
-                                self, caption, parse_mode, caption_entities
-                            )
-                        )
+                            allow_paid_floodskip=allow_paid_broadcast,
+                            reply_markup=await reply_markup.write(self) if reply_markup else None,
+                            effect=effect_id,
+                            allow_paid_stars=paid_message_star_count,
+                            **await utils.parse_text_entities(self, caption, parse_mode, caption_entities)
+                        ),
+                        business_connection_id=business_connection_id
                     )
                 except FilePartMissing as e:
                     await self.save_file(audio, file_id=file.id, file_part=e.value)
                 else:
-                    for i in r.updates:
-                        if isinstance(
-                            i,
-                            (
-                                raw.types.UpdateNewMessage,
-                                raw.types.UpdateNewChannelMessage,
-                                raw.types.UpdateNewScheduledMessage,
-                            ),
-                        ):
-                            return await types.Message._parse(
-                                self,
-                                i.message,
-                                {i.id: i for i in r.users},
-                                {i.id: i for i in r.chats},
-                                is_scheduled=isinstance(
-                                    i, raw.types.UpdateNewScheduledMessage
-                                ),
-                            )
+                    messages = await utils.parse_messages(client=self, messages=r)
+
+                    return messages[0] if messages else None
         except StopTransmission:
             return None

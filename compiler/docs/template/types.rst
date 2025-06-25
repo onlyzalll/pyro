@@ -21,19 +21,6 @@ are only returned by other methods. You also don't need to import them, unless y
 
 .. currentmodule:: pyrogram.types
 
-Messages & Media
-----------------
-
-.. autosummary::
-    :nosignatures:
-
-    {messages_media}
-
-.. toctree::
-    :hidden:
-
-    {messages_media}
-
 Users & Chats
 -------------
 
@@ -46,6 +33,19 @@ Users & Chats
     :hidden:
 
     {users_chats}
+
+Messages & Media
+----------------
+
+.. autosummary::
+    :nosignatures:
+
+    {messages_media}
+
+.. toctree::
+    :hidden:
+
+    {messages_media}
 
 Bot keyboards
 -------------
@@ -73,19 +73,6 @@ Bot commands
 
     {bot_commands}
 
-Chat Forum Topics
-------------------
-
-.. autosummary::
-    :nosignatures:
-
-    {chat_topics}
-
-.. toctree::
-    :hidden:
-
-    {chat_topics}
-
 Input Media
 -----------
 
@@ -99,21 +86,8 @@ Input Media
 
     {input_media}
 
-Input Paid Media
------------------
-
-.. autosummary::
-    :nosignatures:
-
-    {input_paid_media}
-
-.. toctree::
-    :hidden:
-
-    {input_paid_media}
-
 Inline Mode
-------------
+-----------
 
 .. autosummary::
     :nosignatures:
@@ -151,15 +125,15 @@ Authorization
 
     {authorization}
 
-Payments
----------
+InputPrivacyRule
+----------------
 
 .. autosummary::
     :nosignatures:
 
-    {payments}
+    {input_privacy_rule}
 
 .. toctree::
     :hidden:
 
-    {payments}
+    {input_privacy_rule}

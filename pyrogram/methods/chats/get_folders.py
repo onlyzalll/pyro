@@ -16,57 +16,61 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import AsyncGenerator, Optional
+from typing import List, Union
 
 import pyrogram
-from pyrogram import types, raw
+from pyrogram import raw, types, utils
 
 
 class GetFolders:
     async def get_folders(
-        self: "pyrogram.Client",
-    ) -> Optional[AsyncGenerator["types.Folder", None]]:
-        """Get a user's folders with chats sequentially.
+        self: "pyrogram.Client"
+    ) -> Union["types.Folder", List["types.Folder"]]:
+        """Return information about a chat folders.
 
         .. include:: /_includes/usable-by/users.rst
 
         Returns:
-            ``Generator``: A generator yielding :obj:`~pyrogram.types.Folder` objects.
+            List of :obj:`~pyrogram.types.Folder`: On success, a list of folders is returned.
 
         Example:
             .. code-block:: python
 
-                # Iterate through all folders
-                async for folder in app.get_folders():
-                    print(folder.title)
+                # Get all folders
+                await app.get_folders()
         """
-        raw_folders = await self.invoke(raw.functions.messages.GetDialogFilters())
-        dialog_peers = []
+        dialog_filters = await self.invoke(raw.functions.messages.GetDialogFilters())
+
+        raw_folders = [
+            folder for folder in dialog_filters.filters
+            if isinstance(folder, (raw.types.DialogFilter, raw.types.DialogFilterChatlist))
+        ]
+
+        if not raw_folders:
+            return types.List()
+
+        raw_peers = {}
 
         for folder in raw_folders:
-            if not isinstance(folder, (raw.types.DialogFilter, raw.types.DialogFilterChatlist)):
-                continue
+            for peer in folder.pinned_peers + folder.include_peers + getattr(folder, "exclude_peers", []):
+                raw_peers[utils.get_raw_peer_id(peer)] = peer
 
-            peers = folder.pinned_peers + folder.include_peers + getattr(folder, "exclude_peers", [])
-            input_peers = [raw.types.InputDialogPeer(peer=peer) for peer in peers] + [raw.types.InputDialogPeerFolder(folder_id=folder.id)]
-            dialog_peers.extend(input_peers)
+        users = {}
+        chats = {}
 
-        r = await self.invoke(raw.functions.messages.GetPeerDialogs(peers=dialog_peers))
+        for i in range(0, len(raw_peers), 100):
+            chunk = list(raw_peers.values())[i:i + 100]
+            r = await self.invoke(
+                raw.functions.messages.GetPeerDialogs(
+                    peers=[raw.types.InputDialogPeer(peer=peer) for peer in chunk]
+                )
+            )
+            users.update({i.id: i for i in r.users})
+            chats.update({i.id: i for i in r.chats})
 
-        users = {i.id: i for i in r.users}
-        chats = {i.id: i for i in r.chats}
-        peers = {**users, **chats}
-
-        folders = []
-
-        for folder in raw_folders:
-            if not isinstance(folder, (raw.types.DialogFilter, raw.types.DialogFilterChatlist)):
-                continue
-
-            folders.append(types.Folder._parse(self, folder, peers))
-
-        if not folders:
-            return
-
-        for folder in folders:
-            yield folder
+        return types.List(
+            [
+                await types.Folder._parse(self, folder, users, chats)
+                for folder in raw_folders
+            ]
+        )

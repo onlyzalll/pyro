@@ -18,7 +18,6 @@
 
 import pyrogram
 from pyrogram import raw
-
 from ..object import Object
 
 
@@ -30,13 +29,19 @@ class StrippedThumbnail(Object):
             Thumbnail data
     """
 
-    def __init__(self, *, client: "pyrogram.Client" = None, data: bytes):
+    def __init__(
+        self,
+        *,
+        client: "pyrogram.Client" = None,
+        data: bytes
+    ):
         super().__init__(client)
 
         self.data = data
 
     @staticmethod
-    def _parse(
-        client, stripped_thumbnail: "raw.types.PhotoStrippedSize"
-    ) -> "StrippedThumbnail":
-        return StrippedThumbnail(data=stripped_thumbnail.bytes, client=client)
+    def _parse(client, stripped_thumbnail: "raw.types.PhotoStrippedSize") -> "StrippedThumbnail":
+        return StrippedThumbnail(
+            data=stripped_thumbnail.bytes,
+            client=client
+        )

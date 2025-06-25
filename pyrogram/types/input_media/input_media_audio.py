@@ -16,11 +16,11 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import BinaryIO, List, Optional, Union
+from typing import Optional, List, BinaryIO, Union
 
-from ... import enums
-from ..messages_and_media import MessageEntity
 from .input_media import InputMedia
+from ..messages_and_media import MessageEntity
+from ... import enums
 
 
 class InputMediaAudio(InputMedia):
@@ -61,6 +61,10 @@ class InputMediaAudio(InputMedia):
 
         title (``str``, *optional*):
             Title of the audio
+
+        file_name (``str``, *optional*):
+            File name of the audio sent.
+            Defaults to file's path basename.
     """
 
     def __init__(
@@ -73,6 +77,7 @@ class InputMediaAudio(InputMedia):
         duration: int = 0,
         performer: str = "",
         title: str = "",
+        file_name: str = None
     ):
         super().__init__(media, caption, parse_mode, caption_entities)
 
@@ -80,3 +85,4 @@ class InputMediaAudio(InputMedia):
         self.duration = duration
         self.performer = performer
         self.title = title
+        self.file_name = file_name

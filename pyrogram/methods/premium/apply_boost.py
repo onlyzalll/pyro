@@ -30,7 +30,7 @@ class ApplyBoost:
     ) -> bool:
         """Apply boost
 
-        .. include:: /_includes/usable-by/users-bots.rst
+        .. include:: /_includes/usable-by/users.rst
 
         Parameters:
             chat_id (``int`` | ``str``):
@@ -43,7 +43,7 @@ class ApplyBoost:
             .. code-block:: python
 
                 # Apply boost to chat id
-                app.apply_boost(chat_id)
+                await app.apply_boost(chat_id)
         """
         r = await self.invoke(
             raw.functions.premium.ApplyBoost(

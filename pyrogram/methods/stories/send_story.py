@@ -17,12 +17,12 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import re
-from typing import List, Union, BinaryIO, Callable
+from typing import BinaryIO, Callable, List, Union
 
 import pyrogram
-from pyrogram import enums, raw, types, utils, StopTransmission
+from pyrogram import StopTransmission, enums, raw, types, utils
 from pyrogram.errors import FilePartMissing
+
 
 class SendStory:
     async def send_story(
@@ -45,13 +45,12 @@ class SendStory:
         parse_mode: "enums.ParseMode" = None,
         caption_entities: List["types.MessageEntity"] = None,
         progress: Callable = None,
-        progress_args: tuple = ()
+        progress_args: tuple = (),
+        media_areas: List["types.MediaArea"] = None
     ) -> "types.Story":
-        """Send new story.
+        """Post new story.
 
         .. include:: /_includes/usable-by/users.rst
-
-        Note: You must pass one of following paramater *animation*, *photo*, *video*
 
         Parameters:
             chat_id (``int`` | ``str``):
@@ -61,7 +60,6 @@ class SendStory:
             media (``str`` | ``BinaryIO``):
                 Video or photo to send.
                 Pass a file_id as string to send a animation that exists on the Telegram servers,
-                pass an HTTP URL as a string for Telegram to get a animation from the Internet,
                 pass a file path as string to upload a new animation that exists on your local machine, or
                 pass a binary file-like object with its attribute ".name" set for in-memory uploads.
 
@@ -69,8 +67,9 @@ class SendStory:
                 Story caption, 0-1024 characters.
 
             period (``int``, *optional*):
-                How long the story will posted, in secs.
-                only for premium users.
+                Period after which the story is moved to archive (and to the profile if pinned is set), in seconds.
+                Must be one of ``6 * 3600``, ``12 * 3600``, ``86400``, or ``2 * 86400`` for Telegram Premium users,
+                and 86400 otherwise.
 
             duration (``int``, *optional*):
                 Duration of sent video in seconds.
@@ -86,6 +85,13 @@ class SendStory:
                 The thumbnail should be in JPEG format and less than 200 KB in size.
                 A thumbnail's width and height should not exceed 320 pixels.
                 Thumbnails can't be reused and can be only uploaded as a new file.
+
+            supports_streaming (``bool``, *optional*):
+                True, if the uploaded video is suitable for streaming.
+                Defaults to True.
+
+            file_name (``str``, *optional*):
+                File name of the story sent.
 
             privacy (:obj:`~pyrogram.enums.StoriesPrivacyRules`, *optional*):
                 Story privacy.
@@ -103,12 +109,10 @@ class SendStory:
                 and :obj:`~pyrogram.enums.StoriesPrivacyRules.CONTACTS` only
 
             pinned (``bool``, *optional*):
-                if True, the story will be pinned.
-                default to False.
+                If True, the story will be pinned.
 
             protect_content (``bool``, *optional*):
                 Protects the contents of the sent story from forwarding and saving.
-                default to False.
 
             parse_mode (:obj:`~pyrogram.enums.ParseMode`, *optional*):
                 By default, texts are parsed using both Markdown and HTML styles.
@@ -128,14 +132,20 @@ class SendStory:
                 You can pass anything you need to be available in the progress callback scope; for example, a Message
                 object or a Client instance in order to edit the message with the updated progress status.
 
+            media_areas (List of :obj:`~pyrogram.types.MediaArea`, *optional*):
+                List of media areas to add to the story.
+
         Returns:
             :obj:`~pyrogram.types.Story` a single story is returned.
 
         Example:
             .. code-block:: python
 
-                # Send new story
-                await app.send_story(media=file_id, caption='Hello guys.')
+                # Post story to your profile
+                await app.send_story("me", "story.png", caption='My new story!')
+
+                # Post story to channel
+                await app.send_story(123456, "story.png", caption='My new story!')
 
         Raises:
             ValueError: In case of invalid arguments.
@@ -168,16 +178,6 @@ class SendStory:
                         media = raw.types.InputMediaUploadedPhoto(
                             file=file,
                         )
-                elif re.match("^https?://", media):
-                    mime_type = self.guess_mime_type(media)
-                    if mime_type == "video/mp4":
-                        media = raw.types.InputMediaDocumentExternal(
-                            url=media,
-                        )
-                    else:
-                        media = raw.types.InputMediaPhotoExternal(
-                            url=media,
-                        )
                 else:
                     media = utils.get_input_media_from_file_id(media)
             else:
@@ -206,37 +206,41 @@ class SendStory:
 
             privacy_rules = []
 
-            if privacy:
-                if privacy == enums.StoriesPrivacyRules.PUBLIC:
-                    privacy_rules.append(raw.types.InputPrivacyValueAllowAll())
-                    if disallowed_users:
-                        users = [await self.resolve_peer(user_id) for user_id in disallowed_users]
-                        privacy_rules.append(raw.types.InputPrivacyValueDisallowUsers(users=users))
-                elif privacy == enums.StoriesPrivacyRules.CONTACTS:
-                    privacy_rules = [raw.types.InputPrivacyValueAllowContacts()]
-                    if disallowed_users:
-                        users = [await self.resolve_peer(user_id) for user_id in disallowed_users]
-                        privacy_rules.append(raw.types.InputPrivacyValueDisallowUsers(users=users))
-                elif privacy == enums.StoriesPrivacyRules.CLOSE_FRIENDS:
-                    privacy_rules = [raw.types.InputPrivacyValueAllowCloseFriends()]
-                    if allowed_users:
-                        users = [await self.resolve_peer(user_id) for user_id in allowed_users]
-                        privacy_rules.append(raw.types.InputPrivacyValueAllowUsers(users=users))
-                elif privacy == enums.StoriesPrivacyRules.SELECTED_USERS:
-                    _allowed_users = []
-                    _allowed_chats = []
+            if privacy == enums.StoriesPrivacyRules.PUBLIC:
+                privacy_rules.append(raw.types.InputPrivacyValueAllowAll())
+                if disallowed_users:
+                    users = [await self.resolve_peer(user_id) for user_id in disallowed_users]
+                    privacy_rules.append(raw.types.InputPrivacyValueDisallowUsers(users=users))
+            elif privacy == enums.StoriesPrivacyRules.CONTACTS:
+                privacy_rules.append(raw.types.InputPrivacyValueAllowContacts())
+                if disallowed_users:
+                    users = [await self.resolve_peer(user_id) for user_id in disallowed_users]
+                    privacy_rules.append(raw.types.InputPrivacyValueDisallowUsers(users=users))
+            elif privacy == enums.StoriesPrivacyRules.CLOSE_FRIENDS:
+                privacy_rules.append(raw.types.InputPrivacyValueAllowCloseFriends())
+                if allowed_users:
+                    users = [await self.resolve_peer(user_id) for user_id in allowed_users]
+                    privacy_rules.append(raw.types.InputPrivacyValueAllowUsers(users=users))
+                else:
+                    privacy_rules.append(raw.types.InputPrivacyValueAllowUsers(users=[raw.types.InputPeerEmpty()]))
+            elif privacy == enums.StoriesPrivacyRules.SELECTED_USERS:
+                _allowed_users = []
+                _allowed_chats = []
 
+                if allowed_users:
                     for user in allowed_users:
                         peer = await self.resolve_peer(user)
                         if isinstance(peer, raw.types.InputPeerUser):
                             _allowed_users.append(peer)
-                        elif isinstance(peer, raw.types.InputPeerChat):
+                        elif isinstance(peer, (raw.types.InputPeerChat, raw.types.InputPeerChannel)):
                             _allowed_chats.append(peer)
+                else:
+                    privacy_rules.append(raw.types.InputPrivacyValueAllowUsers(users=[raw.types.InputPeerEmpty()]))
 
-                    if _allowed_users:
-                        privacy_rules.append(raw.types.InputPrivacyValueAllowUsers(users=_allowed_users))
-                    if _allowed_chats:
-                        privacy_rules.append(raw.types.InputPrivacyValueAllowChatParticipants(chats=_allowed_chats))
+                if _allowed_users:
+                    privacy_rules.append(raw.types.InputPrivacyValueAllowUsers(users=_allowed_users))
+                if _allowed_chats:
+                    privacy_rules.append(raw.types.InputPrivacyValueAllowChatParticipants(chats=_allowed_chats))
             else:
                 privacy_rules.append(raw.types.InputPrivacyValueAllowAll())
 
@@ -250,6 +254,7 @@ class SendStory:
                             random_id=self.rnd_id(),
                             pinned=pinned,
                             noforwards=protect_content,
+                            media_areas=[await area.write(self) for area in (media_areas or [])] or None,
                             caption=message,
                             entities=entities,
                             period=period,
@@ -263,9 +268,9 @@ class SendStory:
                             return await types.Story._parse(
                                 self,
                                 i.story,
+                                i.peer,
                                 {i.id: i for i in r.users},
-                                {i.id: i for i in r.chats},
-                                i.peer
+                                {i.id: i for i in r.chats}
                             )
         except StopTransmission:
             return None

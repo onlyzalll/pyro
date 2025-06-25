@@ -19,7 +19,8 @@
 from typing import Union
 
 import pyrogram
-from pyrogram import raw, types
+from pyrogram import raw
+from pyrogram import types
 
 
 class StopPoll:
@@ -27,7 +28,7 @@ class StopPoll:
         self: "pyrogram.Client",
         chat_id: Union[int, str],
         message_id: int,
-        reply_markup: "types.InlineKeyboardMarkup" = None,
+        reply_markup: "types.InlineKeyboardMarkup" = None
     ) -> "types.Poll":
         """Stop a poll which was sent by you.
 
@@ -55,7 +56,7 @@ class StopPoll:
 
                 await app.stop_poll(chat_id, message_id)
         """
-        poll = (await self.get_messages(chat_id, message_id)).poll
+        poll = (await self.get_messages(chat_id=chat_id, message_ids=message_id)).poll
 
         r = await self.invoke(
             raw.functions.messages.EditMessage(
@@ -63,10 +64,13 @@ class StopPoll:
                 id=message_id,
                 media=raw.types.InputMediaPoll(
                     poll=raw.types.Poll(
-                        id=int(poll.id), closed=True, question="", answers=[]
+                        id=int(poll.id),
+                        closed=True,
+                        question=raw.types.TextWithEntities(text="", entities=[]),
+                        answers=[]
                     )
                 ),
-                reply_markup=await reply_markup.write(self) if reply_markup else None,
+                reply_markup=await reply_markup.write(self) if reply_markup else None
             )
         )
 

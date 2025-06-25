@@ -20,10 +20,7 @@ from .auto_name import AutoName
 
 
 class ProfileColor(AutoName):
-    """Profile color enumeration used in :obj:`~pyrogram.types.ChatColor`.
-    
-    `More about profile colors. <https://core.telegram.org/bots/api#profile-accent-colors>`_
-    """
+    """Profile color enumeration used in :meth:`~pyrogram.Client.update_color` and :obj:`~pyrogram.types.ChatColor`."""
 
     RED = 0
     "Red color."

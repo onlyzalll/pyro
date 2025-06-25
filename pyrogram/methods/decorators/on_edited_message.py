@@ -16,7 +16,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Callable
+from typing import Callable, Optional, Union
 
 import pyrogram
 from pyrogram.filters import Filter
@@ -24,14 +24,16 @@ from pyrogram.filters import Filter
 
 class OnEditedMessage:
     def on_edited_message(
-        self=None,
-        filters=None,
-        group: int = 0
+        self: Union["OnEditedMessage", Filter, None] = None,
+        filters: Optional[Filter] = None,
+        group: int = 0,
     ) -> Callable:
         """Decorator for handling edited messages.
 
         This does the same thing as :meth:`~pyrogram.Client.add_handler` using the
         :obj:`~pyrogram.handlers.EditedMessageHandler`.
+
+        .. include:: /_includes/usable-by/users-bots.rst
 
         Parameters:
             filters (:obj:`~pyrogram.filters`, *optional*):

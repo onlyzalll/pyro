@@ -22,7 +22,7 @@ import re
 import shutil
 from functools import partial
 from pathlib import Path
-from typing import NamedTuple
+from typing import NamedTuple, List, Tuple
 
 # from autoflake import fix_code
 # from black import format_str, FileMode
@@ -64,15 +64,11 @@ try:
     with open("docs.json") as f:
         docs = json.load(f)
 except FileNotFoundError:
-    try:
-        with open(HOME_PATH / "docs.json") as f:
-            docs = json.load(f)
-    except FileNotFoundError:
-        docs = {
-            "type": {},
-            "constructor": {},
-            "method": {}
-        }
+    docs = {
+        "type": {},
+        "constructor": {},
+        "method": {}
+    }
 
 
 class Combinator(NamedTuple):
@@ -82,7 +78,7 @@ class Combinator(NamedTuple):
     name: str
     id: str
     has_flags: bool
-    args: list[tuple[str, str]]
+    args: List[Tuple[str, str]]
     qualtype: str
     typespace: str
     type: str
@@ -127,13 +123,13 @@ def get_type_hint(type: str) -> str:
         is_core = True
 
         sub_type = type.split("<")[1][:-1]
-        type = f"list[{get_type_hint(sub_type)}]"
+        type = f"List[{get_type_hint(sub_type)}]"
 
     if is_core:
         return f"Optional[{type}] = None" if is_flag else type
     else:
         ns, name = type.split(".") if "." in type else ("", type)
-        type = f'"raw.base.' + ".".join([ns, name]).strip(".") + '"'
+        type = '"raw.base.' + ".".join([ns, name]).strip(".") + '"'
 
         return f'{type}{" = None" if is_flag else ""}'
 
@@ -264,11 +260,11 @@ def start(format: bool = False):
 
             # Fix arg name being reserved python keyword
             for i, item in enumerate(args):
-                if item[0] in [
-                    "self",
-                    "from",
-                ]:
-                    args[i] = (f"is_{item[0]}", item[1])
+                if item[0] == "self":
+                    args[i] = ("is_self", item[1])
+
+                if item[0] == "from":
+                    args[i] = ("from_peer", item[1])
 
             combinator = Combinator(
                 section=section,
@@ -398,7 +394,6 @@ def start(format: bool = False):
         for i, arg in enumerate(sorted_args):
             arg_name, arg_type = arg
             is_optional = FLAGS_RE.match(arg_type)
-            flag_number = is_optional.group(1) if is_optional else -1
             arg_type = arg_type.split("?")[-1]
 
             arg_docs = combinator_docs.get(c.qualname, None)
@@ -412,7 +407,7 @@ def start(format: bool = False):
                 "{} ({}{}):\n            {}\n".format(
                     arg_name,
                     get_docstring_arg_type(arg_type),
-                    ", *optional*".format(flag_number) if is_optional else "",
+                    ", *optional*" if is_optional else "",
                     arg_docs
                 )
             )
@@ -433,11 +428,11 @@ def start(format: bool = False):
             if function_docs:
                 docstring += function_docs["desc"] + "\n"
             else:
-                docstring += f"Telegram API function."
+                docstring += "Telegram API function."
 
         docstring += f"\n\n    Details:\n        - Layer: ``{layer}``\n        - ID: ``{c.id[2:].upper()}``\n\n"
-        docstring += f"    Parameters:\n        " + \
-                     (f"\n        ".join(docstring_args) if docstring_args else "No parameters required.\n")
+        docstring += "    Parameters:\n        " + \
+                     ("\n        ".join(docstring_args) if docstring_args else "No parameters required.\n")
 
         if c.section == "functions":
             docstring += "\n    Returns:\n        " + get_docstring_arg_type(c.qualtype)

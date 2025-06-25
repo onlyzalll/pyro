@@ -20,6 +20,7 @@ from .add_chat_members import AddChatMembers
 from .archive_chats import ArchiveChats
 from .ban_chat_member import BanChatMember
 from .create_channel import CreateChannel
+from .create_folder import CreateFolder
 from .create_forum_topic import CreateForumTopic
 from .create_group import CreateGroup
 from .create_supergroup import CreateSupergroup
@@ -38,16 +39,22 @@ from .get_chat_member import GetChatMember
 from .get_chat_members import GetChatMembers
 from .get_chat_members_count import GetChatMembersCount
 from .get_chat_online_count import GetChatOnlineCount
+from .get_chat_settings import GetChatSettings
+from .get_similar_channels import GetSimilarChannels
+from .get_suitable_discussion_chats import GetSuitableDiscussionChats
 from .get_dialogs import GetDialogs
+from .get_direct_messages_topics_by_id import GetDirectMessagesTopicsByID
+from .get_direct_messages_topics import GetDirectMessagesTopics
 from .get_dialogs_count import GetDialogsCount
-from .get_folder import GetFolder
 from .get_folders import GetFolders
 from .get_forum_topics import GetForumTopics
 from .get_forum_topics_by_id import GetForumTopicsByID
-from .get_nearby_chats import GetNearbyChats
+from .get_personal_channels import GetPersonalChannels
 from .get_send_as_chats import GetSendAsChats
 from .join_chat import JoinChat
+from .join_folder import JoinFolder
 from .leave_chat import LeaveChat
+from .leave_folder import LeaveFolder
 from .mark_chat_unread import MarkChatUnread
 from .pin_chat_message import PinChatMessage
 from .pin_forum_topic import PinForumTopic
@@ -55,27 +62,37 @@ from .promote_chat_member import PromoteChatMember
 from .restrict_chat_member import RestrictChatMember
 from .set_administrator_title import SetAdministratorTitle
 from .set_chat_description import SetChatDescription
+from .set_chat_direct_messages_group import SetChatDirectMessagesGroup
 from .set_chat_permissions import SetChatPermissions
+from .set_chat_discussion_group import SetChatDiscussionGroup
 from .set_chat_photo import SetChatPhoto
 from .set_chat_protected_content import SetChatProtectedContent
 from .set_chat_title import SetChatTitle
+from .set_chat_ttl import SetChatTTL
 from .set_chat_username import SetChatUsername
 from .set_send_as_chat import SetSendAsChat
 from .set_slow_mode import SetSlowMode
+from .toggle_folder_tags import ToggleFolderTags
 from .toggle_forum_topics import ToggleForumTopics
+from .toggle_join_to_send import ToggleJoinToSend
+from .transfer_chat_ownership import TransferChatOwnership
 from .unarchive_chats import UnarchiveChats
 from .unban_chat_member import UnbanChatMember
 from .unpin_all_chat_messages import UnpinAllChatMessages
 from .unpin_chat_message import UnpinChatMessage
+from .unpin_forum_topic import UnpinForumTopic
 from .update_chat_notifications import UpdateChatNotifications
 from .update_color import UpdateColor
-from .update_folder import UpdateFolder
+from .edit_folder import EditFolder
+from .reorder_folders import ReorderFolders
 
 
 class Chats(
     GetChat,
     LeaveChat,
+    LeaveFolder,
     JoinChat,
+    JoinFolder,
     BanChatMember,
     UnbanChatMember,
     RestrictChatMember,
@@ -86,19 +103,24 @@ class Chats(
     DeleteChatPhoto,
     DeleteFolder,
     SetChatTitle,
+    SetChatTTL,
     SetChatDescription,
+    SetChatDirectMessagesGroup,
     PinChatMessage,
-    PinForumTopic,
     UnpinChatMessage,
+    PinForumTopic,
+    UnpinForumTopic,
     UpdateChatNotifications,
     UpdateColor,
-    UpdateFolder,
+    EditFolder,
     GetDialogs,
+    GetDirectMessagesTopicsByID,
+    GetDirectMessagesTopics,
     GetChatMembersCount,
     SetChatUsername,
     SetChatPermissions,
+    SetChatDiscussionGroup,
     GetDialogsCount,
-    GetFolder,
     GetFolders,
     GetForumTopics,
     GetForumTopicsByID,
@@ -107,6 +129,8 @@ class Chats(
     CreateGroup,
     CreateSupergroup,
     CreateChannel,
+    CreateFolder,
+    ReorderFolders,
     CreateForumTopic,
     CloseForumTopic,
     AddChatMembers,
@@ -115,15 +139,21 @@ class Chats(
     DeleteSupergroup,
     EditForumTopic,
     ExportFolderLink,
-    GetNearbyChats,
+    GetPersonalChannels,
     SetAdministratorTitle,
     SetSlowMode,
+    ToggleFolderTags,
     ToggleForumTopics,
+    ToggleJoinToSend,
+    TransferChatOwnership,
     DeleteUserHistory,
     UnpinAllChatMessages,
     MarkChatUnread,
     GetChatEventLog,
     GetChatOnlineCount,
+    GetChatSettings,
+    GetSimilarChannels,
+    GetSuitableDiscussionChats,
     GetSendAsChats,
     SetSendAsChat,
     SetChatProtectedContent

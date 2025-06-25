@@ -45,10 +45,13 @@ class Sticker(Object):
             Sticker height.
 
         is_animated (``bool``):
-            True, if the sticker is animated
+            True, if the sticker is animated.
 
         is_video (``bool``):
-            True, if the sticker is a video sticker
+            True, if the sticker is a video sticker.
+
+        is_premium (``bool``):
+            True, if the sticker is a premium only.
 
         file_name (``str``, *optional*):
             Sticker file name.
@@ -84,6 +87,7 @@ class Sticker(Object):
         height: int,
         is_animated: bool,
         is_video: bool,
+        is_premium: bool,
         file_name: str = None,
         mime_type: str = None,
         file_size: int = None,
@@ -104,6 +108,7 @@ class Sticker(Object):
         self.height = height
         self.is_animated = is_animated
         self.is_video = is_video
+        self.is_premium = is_premium
         self.emoji = emoji
         self.set_name = set_name
         self.thumbs = thumbs
@@ -148,23 +153,24 @@ class Sticker(Object):
         sticker: "raw.types.Document",
         document_attributes: Dict[Type["raw.base.DocumentAttribute"], "raw.base.DocumentAttribute"],
     ) -> "Sticker":
-        sticker_attributes = (
-            document_attributes[raw.types.DocumentAttributeSticker]
-            if raw.types.DocumentAttributeSticker in document_attributes
-            else document_attributes[raw.types.DocumentAttributeCustomEmoji]
-        )
+        sticker_attribute = None
+        set_name = None
+
+        if document_attributes.get(raw.types.DocumentAttributeSticker):
+            sticker_attribute = document_attributes[raw.types.DocumentAttributeSticker]
+        elif document_attributes.get(raw.types.DocumentAttributeCustomEmoji):
+            sticker_attribute = document_attributes[raw.types.DocumentAttributeCustomEmoji]
 
         image_size_attributes = document_attributes.get(raw.types.DocumentAttributeImageSize, None)
         file_name = getattr(document_attributes.get(raw.types.DocumentAttributeFilename, None), "file_name", None)
         video_attributes = document_attributes.get(raw.types.DocumentAttributeVideo, None)
 
-        sticker_set = sticker_attributes.stickerset
+        if sticker_attribute:
+            sticker_set = sticker_attribute.stickerset
 
-        if isinstance(sticker_set, raw.types.InputStickerSetID):
-            input_sticker_set_id = (sticker_set.id, sticker_set.access_hash)
-            set_name = await Sticker._get_sticker_set_name(client.invoke, input_sticker_set_id)
-        else:
-            set_name = None
+            if isinstance(sticker_set, raw.types.InputStickerSetID):
+                input_sticker_set_id = (sticker_set.id, sticker_set.access_hash)
+                set_name = await Sticker._get_sticker_set_name(client.invoke, input_sticker_set_id)
 
         return Sticker(
             file_id=FileId(
@@ -194,9 +200,10 @@ class Sticker(Object):
             ),
             is_animated=sticker.mime_type == "application/x-tgsticker",
             is_video=sticker.mime_type == "video/webm",
+            is_premium=bool(sticker.video_thumbs),
             # TODO: mask_position
             set_name=set_name,
-            emoji=sticker_attributes.alt or None,
+            emoji=getattr(sticker_attribute, "alt", None) or None,
             file_size=sticker.size,
             mime_type=sticker.mime_type,
             file_name=file_name,

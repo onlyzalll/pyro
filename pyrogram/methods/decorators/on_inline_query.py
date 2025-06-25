@@ -16,7 +16,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Callable
+from typing import Callable, Optional, Union
 
 import pyrogram
 from pyrogram.filters import Filter
@@ -24,14 +24,16 @@ from pyrogram.filters import Filter
 
 class OnInlineQuery:
     def on_inline_query(
-        self=None,
-        filters=None,
-        group: int = 0
+        self: Union["OnInlineQuery", Filter, None] = None,
+        filters: Optional[Filter] = None,
+        group: int = 0,
     ) -> Callable:
         """Decorator for handling inline queries.
 
         This does the same thing as :meth:`~pyrogram.Client.add_handler` using the
         :obj:`~pyrogram.handlers.InlineQueryHandler`.
+
+        .. include:: /_includes/usable-by/bots.rst
 
         Parameters:
             filters (:obj:`~pyrogram.filters`, *optional*):

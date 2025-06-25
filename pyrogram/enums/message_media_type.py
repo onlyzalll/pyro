@@ -63,9 +63,6 @@ class MessageMediaType(AutoName):
     WEB_PAGE = auto()
     "Web page media"
 
-    WEB_PAGE_PREVIEW = auto()
-    "Web page preview media"
-
     DICE = auto()
     "Dice media"
 
@@ -75,5 +72,14 @@ class MessageMediaType(AutoName):
     GIVEAWAY = auto()
     "Giveaway media"
 
+    GIVEAWAY_WINNERS = auto()
+    "Giveaway winners media"
+
     STORY = auto()
     "Story media"
+
+    INVOICE = auto()
+    "Invoice media"
+
+    PAID_MEDIA = auto()
+    "Paid media"

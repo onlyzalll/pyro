@@ -12,7 +12,7 @@ the main package directly.
     app = Client("my_account")
 
     with app:
-        app.send_message(chat_id="me", text="hi")
+        app.send_message("me", "hi")
 
 -----
 
@@ -47,19 +47,6 @@ Utilities
 
 .. currentmodule:: pyrogram.Client
 
-Authorization
--------------
-
-.. autosummary::
-    :nosignatures:
-
-    {authorization}
-
-.. toctree::
-    :hidden:
-
-    {authorization}
-
 Messages
 --------
 
@@ -86,32 +73,6 @@ Chats
 
     {chats}
 
-Invite Links
-------------
-
-.. autosummary::
-    :nosignatures:
-
-    {invite_links}
-
-.. toctree::
-    :hidden:
-
-    {invite_links}
-
-Chat Forum Topics
-------------------
-
-.. autosummary::
-    :nosignatures:
-
-    {chat_topics}
-
-.. toctree::
-    :hidden:
-
-    {chat_topics}
-
 Users
 -----
 
@@ -124,6 +85,19 @@ Users
     :hidden:
 
     {users}
+
+Invite Links
+------------
+
+.. autosummary::
+    :nosignatures:
+
+    {invite_links}
+
+.. toctree::
+    :hidden:
+
+    {invite_links}
 
 Contacts
 --------
@@ -164,34 +138,73 @@ Bots
 
     {bots}
 
-Stickers
---------
+Authorization
+-------------
 
 .. autosummary::
     :nosignatures:
 
-    {stickers}
+    {authorization}
 
 .. toctree::
     :hidden:
 
-    {stickers}
+    {authorization}
 
 Stories
+-------
+
+.. autosummary::
+    :nosignatures:
+
+    {stories}
+
+.. toctree::
+    :hidden:
+
+    {stories}
+
+Premium
+-------
+
+.. autosummary::
+    :nosignatures:
+
+    {premium}
+
+.. toctree::
+    :hidden:
+
+    {premium}
+
+Phone
+-----
+
+.. autosummary::
+    :nosignatures:
+
+    {phone}
+
+.. toctree::
+    :hidden:
+
+    {phone}
+
+Business
 --------
 
 .. autosummary::
     :nosignatures:
 
-    {stories}
+    {business}
 
 .. toctree::
     :hidden:
 
-    {stories}
+    {business}
 
 Payments
----------
+--------
 
 .. autosummary::
     :nosignatures:
@@ -203,18 +216,18 @@ Payments
 
     {payments}
 
-Phone
-------
+Account
+-------
 
 .. autosummary::
     :nosignatures:
 
-    {phone}
+    {account}
 
 .. toctree::
     :hidden:
 
-    {phone}
+    {account}
 
 Advanced
 --------

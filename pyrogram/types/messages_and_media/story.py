@@ -17,11 +17,11 @@
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
 from datetime import datetime
-from typing import BinaryIO, Callable, List, Optional, Union
+from typing import BinaryIO, Callable, Dict, List, Optional, Union
 
 import pyrogram
 from pyrogram import enums, raw, types, utils
-from pyrogram.errors import PeerIdInvalid
+from pyrogram.errors import ChannelInvalid, ChannelPrivate
 
 from ..object import Object
 from ..update import Update
@@ -40,11 +40,23 @@ class Story(Object, Update):
         sender_chat (:obj:`~pyrogram.types.Chat`, *optional*):
             Sender of the story, sent on behalf of a chat.
 
+        date (:py:obj:`~datetime.datetime`, *optional*):
+            Date the story was sent.
+
         chat (:obj:`~pyrogram.types.Chat`, *optional*):
             Conversation the story belongs to.
 
-        date (:py:obj:`~datetime.datetime`, *optional*):
-            Date the story was sent.
+        forward_from (:obj:`~pyrogram.types.User`, *optional*):
+            For forwarded stories, sender of the original story.
+
+        forward_sender_name (``str``, *optional*):
+            For stories forwarded from users who have hidden their accounts, name of the user.
+
+        forward_from_chat (:obj:`~pyrogram.types.Chat`, *optional*):
+            For stories forwarded from channels, information about the original channel.
+
+        forward_from_story_id (``int``, *optional*):
+            For stories forwarded from channels, identifier of the original story in the channel.
 
         expire_date (:py:obj:`~datetime.datetime`, *optional*):
             Date the story will be expired.
@@ -52,7 +64,7 @@ class Story(Object, Update):
         media (:obj:`~pyrogram.enums.MessageMediaType`, *optional*):
             The media type of the Story.
             This field will contain the enumeration type of the media message.
-            You can use ``media = getattr(message, message.media.value)`` to access the media message.
+            You can use ``media = getattr(story, story.media.value)`` to access the media message.
 
         has_protected_content (``bool``, *optional*):
             True, if the story can't be forwarded.
@@ -87,10 +99,18 @@ class Story(Object, Update):
         caption_entities (List of :obj:`~pyrogram.types.MessageEntity`, *optional*):
             For text messages, special entities like usernames, URLs, bot commands, etc. that appear in the caption.
 
-        views (:obj:`~pyrogram.types.StoryViews`, *optional*):
+        views (``int``, *optional*):
             Stories views.
 
-        privacy (:obj:`~pyrogram.enums.StoryPrivacyRules`, *optional*):
+        forwards (``int``, *optional*):
+            Stories forwards.
+
+        outgoing (``bool``, *optional*):
+            Whether the story is incoming or outgoing.
+            Story received from others are incoming (*outgoing* is False).
+            Story sent from yourself are outgoing (*outgoing* is True).
+
+        privacy (:obj:`~pyrogram.enums.StoriesPrivacyRules`, *optional*):
             Story privacy.
 
         allowed_users (List of ``int`` | ``str``, *optional*):
@@ -98,44 +118,78 @@ class Story(Object, Update):
 
         disallowed_users (List of ``int`` | ``str``, *optional*):
             List of user_ids whos denied to view the story.
-    """
 
-    # TODO: Add Media Areas
+        reactions (List of :obj:`~pyrogram.types.Reaction`):
+            List of the reactions to this story.
+
+        reactions_count (``int``, *optional*):
+            Reactions count.
+
+        skipped (``bool``, *optional*):
+            The story is skipped.
+            A story can be skipped in case it was skipped.
+
+        deleted (``bool``, *optional*):
+            The story is deleted.
+            A story can be deleted in case it was deleted or you tried to retrieve a story that doesn't exist yet.
+
+        media_areas (List of :obj:`~pyrogram.types.MediaArea`, *optional*):
+            List of media areas.
+
+        raw (:obj:`~pyrogram.raw.types.StoryItem`, *optional*):
+            The raw story object, as received from the Telegram API.
+    """
 
     def __init__(
         self,
         *,
         client: "pyrogram.Client" = None,
         id: int,
-        from_user: "types.User" = None,
-        sender_chat: "types.Chat" = None,
-        chat: "types.Chat" = None,
-        date: datetime = None,
-        expire_date: datetime = None,
-        media: "enums.MessageMediaType",
-        has_protected_content: bool = None,
-        photo: "types.Photo" = None,
-        video: "types.Video" = None,
-        edited: bool = None,
-        pinned: bool = None,
-        public: bool = None,
-        close_friends: bool = None,
-        contacts: bool = None,
-        selected_contacts: bool = None,
-        caption: str = None,
-        caption_entities: List["types.MessageEntity"] = None,
-        views: "types.StoryViews" = None,
-        privacy: "enums.StoryPrivacy" = None,
-        allowed_users: List[Union[int, str]] = None,
-        disallowed_users: List[Union[int, str]] = None,
+        from_user: Optional["types.User"] = None,
+        sender_chat: Optional["types.Chat"] = None,
+        date: Optional[datetime] = None,
+        chat: Optional["types.Chat"] = None,
+        forward_from: Optional["types.User"] = None,
+        forward_sender_name: Optional[str] = None,
+        forward_from_chat: Optional["types.Chat"] = None,
+        forward_from_story_id: Optional[int] = None,
+        expire_date: Optional[datetime] = None,
+        media: Optional["enums.MessageMediaType"] = None,
+        has_protected_content: Optional[bool] = None,
+        photo: Optional["types.Photo"] = None,
+        video: Optional["types.Video"] = None,
+        edited: Optional[bool] = None,
+        pinned: Optional[bool] = None,
+        public: Optional[bool] = None,
+        close_friends: Optional[bool] = None,
+        contacts: Optional[bool] = None,
+        selected_contacts: Optional[bool] = None,
+        caption: Optional[str] = None,
+        caption_entities: Optional[List["types.MessageEntity"]] = None,
+        views: Optional[int] = None,
+        forwards: Optional[int] = None,
+        outgoing: Optional[bool] = None,
+        privacy: Optional["enums.StoriesPrivacyRules"] = None,
+        allowed_users: Optional[List[Union[int, str]]] = None,
+        disallowed_users: Optional[List[Union[int, str]]] = None,
+        reactions: Optional[List["types.Reaction"]] = None,
+        reactions_count: Optional[int] = None,
+        skipped: Optional[bool] = None,
+        deleted: Optional[bool] = None,
+        media_areas: Optional[List["types.MediaArea"]] = None,
+        raw: Optional["raw.types.StoryItem"] = None
     ):
         super().__init__(client)
 
         self.id = id
         self.from_user = from_user
         self.sender_chat = sender_chat
-        self.chat = chat
         self.date = date
+        self.chat = chat
+        self.forward_from = forward_from
+        self.forward_sender_name = forward_sender_name
+        self.forward_from_chat = forward_from_chat
+        self.forward_from_story_id = forward_from_story_id
         self.expire_date = expire_date
         self.media = media
         self.has_protected_content = has_protected_content
@@ -150,96 +204,161 @@ class Story(Object, Update):
         self.caption = caption
         self.caption_entities = caption_entities
         self.views = views
+        self.forwards = forwards
+        self.outgoing = outgoing
         self.privacy = privacy
         self.allowed_users = allowed_users
         self.disallowed_users = disallowed_users
+        self.reactions = reactions
+        self.reactions_count = reactions_count
+        self.skipped = skipped
+        self.deleted = deleted
+        self.media_areas = media_areas
+        self.raw = raw
 
     @staticmethod
     async def _parse(
         client: "pyrogram.Client",
-        stories: raw.base.StoryItem,
-        users: dict,
-        chats: dict,
-        peer: Union["raw.types.PeerChannel", "raw.types.PeerUser"],
+        story: "raw.types.StoryItem",
+        peer: "raw.base.Peer",
+        users: Dict[int, "raw.base.User"],
+        chats: Dict[int, "raw.base.Chat"],
     ) -> "Story":
-        if isinstance(stories, raw.types.StoryItemSkipped):
-            return await types.StorySkipped._parse(client, stories, users, chats, peer)
-        if isinstance(stories, raw.types.StoryItemDeleted):
-            return await types.StoryDeleted._parse(client, stories, users, chats, peer)
-
-        entities = [
-            e
-            for e in (
-                types.MessageEntity._parse(client, entity, {})
-                for entity in stories.entities
-            )
-            if e
-        ]
-
-        photo = None
-        video = None
-        from_user = None
-        sender_chat = None
-        chat = None
-        privacy = None
-        allowed_users = None
-        disallowed_users = None
-        media_type = None
-
-        if isinstance(stories.media, raw.types.MessageMediaPhoto):
-            photo = types.Photo._parse(
-                client, stories.media.photo, stories.media.ttl_seconds
-            )
-            media_type = enums.MessageMediaType.PHOTO
-        else:
-            doc = stories.media.document
-            attributes = {type(i): i for i in doc.attributes}
-            video_attributes = attributes.get(raw.types.DocumentAttributeVideo, None)
-            video = types.Video._parse(client, doc, video_attributes, None)
-            media_type = enums.MessageMediaType.VIDEO
-
         if isinstance(peer, raw.types.InputPeerSelf):
-            r = await client.invoke(
-                raw.functions.users.GetUsers(id=[raw.types.InputPeerSelf()])
-            )
-            peer_id = r[0].id
-            users.update({i.id: i for i in r})
-        elif isinstance(peer, raw.types.InputPeerUser):
-            peer_id = utils.get_input_peer_id(peer)
-        elif isinstance(peer, raw.types.InputPeerChannel):
-            peer_id = utils.get_input_peer_id(peer)
+            if client.me:
+                peer_id = client.me.id
+                users.update({peer_id: client.me.raw})
+            else:
+                r = await client.invoke(raw.functions.users.GetUsers(id=[raw.types.InputPeerSelf()]))
+                peer_id = r[0].id
+                users.update({r[0].id: r[0]})
+        elif hasattr(peer, "user_id"):
+            peer_id = peer.user_id
+
+            if peer_id not in users:
+                r = await client.invoke(raw.functions.users.GetUsers(id=[raw.types.InputPeerSelf(), peer]))
+                users.update({i.id: i for i in r})
+        elif hasattr(peer, "channel_id"):
+            peer_id = peer.channel_id
+
             if peer_id not in chats:
                 r = await client.invoke(raw.functions.channels.GetChannels(id=[peer]))
                 chats.update({peer_id: r.chats[0]})
         else:
-            peer_id = utils.get_raw_peer_id(peer)
-
-        if (
-            isinstance(peer, (raw.types.PeerUser, raw.types.InputPeerUser))
-            and peer_id not in users
-        ):
-            try:
-                r = await client.invoke(
-                    raw.functions.users.GetUsers(
-                        id=[await client.resolve_peer(peer_id)]
-                    )
-                )
-            except PeerIdInvalid:
-                pass
-            else:
-                users.update({i.id: i for i in r})
+            raise ValueError(f"Invalid peer type: {type(peer)}")
 
         from_user = types.User._parse(client, users.get(peer_id, None))
-        sender_chat = (
-            types.Chat._parse_channel_chat(client, chats[peer_id])
-            if not from_user
-            else None
-        )
-        chat = (
-            sender_chat
-            if not from_user
-            else types.Chat._parse_user_chat(client, users.get(peer_id, None))
-        )
+        sender_chat = types.Chat._parse_channel_chat(client, chats[peer_id]) if not from_user else None
+        chat = sender_chat if not from_user else types.Chat._parse_user_chat(client, users.get(peer_id, None))
+
+        if isinstance(story, raw.types.StoryItemDeleted):
+            return Story(client=client, id=story.id, deleted=True, from_user=from_user, sender_chat=sender_chat, chat=chat)
+        if client.fetch_stories and isinstance(story, raw.types.StoryItemSkipped):
+            try:
+                r = await client.invoke(
+                    raw.functions.stories.GetStoriesByID(
+                        peer=await client.resolve_peer(chat.id),
+                        id=[story.id]
+                    )
+                )
+
+                users.update({i.id: i for i in r.users})
+                chats.update({i.id: i for i in r.chats})
+
+                if r.stories:
+                    story = r.stories[0]
+            except (ChannelPrivate, ChannelInvalid):
+                return Story(client=client, id=story.id, skipped=True, from_user=from_user, sender_chat=sender_chat, chat=chat)
+        if isinstance(story, raw.types.MessageMediaStory):
+            if client.me and client.me.is_bot:
+                return Story(client=client, id=story.id, from_user=from_user, sender_chat=sender_chat, chat=chat)
+
+            if not getattr(story, "story", None):
+                if client.fetch_stories:
+                    try:
+                        r = await client.invoke(
+                            raw.functions.stories.GetStoriesByID(
+                                peer=await client.resolve_peer(chat.id),
+                                id=[story.id]
+                            )
+                        )
+
+                        users.update({i.id: i for i in r.users})
+                        chats.update({i.id: i for i in r.chats})
+
+                        if r.stories:
+                            story = r.stories[0]
+                    except (ChannelPrivate, ChannelInvalid):
+                        pass
+            else:
+                story = story.story
+
+        if client.fetch_stories and getattr(story, "min", None):
+            try:
+                r = await client.invoke(
+                    raw.functions.stories.GetStoriesByID(
+                        peer=await client.resolve_peer(chat.id),
+                        id=[story.id]
+                    )
+                )
+
+                users.update({i.id: i for i in r.users})
+                chats.update({i.id: i for i in r.chats})
+
+                if r.stories:
+                    story = r.stories[0]
+            except (ChannelPrivate, ChannelInvalid):
+                pass
+
+        if not getattr(story, "media", None):
+            return Story(client=client, id=story.id, deleted=True, from_user=from_user, sender_chat=sender_chat, chat=chat)
+
+        photo = None
+        video = None
+        privacy = None
+        allowed_users = None
+        disallowed_users = None
+        media_type = None
+        views = None
+        forwards = None
+        reactions = None
+        reactions_count = None
+
+        forward_from = None
+        forward_sender_name = None
+        forward_from_chat = None
+        forward_from_story_id = None
+
+        forward_header = story.fwd_from  # type: raw.types.StoryFwdHeader
+
+        if forward_header:
+            fwd_raw_peer_id = utils.get_raw_peer_id(forward_header.from_peer)
+            fwd_peer_id = utils.get_peer_id(forward_header.from_peer)
+
+            if fwd_peer_id > 0:
+                forward_from = types.User._parse(client, users[fwd_raw_peer_id])
+            else:
+                forward_from_chat = types.Chat._parse_channel_chat(client, chats[fwd_raw_peer_id])
+                forward_from_story_id = forward_header.story_id
+
+        if story.views:
+            views=getattr(story.views, "views_count", None)
+            forwards=getattr(story.views, "forwards_count", None)
+            reactions=[
+                types.Reaction._parse_count(client, reaction)
+                for reaction in getattr(story.views, "reactions", [])
+            ] or None
+            reactions_count = getattr(story.views, "reactions_count", None)
+
+        if isinstance(story.media, raw.types.MessageMediaPhoto):
+            photo = types.Photo._parse(client, story.media.photo, story.media.ttl_seconds)
+            media_type = enums.MessageMediaType.PHOTO
+        else:
+            doc = story.media.document
+            attributes = {type(i): i for i in doc.attributes}
+            video_attributes = attributes.get(raw.types.DocumentAttributeVideo, None)
+            video = types.Video._parse(client, doc, video_attributes, alternative_videos=getattr(story.media, "alt_documents", []))
+            media_type = enums.MessageMediaType.VIDEO
 
         privacy_map = {
             raw.types.PrivacyValueAllowAll: enums.StoriesPrivacyRules.PUBLIC,
@@ -248,70 +367,86 @@ class Story(Object, Update):
             raw.types.PrivacyValueDisallowAll: enums.StoriesPrivacyRules.SELECTED_USERS,
         }
 
-        for priv in stories.privacy:
+        for priv in story.privacy:
             privacy = privacy_map.get(type(priv), None)
 
             if isinstance(priv, raw.types.PrivacyValueAllowUsers):
-                allowed_users = types.List(
-                    types.User._parse(client, users.get(user_id, None))
-                    for user_id in priv.users
-                )
+                allowed_users = types.List(types.User._parse(client, users.get(user_id, None)) for user_id in priv.users)
             elif isinstance(priv, raw.types.PrivacyValueAllowChatParticipants):
-                allowed_users = types.List(
-                    types.Chat._parse_chat_chat(client, chats.get(chat_id, None))
-                    for chat_id in priv.chats
-                )
+                allowed_users = types.List(types.Chat._parse_chat_chat(client, chats.get(chat_id, None)) for chat_id in priv.chats)
             elif isinstance(priv, raw.types.PrivacyValueDisallowUsers):
-                disallowed_users = types.List(
-                    types.User._parse(client, users.get(user_id, None))
-                    for user_id in priv.users
-                )
+                disallowed_users = types.List(types.User._parse(client, users.get(user_id, None)) for user_id in priv.users)
             elif isinstance(priv, raw.types.PrivacyValueDisallowChatParticipants):
-                disallowed_users = types.List(
-                    types.Chat._parse_chat_chat(client, chats.get(chat_id, None))
-                    for chat_id in priv.chats
-                )
+                disallowed_users = types.List(types.Chat._parse_chat_chat(client, chats.get(chat_id, None)) for chat_id in priv.chats)
+
+        entities = [e for e in (types.MessageEntity._parse(client, entity, {}) for entity in story.entities) if e]
 
         return Story(
-            id=stories.id,
+            id=story.id,
             from_user=from_user,
             sender_chat=sender_chat,
+            date=utils.timestamp_to_datetime(story.date),
             chat=chat,
-            date=utils.timestamp_to_datetime(stories.date),
-            expire_date=utils.timestamp_to_datetime(stories.expire_date),
+            forward_from=forward_from,
+            forward_sender_name=forward_sender_name,
+            forward_from_chat=forward_from_chat,
+            forward_from_story_id=forward_from_story_id,
+            expire_date=utils.timestamp_to_datetime(story.expire_date),
             media=media_type,
-            has_protected_content=stories.noforwards,
+            has_protected_content=story.noforwards,
             photo=photo,
             video=video,
-            edited=stories.edited,
-            pinned=stories.pinned,
-            public=stories.public,
-            close_friends=stories.close_friends,
-            contacts=stories.contacts,
-            selected_contacts=stories.selected_contacts,
-            caption=stories.caption,
+            edited=story.edited,
+            pinned=story.pinned,
+            public=story.public,
+            close_friends=story.close_friends,
+            contacts=story.contacts,
+            selected_contacts=story.selected_contacts,
+            caption=story.caption,
             caption_entities=entities or None,
-            views=(
-                types.StoryViews._parse(client, stories.views)
-                if stories.views
-                else None
-            ),
+            views=views,
+            forwards=forwards,
+            outgoing=getattr(story, "out", None),
             privacy=privacy,
             allowed_users=allowed_users,
             disallowed_users=disallowed_users,
-            client=client,
+            reactions=reactions,
+            reactions_count=reactions_count,
+            media_areas=types.List(
+                [
+                    await types.MediaArea._parse(client, area, chats)
+                    for area in getattr(story, "media_areas", [])
+                ]
+            ) or None,
+            raw=story,
+            client=client
         )
+
+    @property
+    def link(self) -> Optional[str]:
+        if not self.chat.username:
+            return None
+
+        return f"https://t.me/{self.chat.username}/s/{self.id}"
 
     async def reply_text(
         self,
         text: str,
         parse_mode: Optional["enums.ParseMode"] = None,
         entities: List["types.MessageEntity"] = None,
-        disable_web_page_preview: bool = None,
+        link_preview_options: "types.LinkPreviewOptions" = None,
         disable_notification: bool = None,
         schedule_date: datetime = None,
         protect_content: bool = None,
-        reply_markup=None,
+        paid_message_star_count: int = None,
+        reply_markup: Union[
+            "types.InlineKeyboardMarkup",
+            "types.ReplyKeyboardMarkup",
+            "types.ReplyKeyboardRemove",
+            "types.ForceReply"
+        ] = None,
+
+        disable_web_page_preview: bool = None,
     ) -> "types.Message":
         """Bound method *reply_text* of :obj:`~pyrogram.types.Story`.
 
@@ -322,15 +457,18 @@ class Story(Object, Update):
         .. code-block:: python
 
             await client.send_message(
-                chat_id=self.chat.id,
+                chat_id=story.chat.id,
                 text="hello",
-                reply_to_story_id=story.id
+                reply_parameters=types.ReplyParameters(
+                    chat_id=chat_id,
+                    story_id=story.id
+                )
             )
 
         Example:
             .. code-block:: python
 
-                await story.reply_text("hello", quote=True)
+                await story.reply_text("hello")
 
         Parameters:
             text (``str``):
@@ -343,8 +481,8 @@ class Story(Object, Update):
             entities (List of :obj:`~pyrogram.types.MessageEntity`):
                 List of special entities that appear in message text, which can be specified instead of *parse_mode*.
 
-            disable_web_page_preview (``bool``, *optional*):
-                Disables link previews for links in this message.
+            link_preview_options (:obj:`~pyrogram.types.LinkPreviewOptions`, *optional*):
+                Options used for link preview generation for the message.
 
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
@@ -368,16 +506,24 @@ class Story(Object, Update):
         """
         return await self._client.send_message(
             chat_id=self.chat.id,
+            reply_parameters=types.ReplyParameters(
+                chat_id=self.chat.id,
+                story_id=self.id
+            ),
             text=text,
             parse_mode=parse_mode,
             entities=entities,
-            disable_web_page_preview=disable_web_page_preview,
+            link_preview_options=link_preview_options,
             disable_notification=disable_notification,
-            reply_to_story_id=self.id,
             schedule_date=schedule_date,
             protect_content=protect_content,
+            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
+
+            disable_web_page_preview=disable_web_page_preview,
         )
+
+    reply = reply_text
 
     async def reply_animation(
         self,
@@ -392,15 +538,16 @@ class Story(Object, Update):
         thumb: Union[str, BinaryIO] = None,
         file_name: str = None,
         disable_notification: bool = None,
+        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
             "types.ReplyKeyboardRemove",
-            "types.ForceReply",
+            "types.ForceReply"
         ] = None,
         progress: Callable = None,
-        progress_args: tuple = (),
-    ) -> "types.Message":
+        progress_args: tuple = ()
+    ) -> Optional["types.Message"]:
         """Bound method *reply_animation* :obj:`~pyrogram.types.Story`.
 
         Use as a shortcut for:
@@ -408,9 +555,12 @@ class Story(Object, Update):
         .. code-block:: python
 
             await client.send_animation(
-                chat_id=story.from_user.id,
+                chat_id=story.chat.id,
                 animation=animation,
-                reply_to_story_id=story.id
+                reply_parameters=types.ReplyParameters(
+                    chat_id=chat_id,
+                    story_id=story.id
+                )
             )
 
         Example:
@@ -461,6 +611,9 @@ class Story(Object, Update):
                 Sends the message silently.
                 Users will receive a notification with no sound.
 
+            paid_message_star_count (``int``, *optional*):
+                The number of Telegram Stars the user agreed to pay to send the messages.
+
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -497,6 +650,10 @@ class Story(Object, Update):
         """
         return await self._client.send_animation(
             chat_id=self.chat.id,
+            reply_parameters=types.ReplyParameters(
+                chat_id=self.chat.id,
+                story_id=self.id
+            ),
             animation=animation,
             caption=caption,
             parse_mode=parse_mode,
@@ -508,10 +665,10 @@ class Story(Object, Update):
             thumb=thumb,
             file_name=file_name,
             disable_notification=disable_notification,
-            reply_to_story_id=self.id,
+            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
-            progress_args=progress_args,
+            progress_args=progress_args
         )
 
     async def reply_audio(
@@ -526,15 +683,16 @@ class Story(Object, Update):
         thumb: Union[str, BinaryIO] = None,
         file_name: str = None,
         disable_notification: bool = None,
+        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
             "types.ReplyKeyboardRemove",
-            "types.ForceReply",
+            "types.ForceReply"
         ] = None,
         progress: Callable = None,
-        progress_args: tuple = (),
-    ) -> "types.Message":
+        progress_args: tuple = ()
+    ) -> Optional["types.Message"]:
         """Bound method *reply_audio* of :obj:`~pyrogram.types.Story`.
 
         Use as a shortcut for:
@@ -542,9 +700,12 @@ class Story(Object, Update):
         .. code-block:: python
 
             await client.send_audio(
-                chat_id=story.from_user.id,
+                chat_id=story.chat.id,
                 audio=audio,
-                reply_to_story_id=story.id
+                reply_parameters=types.ReplyParameters(
+                    chat_id=chat_id,
+                    story_id=story.id
+                )
             )
 
         Example:
@@ -592,6 +753,9 @@ class Story(Object, Update):
                 Sends the message silently.
                 Users will receive a notification with no sound.
 
+            paid_message_star_count (``int``, *optional*):
+                The number of Telegram Stars the user agreed to pay to send the messages.
+
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -628,6 +792,10 @@ class Story(Object, Update):
         """
         return await self._client.send_audio(
             chat_id=self.chat.id,
+            reply_parameters=types.ReplyParameters(
+                chat_id=self.chat.id,
+                story_id=self.id
+            ),
             audio=audio,
             caption=caption,
             parse_mode=parse_mode,
@@ -638,10 +806,10 @@ class Story(Object, Update):
             thumb=thumb,
             file_name=file_name,
             disable_notification=disable_notification,
-            reply_to_story_id=self.id,
+            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
-            progress_args=progress_args,
+            progress_args=progress_args
         )
 
     async def reply_cached_media(
@@ -651,13 +819,14 @@ class Story(Object, Update):
         parse_mode: Optional["enums.ParseMode"] = None,
         caption_entities: List["types.MessageEntity"] = None,
         disable_notification: bool = None,
+        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
             "types.ReplyKeyboardRemove",
-            "types.ForceReply",
-        ] = None,
-    ) -> "types.Message":
+            "types.ForceReply"
+        ] = None
+    ) -> Optional["types.Message"]:
         """Bound method *reply_cached_media* of :obj:`~pyrogram.types.Story`.
 
         Use as a shortcut for:
@@ -665,9 +834,12 @@ class Story(Object, Update):
         .. code-block:: python
 
             await client.send_cached_media(
-                chat_id=story.from_user.id,
+                chat_id=story.chat.id,
                 file_id=file_id,
-                reply_to_story_id=story.id
+                reply_parameters=types.ReplyParameters(
+                    chat_id=chat_id,
+                    story_id=story.id
+                )
             )
 
         Example:
@@ -694,6 +866,9 @@ class Story(Object, Update):
                 Sends the message silently.
                 Users will receive a notification with no sound.
 
+            paid_message_star_count (``int``, *optional*):
+                The number of Telegram Stars the user agreed to pay to send the messages.
+
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
                 instructions to remove reply keyboard or to force a reply from the user.
@@ -706,25 +881,28 @@ class Story(Object, Update):
         """
         return await self._client.send_cached_media(
             chat_id=self.chat.id,
+            reply_parameters=types.ReplyParameters(
+                chat_id=self.chat.id,
+                story_id=self.id
+            ),
             file_id=file_id,
             caption=caption,
             parse_mode=parse_mode,
             caption_entities=caption_entities,
             disable_notification=disable_notification,
-            reply_to_story_id=self.id,
-            reply_markup=reply_markup,
+            paid_message_star_count=paid_message_star_count,
+            reply_markup=reply_markup
         )
 
     async def reply_media_group(
         self,
-        media: List[
-            Union[
-                "types.InputMediaPhoto",
-                "types.InputMediaVideo",
-                "types.InputMediaAudio",
-                "types.InputMediaDocument",
-            ]
-        ],
+        media: List[Union[
+            "types.InputMediaPhoto",
+            "types.InputMediaVideo",
+            "types.InputMediaAudio",
+            "types.InputMediaDocument"
+        ]],
+        paid_message_star_count: int = None,
         disable_notification: bool = None,
     ) -> List["types.Message"]:
         """Bound method *reply_media_group* of :obj:`~pyrogram.types.Story`.
@@ -734,9 +912,12 @@ class Story(Object, Update):
         .. code-block:: python
 
             await client.send_media_group(
-                chat_id=story.from_user.id,
+                chat_id=story.chat.id,
                 media=list_of_media,
-                reply_to_story_id=story.id
+                reply_parameters=types.ReplyParameters(
+                    chat_id=chat_id,
+                    story_id=story.id
+                )
             )
 
         Example:
@@ -749,6 +930,9 @@ class Story(Object, Update):
                 A list containing either :obj:`~pyrogram.types.InputMediaPhoto` or
                 :obj:`~pyrogram.types.InputMediaVideo` objects
                 describing photos and videos to be sent, must include 2–10 items.
+
+            paid_message_star_count (``int``, *optional*):
+                The number of Telegram Stars the user agreed to pay to send the messages.
 
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
@@ -763,9 +947,13 @@ class Story(Object, Update):
         """
         return await self._client.send_media_group(
             chat_id=self.chat.id,
+            reply_parameters=types.ReplyParameters(
+                chat_id=self.chat.id,
+                story_id=self.id
+            ),
             media=media,
             disable_notification=disable_notification,
-            reply_to_story_id=self.id,
+            paid_message_star_count=paid_message_star_count,
         )
 
     async def reply_photo(
@@ -776,16 +964,18 @@ class Story(Object, Update):
         caption_entities: List["types.MessageEntity"] = None,
         has_spoiler: bool = None,
         ttl_seconds: int = None,
+        view_once: bool = None,
         disable_notification: bool = None,
+        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
             "types.ReplyKeyboardRemove",
-            "types.ForceReply",
+            "types.ForceReply"
         ] = None,
         progress: Callable = None,
-        progress_args: tuple = (),
-    ) -> "types.Message":
+        progress_args: tuple = ()
+    ) -> Optional["types.Message"]:
         """Bound method *reply_photo* of :obj:`~pyrogram.types.Story`.
 
         Use as a shortcut for:
@@ -793,9 +983,12 @@ class Story(Object, Update):
         .. code-block:: python
 
             await client.send_photo(
-                chat_id=story.from_user.id,
+                chat_id=story.chat.id,
                 photo=photo,
-                reply_to_story_id=story.id
+                reply_parameters=types.ReplyParameters(
+                    chat_id=chat_id,
+                    story_id=story.id
+                )
             )
 
         Example:
@@ -828,9 +1021,16 @@ class Story(Object, Update):
                 If you set a timer, the photo will self-destruct in *ttl_seconds*
                 seconds after it was viewed.
 
+            view_once (``bool``, *optional*):
+                Self-Destruct Timer.
+                If True, the photo will self-destruct after it was viewed.
+
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
                 Users will receive a notification with no sound.
+
+            paid_message_star_count (``int``, *optional*):
+                The number of Telegram Stars the user agreed to pay to send the messages.
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
@@ -868,32 +1068,38 @@ class Story(Object, Update):
         """
         return await self._client.send_photo(
             chat_id=self.chat.id,
+            reply_parameters=types.ReplyParameters(
+                chat_id=self.chat.id,
+                story_id=self.id
+            ),
             photo=photo,
             caption=caption,
             parse_mode=parse_mode,
             caption_entities=caption_entities,
             has_spoiler=has_spoiler,
             ttl_seconds=ttl_seconds,
+            view_once=view_once,
             disable_notification=disable_notification,
-            reply_to_story_id=self.id,
+            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
-            progress_args=progress_args,
+            progress_args=progress_args
         )
 
     async def reply_sticker(
         self,
         sticker: Union[str, BinaryIO],
         disable_notification: bool = None,
+        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
             "types.ReplyKeyboardRemove",
-            "types.ForceReply",
+            "types.ForceReply"
         ] = None,
         progress: Callable = None,
-        progress_args: tuple = (),
-    ) -> "types.Message":
+        progress_args: tuple = ()
+    ) -> Optional["types.Message"]:
         """Bound method *reply_sticker* of :obj:`~pyrogram.types.Story`.
 
         Use as a shortcut for:
@@ -901,9 +1107,12 @@ class Story(Object, Update):
         .. code-block:: python
 
             await client.send_sticker(
-                chat_id=story.from_user.id,
+                chat_id=story.chat.id,
                 sticker=sticker,
-                reply_to_story_id=story.id
+                reply_parameters=types.ReplyParameters(
+                    chat_id=chat_id,
+                    story_id=story.id
+                )
             )
 
         Example:
@@ -922,8 +1131,8 @@ class Story(Object, Update):
                 Sends the message silently.
                 Users will receive a notification with no sound.
 
-            reply_to_story_id (``int``, *optional*):
-                If the message is a reply, ID of the original message.
+            paid_message_star_count (``int``, *optional*):
+                The number of Telegram Stars the user agreed to pay to send the messages.
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
@@ -961,12 +1170,16 @@ class Story(Object, Update):
         """
         return await self._client.send_sticker(
             chat_id=self.chat.id,
+            reply_parameters=types.ReplyParameters(
+                chat_id=self.chat.id,
+                story_id=self.id
+            ),
             sticker=sticker,
             disable_notification=disable_notification,
-            reply_to_story_id=self.id,
+            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
-            progress_args=progress_args,
+            progress_args=progress_args
         )
 
     async def reply_video(
@@ -980,19 +1193,23 @@ class Story(Object, Update):
         duration: int = 0,
         width: int = 0,
         height: int = 0,
+        video_start_timestamp: int = None,
+        video_cover: Union[str, BinaryIO] = None,
         thumb: Union[str, BinaryIO] = None,
         file_name: str = None,
         supports_streaming: bool = True,
         disable_notification: bool = None,
+        no_sound: bool = None,
+        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
             "types.ReplyKeyboardRemove",
-            "types.ForceReply",
+            "types.ForceReply"
         ] = None,
         progress: Callable = None,
-        progress_args: tuple = (),
-    ) -> "types.Message":
+        progress_args: tuple = ()
+    ) -> Optional["types.Message"]:
         """Bound method *reply_video* of :obj:`~pyrogram.types.Story`.
 
         Use as a shortcut for:
@@ -1000,9 +1217,12 @@ class Story(Object, Update):
         .. code-block:: python
 
             await client.send_video(
-                chat_id=story.from_user.id,
+                chat_id=story.chat.id,
                 video=video,
-                reply_to_story_id=story.id
+                reply_parameters=types.ReplyParameters(
+                    chat_id=chat_id,
+                    story_id=story.id
+                )
             )
 
         Example:
@@ -1044,6 +1264,16 @@ class Story(Object, Update):
             height (``int``, *optional*):
                 Video height.
 
+            video_start_timestamp (``int``, *optional*):
+                Video startpoint, in seconds.
+
+            video_cover (``str`` | ``BinaryIO``, *optional*):
+                Video cover.
+                Pass a file_id as string to attach a photo that exists on the Telegram servers,
+                pass an HTTP URL as a string for Telegram to get a photo from the Internet,
+                pass a file path as string to upload a new photo that exists on your local machine, or
+                pass a binary file-like object with its attribute ".name" set for in-memory uploads.
+
             thumb (``str`` | ``BinaryIO``, *optional*):
                 Thumbnail of the video sent.
                 The thumbnail should be in JPEG format and less than 200 KB in size.
@@ -1060,6 +1290,13 @@ class Story(Object, Update):
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
                 Users will receive a notification with no sound.
+
+            no_sound (``bool``, *optional*):
+                Pass True, if the uploaded video is a video message with no sound.
+                Doesn't work for external links.
+
+            paid_message_star_count (``int``, *optional*):
+                The number of Telegram Stars the user agreed to pay to send the messages.
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
@@ -1097,6 +1334,10 @@ class Story(Object, Update):
         """
         return await self._client.send_video(
             chat_id=self.chat.id,
+            reply_parameters=types.ReplyParameters(
+                chat_id=self.chat.id,
+                story_id=self.id
+            ),
             video=video,
             caption=caption,
             parse_mode=parse_mode,
@@ -1106,14 +1347,17 @@ class Story(Object, Update):
             duration=duration,
             width=width,
             height=height,
+            video_start_timestamp=video_start_timestamp,
+            video_cover=video_cover,
             thumb=thumb,
             file_name=file_name,
             supports_streaming=supports_streaming,
             disable_notification=disable_notification,
-            reply_to_story_id=self.id,
+            no_sound=no_sound,
+            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
-            progress_args=progress_args,
+            progress_args=progress_args
         )
 
     async def reply_video_note(
@@ -1123,15 +1367,17 @@ class Story(Object, Update):
         length: int = 1,
         thumb: Union[str, BinaryIO] = None,
         disable_notification: bool = None,
+        view_once: bool = None,
+        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
             "types.ReplyKeyboardRemove",
-            "types.ForceReply",
+            "types.ForceReply"
         ] = None,
         progress: Callable = None,
-        progress_args: tuple = (),
-    ) -> "types.Message":
+        progress_args: tuple = ()
+    ) -> Optional["types.Message"]:
         """Bound method *reply_video_note* of :obj:`~pyrogram.types.Story`.
 
         Use as a shortcut for:
@@ -1139,9 +1385,12 @@ class Story(Object, Update):
         .. code-block:: python
 
             await client.send_video_note(
-                chat_id=story.from_user.id,
+                chat_id=story.chat.id,
                 video_note=video_note,
-                reply_to_story_id=story.id
+                reply_parameters=types.ReplyParameters(
+                    chat_id=chat_id,
+                    story_id=story.id
+                )
             )
 
         Example:
@@ -1171,6 +1420,13 @@ class Story(Object, Update):
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
                 Users will receive a notification with no sound.
+
+            view_once (``bool``, *optional*):
+                Self-Destruct Timer.
+                If True, the video note will self-destruct after it was viewed.
+
+            paid_message_star_count (``int``, *optional*):
+                The number of Telegram Stars the user agreed to pay to send the messages.
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
@@ -1208,15 +1464,20 @@ class Story(Object, Update):
         """
         return await self._client.send_video_note(
             chat_id=self.chat.id,
+            reply_parameters=types.ReplyParameters(
+                chat_id=self.chat.id,
+                story_id=self.id
+            ),
             video_note=video_note,
             duration=duration,
             length=length,
             thumb=thumb,
             disable_notification=disable_notification,
-            reply_to_story_id=self.id,
+            view_once=view_once,
+            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
-            progress_args=progress_args,
+            progress_args=progress_args
         )
 
     async def reply_voice(
@@ -1227,15 +1488,17 @@ class Story(Object, Update):
         caption_entities: List["types.MessageEntity"] = None,
         duration: int = 0,
         disable_notification: bool = None,
+        view_once: bool = None,
+        paid_message_star_count: int = None,
         reply_markup: Union[
             "types.InlineKeyboardMarkup",
             "types.ReplyKeyboardMarkup",
             "types.ReplyKeyboardRemove",
-            "types.ForceReply",
+            "types.ForceReply"
         ] = None,
         progress: Callable = None,
-        progress_args: tuple = (),
-    ) -> "types.Message":
+        progress_args: tuple = ()
+    ) -> Optional["types.Message"]:
         """Bound method *reply_voice* of :obj:`~pyrogram.types.Story`.
 
         Use as a shortcut for:
@@ -1243,9 +1506,12 @@ class Story(Object, Update):
         .. code-block:: python
 
             await client.send_voice(
-                chat_id=story.from_user.id,
+                chat_id=story.chat.id,
                 voice=voice,
-                reply_to_story_id=story.id
+                reply_parameters=types.ReplyParameters(
+                    chat_id=chat_id,
+                    story_id=story.id
+                )
             )
 
         Example:
@@ -1276,6 +1542,13 @@ class Story(Object, Update):
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
                 Users will receive a notification with no sound.
+
+            view_once (``bool``, *optional*):
+                Self-Destruct Timer.
+                If True, the voice note will self-destruct after it was listened.
+
+            paid_message_star_count (``int``, *optional*):
+                The number of Telegram Stars the user agreed to pay to send the messages.
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardMarkup` | :obj:`~pyrogram.types.ReplyKeyboardRemove` | :obj:`~pyrogram.types.ForceReply`, *optional*):
                 Additional interface options. An object for an inline keyboard, custom reply keyboard,
@@ -1313,16 +1586,21 @@ class Story(Object, Update):
         """
         return await self._client.send_voice(
             chat_id=self.chat.id,
+            reply_parameters=types.ReplyParameters(
+                chat_id=self.chat.id,
+                story_id=self.id
+            ),
             voice=voice,
             caption=caption,
             parse_mode=parse_mode,
             caption_entities=caption_entities,
             duration=duration,
             disable_notification=disable_notification,
-            reply_to_story_id=self.id,
+            view_once=view_once,
+            paid_message_star_count=paid_message_star_count,
             reply_markup=reply_markup,
             progress=progress,
-            progress_args=progress_args,
+            progress_args=progress_args
         )
 
     async def copy(
@@ -1335,7 +1613,7 @@ class Story(Object, Update):
         privacy: "enums.StoriesPrivacyRules" = None,
         allowed_users: List[int] = None,
         disallowed_users: List[int] = None,
-        protect_content: bool = None,
+        protect_content: bool = None
     ) -> "types.Story":
         """Bound method *copy* of :obj:`~pyrogram.types.Story`.
 
@@ -1344,7 +1622,7 @@ class Story(Object, Update):
         .. code-block:: python
 
             await client.copy_story(
-                chat_id=self.chat.id,
+                chat_id=story.chat.id,
                 from_chat_id=from_chat_id,
                 story_id=story.id
             )
@@ -1413,7 +1691,7 @@ class Story(Object, Update):
             caption_entities=caption_entities,
             privacy=privacy,
             allowed_users=allowed_users,
-            disallowed_users=disallowed_users,
+            disallowed_users=disallowed_users
         )
 
     async def delete(self):
@@ -1438,40 +1716,30 @@ class Story(Object, Update):
         Raises:
             RPCError: In case of a Telegram RPC error.
         """
-        return await self._client.delete_stories(
-            chat_id=self.chat.id, story_ids=self.id
-        )
+        return await self._client.delete_stories(chat_id=self.chat.id, story_ids=self.id)
 
-    async def edit(
+    async def edit_media(
         self,
         media: Union[str, BinaryIO] = None,
-        privacy: "enums.StoriesPrivacyRules" = None,
-        allowed_users: List[Union[int, str]] = None,
-        disallowed_users: List[Union[int, str]] = None,
-        caption: str = None,
-        parse_mode: "enums.ParseMode" = None,
-        caption_entities: List["types.MessageEntity"] = None,
     ) -> "types.Story":
-        """Bound method *edit* of :obj:`~pyrogram.types.Story`.
+        """Bound method *edit_media* of :obj:`~pyrogram.types.Story`.
 
         Use as a shortcut for:
 
         .. code-block:: python
 
-            await client.edit_story(
+            await client.edit_story_media(
+                chat_id=story.chat.id,
                 story_id=story.id,
-                caption="hello"
+                media=media
             )
 
         Example:
             .. code-block:: python
 
-                await story.edit_caption("hello")
+                await story.edit_media("new_video.mp4")
 
         Parameters:
-            story_id (``int``):
-                Unique identifier (int) of the target story.
-
             media (``str`` | ``BinaryIO``, *optional*):
                 New story media.
                 Pass a file_id as string to send a photo that exists on the Telegram servers,
@@ -1479,53 +1747,23 @@ class Story(Object, Update):
                 pass a file path as string to upload a new photo that exists on your local machine, or
                 pass a binary file-like object with its attribute ".name" set for in-memory uploads.
 
-            privacy (:obj:`~pyrogram.enums.StoriesPrivacyRules`, *optional*):
-                Story privacy.
-
-            allowed_users (List of ``int``, *optional*):
-                List of user_id or chat_id of chat users who are allowed to view stories.
-                Note: chat_id available only with :obj:`~pyrogram.enums.StoriesPrivacyRules.SELECTED_USERS`.
-                Works with :obj:`~pyrogram.enums.StoriesPrivacyRules.CLOSE_FRIENDS`
-                and :obj:`~pyrogram.enums.StoriesPrivacyRules.SELECTED_USERS` only
-
-            disallowed_users (List of ``int``, *optional*):
-                List of user_id whos disallow to view the stories.
-                Note: Works with :obj:`~pyrogram.enums.StoriesPrivacyRules.PUBLIC`
-                and :obj:`~pyrogram.enums.StoriesPrivacyRules.CONTACTS` only
-
-            caption (``str``, *optional*):
-                Story caption, 0-1024 characters.
-
-            parse_mode (:obj:`~pyrogram.enums.ParseMode`, *optional*):
-                By default, texts are parsed using both Markdown and HTML styles.
-                You can combine both syntaxes together.
-
-            caption_entities (List of :obj:`~pyrogram.types.MessageEntity`):
-                List of special entities that appear in the caption, which can be specified instead of *parse_mode*.
-
         Returns:
             On success, the edited :obj:`~pyrogram.types.Story` is returned.
 
         Raises:
             RPCError: In case of a Telegram RPC error.
         """
-        return await self._client.edit_story(
+        return await self._client.edit_story_media(
             chat_id=self.chat.id,
             story_id=self.id,
-            media=media,
-            privacy=privacy,
-            allowed_users=allowed_users,
-            disallowed_users=disallowed_users,
-            caption=caption,
-            parse_mode=parse_mode,
-            caption_entities=caption_entities,
+            media=media
         )
 
     async def edit_caption(
         self,
         caption: str,
         parse_mode: Optional["enums.ParseMode"] = None,
-        caption_entities: List["types.MessageEntity"] = None,
+        caption_entities: List["types.MessageEntity"] = None
     ) -> "types.Story":
         """Bound method *edit_caption* of :obj:`~pyrogram.types.Story`.
 
@@ -1533,7 +1771,7 @@ class Story(Object, Update):
 
         .. code-block:: python
 
-            await client.edit_story(
+            await client.edit_story_caption(
                 story_id=story.id,
                 caption="hello"
             )
@@ -1560,17 +1798,17 @@ class Story(Object, Update):
         Raises:
             RPCError: In case of a Telegram RPC error.
         """
-        return await self._client.edit_story(
+        return await self._client.edit_story_caption(
             chat_id=self.chat.id,
             story_id=self.id,
             caption=caption,
             parse_mode=parse_mode,
-            caption_entities=caption_entities,
+            caption_entities=caption_entities
         )
 
     async def edit_privacy(
         self,
-        privacy: "enums.StoriesPrivacyRules" = None,
+        privacy: "enums.StoriesPrivacyRules" = enums.StoriesPrivacyRules.PUBLIC,
         allowed_users: List[Union[int, str]] = None,
         disallowed_users: List[Union[int, str]] = None,
     ) -> "types.Story":
@@ -1580,7 +1818,7 @@ class Story(Object, Update):
 
         .. code-block:: python
 
-            await client.edit_story(
+            await client.edit_story_privacy(
                 story_id=story.id,
                 privacy=enums.StoriesPrivacyRules.PUBLIC
             )
@@ -1592,15 +1830,15 @@ class Story(Object, Update):
 
         Parameters:
             privacy (:obj:`~pyrogram.enums.StoriesPrivacyRules`, *optional*):
-                Story privacy.
+                Story privacy. Defaults to :obj:`~pyrogram.enums.StoriesPrivacyRules.PUBLIC`.
 
-            allowed_users (List of ``int``, *optional*):
+            allowed_users (List of ``int`` | ``str``, *optional*):
                 List of user_id or chat_id of chat users who are allowed to view stories.
                 Note: chat_id available only with :obj:`~pyrogram.enums.StoriesPrivacyRules.SELECTED_USERS`.
                 Works with :obj:`~pyrogram.enums.StoriesPrivacyRules.CLOSE_FRIENDS`
                 and :obj:`~pyrogram.enums.StoriesPrivacyRules.SELECTED_USERS` only
 
-            disallowed_users (List of ``int``, *optional*):
+            disallowed_users (List of ``int`` | ``str``, *optional*):
                 List of user_id whos disallow to view the stories.
                 Note: Works with :obj:`~pyrogram.enums.StoriesPrivacyRules.PUBLIC`
                 and :obj:`~pyrogram.enums.StoriesPrivacyRules.CONTACTS` only
@@ -1611,39 +1849,12 @@ class Story(Object, Update):
         Raises:
             RPCError: In case of a Telegram RPC error.
         """
-        return await self._client.edit_story(
+        return await self._client.edit_story_privacy(
             chat_id=self.chat.id,
             story_id=self.id,
             privacy=privacy,
             allowed_users=allowed_users,
             disallowed_users=disallowed_users,
-        )
-
-    async def export_link(self) -> "types.ExportedStoryLink":
-        """Bound method *export_link* of :obj:`~pyrogram.types.Story`.
-
-        Use as a shortcut for:
-
-        .. code-block:: python
-
-            await client.export_story_link(
-                chat_id=self.chat.id,
-                story_id=story.id
-            )
-
-        Example:
-            .. code-block:: python
-
-                link = await story.export_link()
-
-        Returns:
-            ``str``: On success, a link to the story as string is returned.
-
-        Raises:
-            RPCError: In case of a Telegram RPC error.
-        """
-        return await self._client.export_story_link(
-            chat_id=self.chat.id, story_id=self.id
         )
 
     async def react(self, emoji: Union[int, str] = None) -> bool:
@@ -1654,7 +1865,7 @@ class Story(Object, Update):
         .. code-block:: python
 
             await client.send_reaction(
-                chat_id=self.chat.id,
+                chat_id=story.chat.id,
                 story_id=story.id,
                 emoji="🔥"
             )
@@ -1667,7 +1878,7 @@ class Story(Object, Update):
         Parameters:
             emoji (``int`` | ``str``, *optional*):
                 Reaction emoji.
-                Pass "" as emoji (default) to retract the reaction.
+                Pass None as emoji (default) to retract the reaction.
 
         Returns:
             ``bool``: On success, True is returned.
@@ -1676,7 +1887,9 @@ class Story(Object, Update):
             RPCError: In case of a Telegram RPC error.
         """
         return await self._client.send_reaction(
-            chat_id=self.chat.id, story_id=self.id, emoji=emoji
+            chat_id=self.chat.id,
+            story_id=self.id,
+            emoji=emoji
         )
 
     async def forward(
@@ -1685,7 +1898,8 @@ class Story(Object, Update):
         message_thread_id: int = None,
         disable_notification: bool = None,
         schedule_date: datetime = None,
-    ) -> Union["types.Message", List["types.Message"]]:
+        paid_message_star_count: int = None,
+    ) -> Optional["types.Message"]:
         """Bound method *forward* of :obj:`~pyrogram.types.Story`.
 
         Use as a shortcut for:
@@ -1694,7 +1908,7 @@ class Story(Object, Update):
 
             await client.forward_story(
                 chat_id=chat_id,
-                from_chat_id=message.chat.id,
+                from_chat_id=story.chat.id,
                 story_id=story.id
             )
 
@@ -1710,7 +1924,8 @@ class Story(Object, Update):
                 For a contact that exists in your Telegram address book you can use his phone number (str).
 
             message_thread_id (``int``, *optional*):
-                Unique identifier of a message thread to which the message belongs; for supergroups only
+                Unique identifier of a message thread to which the message belongs.
+                For supergroups only.
 
             disable_notification (``bool``, *optional*):
                 Sends the message silently.
@@ -1718,6 +1933,9 @@ class Story(Object, Update):
 
             schedule_date (:py:obj:`~datetime.datetime`, *optional*):
                 Date when the message will be automatically sent.
+
+            paid_message_star_count (``int``, *optional*):
+                The number of Telegram Stars the user agreed to pay to send the messages.
 
         Returns:
             On success, the forwarded Message is returned.
@@ -1732,6 +1950,7 @@ class Story(Object, Update):
             message_thread_id=message_thread_id,
             disable_notification=disable_notification,
             schedule_date=schedule_date,
+            paid_message_star_count=paid_message_star_count,
         )
 
     async def download(
@@ -1740,8 +1959,8 @@ class Story(Object, Update):
         in_memory: bool = False,
         block: bool = True,
         progress: Callable = None,
-        progress_args: tuple = (),
-    ) -> str:
+        progress_args: tuple = ()
+    ) -> Optional[Union[str, BinaryIO]]:
         """Bound method *download* of :obj:`~pyrogram.types.Story`.
 
         Use as a shortcut for:
@@ -1801,7 +2020,7 @@ class Story(Object, Update):
             ``ValueError``: If the message doesn't contain any downloadable media
         """
         return await self._client.download_media(
-            message=getattr(self, self.media.value),
+            message=self,
             file_name=file_name,
             in_memory=in_memory,
             block=block,
@@ -1812,6 +2031,15 @@ class Story(Object, Update):
     async def read(self) -> List[int]:
         """Bound method *read* of :obj:`~pyrogram.types.Story`.
 
+        Use as a shortcut for:
+
+        .. code-block:: python
+
+            await client.read_chat_stories(
+                chat_id=chat_id,
+                max_id=story_id
+            )
+
         Example:
             .. code-block:: python
 
@@ -1819,11 +2047,33 @@ class Story(Object, Update):
 
         Returns:
             List of ``int``: On success, a list of read stories is returned.
+        """
+        return await self._client.read_chat_stories(
+            chat_id=self.chat.id,
+            max_id=self.id
+        )
+
+    async def view(self) -> bool:
+        """Bound method *view* of :obj:`~pyrogram.types.Story`.
+
+        Use as a shortcut for:
+
+        .. code-block:: python
+
+            await client.view_stories(
+                chat_id=chat_id,
+                story_id=story_id
+            )
 
         Example:
             .. code-block:: python
 
-                # Read stories
-                await app.read_stories(chat_id)
+                await story.view()
+
+        Returns:
+            True on success, False otherwise.
         """
-        return await self._client.read_stories(chat_id=self.chat.id, max_id=self.id)
+        return await self._client.view_stories(
+            chat_id=self.chat.id,
+            story_id=self.id
+        )

@@ -433,12 +433,14 @@ class ChatEvent(Object):
         elif isinstance(action, raw.types.ChannelAdminLogEventActionUpdatePinned):
             message = action.message
 
-            if message.pinned:
+            if isinstance(message, raw.types.Message) and message.pinned:
                 pinned_message = await types.Message._parse(client, message, users, chats)
                 action = enums.ChatEventAction.MESSAGE_PINNED
-            else:
+            elif isinstance(message, raw.types.Message) and not message.pinned:
                 unpinned_message = await types.Message._parse(client, message, users, chats)
                 action = enums.ChatEventAction.MESSAGE_UNPINNED
+            else:
+                action = enums.ChatEventAction.MESSAGE_PIN_CHANGED
 
         elif isinstance(action, raw.types.ChannelAdminLogEventActionExportedInviteEdit):
             old_invite_link = types.ChatInviteLink._parse(client, action.prev_invite, users)
@@ -454,16 +456,16 @@ class ChatEvent(Object):
             action = enums.ChatEventAction.INVITE_LINK_DELETED
 
         elif isinstance(action, raw.types.ChannelAdminLogEventActionCreateTopic):
-            created_forum_topic = types.ForumTopic._parse(action.topic)
+            created_forum_topic = types.ForumTopic._parse(client, action.topic, users=users, chats=chats)
             action = enums.ChatEventAction.CREATED_FORUM_TOPIC
 
         elif isinstance(action, raw.types.ChannelAdminLogEventActionEditTopic):
-            old_forum_topic = types.ForumTopic._parse(action.prev_topic)
-            new_forum_topic = types.ForumTopic._parse(action.new_topic)
+            old_forum_topic = types.ForumTopic._parse(client, action.prev_topic, users=users, chats=chats)
+            new_forum_topic = types.ForumTopic._parse(client, action.new_topic, users=users, chats=chats)
             action = enums.ChatEventAction.EDITED_FORUM_TOPIC
 
         elif isinstance(action, raw.types.ChannelAdminLogEventActionDeleteTopic):
-            created_forum_topic = types.ForumTopic._parse(action.topic)
+            created_forum_topic = types.ForumTopic._parse(client, action.topic, users=users, chats=chats)
             action = enums.ChatEventAction.DELETED_FORUM_TOPIC
 
         else:
@@ -526,7 +528,7 @@ class ChatEvent(Object):
             new_invite_link=new_invite_link,
             revoked_invite_link=revoked_invite_link,
             deleted_invite_link=deleted_invite_link,
-            
+
             created_forum_topic=created_forum_topic,
             old_forum_topic=old_forum_topic,
             new_forum_topic=new_forum_topic,

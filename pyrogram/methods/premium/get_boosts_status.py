@@ -30,7 +30,7 @@ class GetBoostsStatus:
     ) -> bool:
         """Get boosts status of channel
 
-        .. include:: /_includes/usable-by/users-bots.rst
+        .. include:: /_includes/usable-by/users.rst
 
         Parameters:
             chat_id (``int`` | ``str``):
@@ -43,7 +43,7 @@ class GetBoostsStatus:
             .. code-block:: python
 
                 # get boosts list
-                app.get_boosts()
+                await app.get_boosts()
         """
         r = await self.invoke(
             raw.functions.premium.GetBoostsStatus(peer=await self.resolve_peer(chat_id))

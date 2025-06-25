@@ -16,13 +16,15 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import Optional
+import logging
+from typing import List, Optional
 
 import pyrogram
 from pyrogram import enums, raw, types, utils
 
 from .inline_session import get_session
 
+log = logging.getLogger(__name__)
 
 class EditInlineText:
     async def edit_inline_text(
@@ -30,8 +32,10 @@ class EditInlineText:
         inline_message_id: str,
         text: str,
         parse_mode: Optional["enums.ParseMode"] = None,
-        disable_web_page_preview: bool = None,
+        link_preview_options: "types.LinkPreviewOptions" = None,
+        entities: List["types.MessageEntity"] = None,
         reply_markup: "types.InlineKeyboardMarkup" = None,
+        disable_web_page_preview: bool = None,
     ) -> bool:
         """Edit the text of inline messages.
 
@@ -48,8 +52,11 @@ class EditInlineText:
                 By default, texts are parsed using both Markdown and HTML styles.
                 You can combine both syntaxes together.
 
-            disable_web_page_preview (``bool``, *optional*):
-                Disables link previews for links in this message.
+            entities (List of :obj:`~pyrogram.types.MessageEntity`):
+                List of special entities that appear in message text, which can be specified instead of *parse_mode*.
+
+            link_preview_options (:obj:`~pyrogram.types.LinkPreviewOptions`, *optional*):
+                Options used for link preview generation for the message.
 
             reply_markup (:obj:`~pyrogram.types.InlineKeyboardMarkup`, *optional*):
                 An InlineKeyboardMarkup object.
@@ -66,10 +73,19 @@ class EditInlineText:
                 await app.edit_inline_text(inline_message_id, "new text")
 
                 # Take the same text message, remove the web page preview only
+                from pyrogram import types
+
                 await app.edit_inline_text(
                     inline_message_id, message.text,
-                    disable_web_page_preview=True)
+                    link_preview_options=types.LinkPreviewOptions(is_disabled=True))
         """
+        link_preview_options = link_preview_options or self.link_preview_options
+
+        if disable_web_page_preview is not None:
+            log.warning(
+                "`disable_web_page_preview` is deprecated and will be removed in future updates. Use `link_preview_options` instead."
+            )
+            link_preview_options = types.LinkPreviewOptions(is_disabled=disable_web_page_preview)
 
         unpacked = utils.unpack_inline_message_id(inline_message_id)
         dc_id = unpacked.dc_id
@@ -79,9 +95,9 @@ class EditInlineText:
         return await session.invoke(
             raw.functions.messages.EditInlineBotMessage(
                 id=unpacked,
-                no_webpage=disable_web_page_preview or None,
+                no_webpage=getattr(link_preview_options, "is_disabled", None) or None,
                 reply_markup=await reply_markup.write(self) if reply_markup else None,
-                **await self.parser.parse(text, parse_mode)
+                **await utils.parse_text_entities(self, text, parse_mode, entities)
             ),
-            sleep_threshold=self.sleep_threshold,
+            sleep_threshold=self.sleep_threshold
         )

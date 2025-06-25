@@ -16,44 +16,66 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from .accent_color import AccentColor
+from .business_schedule import BusinessSchedule
 from .chat_action import ChatAction
 from .chat_event_action import ChatEventAction
+from .chat_join_type import ChatJoinType
 from .chat_member_status import ChatMemberStatus
 from .chat_members_filter import ChatMembersFilter
 from .chat_type import ChatType
 from .client_platform import ClientPlatform
+from .folder_color import FolderColor
 from .message_entity_type import MessageEntityType
 from .message_media_type import MessageMediaType
 from .message_origin_type import MessageOriginType
 from .message_service_type import MessageServiceType
 from .messages_filter import MessagesFilter
 from .next_code_type import NextCodeType
+from .paid_reaction_privacy import PaidReactionPrivacy
 from .parse_mode import ParseMode
+from .payment_form_type import PaymentFormType
+from .phone_call_discard_reason import PhoneCallDiscardReason
 from .poll_type import PollType
+from .privacy_key import PrivacyKey
+from .privacy_rule_type import PrivacyRuleType
 from .profile_color import ProfileColor
+from .reply_color import ReplyColor
 from .sent_code_type import SentCodeType
+from .gift_attribute_type import GiftAttributeType
+from .gift_for_resale_order import GiftForResaleOrder
+from .media_area_type import MediaAreaType
 from .stories_privacy_rules import StoriesPrivacyRules
 from .user_status import UserStatus
 
 __all__ = [
-    "AccentColor",
-    "ChatAction",
-    "ChatEventAction",
-    "ChatMemberStatus",
-    "ChatMembersFilter",
-    "ChatType",
-    "ClientPlatform",
-    "MessageEntityType",
-    "MessageMediaType",
-    "MessageServiceType",
-    "MessagesFilter",
-    "NextCodeType",
-    "ParseMode",
-    "PollType",
-    "ProfileColor",
-    "SentCodeType",
-    "StoriesPrivacyRules",
-    "UserStatus",
-    "MessageOriginType",
+    'BusinessSchedule',
+    'ChatAction',
+    'ChatEventAction',
+    'ChatJoinType',
+    'ChatMemberStatus',
+    'ChatMembersFilter',
+    'ChatType',
+    'ClientPlatform',
+    'FolderColor',
+    'MessageEntityType',
+    'MessageMediaType',
+    'MessageOriginType',
+    'MessageServiceType',
+    'MessagesFilter',
+    'NextCodeType',
+    'PaidReactionPrivacy',
+    'ParseMode',
+    'PaymentFormType',
+    'PhoneCallDiscardReason',
+    'PollType',
+    'PrivacyKey',
+    'PrivacyRuleType',
+    'ProfileColor',
+    'ReplyColor',
+    'SentCodeType',
+    'GiftAttributeType',
+    'GiftForResaleOrder',
+    'MediaAreaType',
+    'StoriesPrivacyRules',
+    'UserStatus'
 ]

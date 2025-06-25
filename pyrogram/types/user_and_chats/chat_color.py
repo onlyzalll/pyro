@@ -18,15 +18,16 @@
 
 from typing import Optional, Union
 
-from pyrogram import raw, enums
+from pyrogram import raw
+from pyrogram import enums
 from ..object import Object
 
 
 class ChatColor(Object):
-    """Accent or profile color status.
+    """Reply or profile color status.
 
     Parameters:
-        color (:obj:`~pyrogram.enums.AccentColor` | :obj:`~pyrogram.enums.ProfileColor`, *optional*):
+        color (:obj:`~pyrogram.enums.ReplyColor` | :obj:`~pyrogram.enums.ProfileColor`, *optional*):
             Color type.
 
         background_emoji_id (``int``, *optional*):
@@ -36,7 +37,7 @@ class ChatColor(Object):
     def __init__(
         self,
         *,
-        color: Union["enums.AccentColor", "enums.ProfileColor"] = None,
+        color: Union["enums.ReplyColor", "enums.ProfileColor"] = None,
         background_emoji_id: int = None
     ):
         self.color = color
@@ -48,7 +49,7 @@ class ChatColor(Object):
             return None
 
         return ChatColor(
-            color=enums.AccentColor(color.color) if getattr(color, "color", None) else None,
+            color=enums.ReplyColor(color.color) if getattr(color, "color", None) else None,
             background_emoji_id=getattr(color, "background_emoji_id", None)
         )
 

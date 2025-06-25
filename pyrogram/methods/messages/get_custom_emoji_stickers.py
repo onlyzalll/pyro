@@ -19,7 +19,8 @@
 from typing import List
 
 import pyrogram
-from pyrogram import raw, types
+from pyrogram import raw
+from pyrogram import types
 
 
 class GetCustomEmojiStickers:
@@ -40,7 +41,9 @@ class GetCustomEmojiStickers:
             List of :obj:`~pyrogram.types.Sticker`: On success, a list of sticker objects is returned.
         """
         result = await self.invoke(
-            raw.functions.messages.GetCustomEmojiDocuments(document_id=custom_emoji_ids)
+            raw.functions.messages.GetCustomEmojiDocuments(
+                document_id=custom_emoji_ids
+            )
         )
 
         stickers = []
@@ -49,4 +52,4 @@ class GetCustomEmojiStickers:
             sticker = await types.Sticker._parse(self, item, attributes)
             stickers.append(sticker)
 
-        return pyrogram.types.List(stickers)
+        return types.List(stickers)

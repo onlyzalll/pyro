@@ -29,30 +29,29 @@ class DeleteStories:
         chat_id: Union[int, str],
         story_ids: Union[int, Iterable[int]],
     ) -> List[int]:
-        """Delete stories.
+        """Delete posted stories.
 
-        .. include:: /_includes/usable-by/users-bots.rst
+        .. include:: /_includes/usable-by/users.rst
 
         Parameters:
             chat_id (``int`` | ``str``):
                 Unique identifier (int) or username (str) of the target chat.
                 For your personal cloud (Saved Messages) you can simply use "me" or "self".
-                For a contact that exists in your Telegram address book you can use his phone number (str).
 
-            story_ids (``int`` | ``list``):
+            story_ids (``int`` | Iterable of ``int``, *optional*):
                 Unique identifier (int) or list of unique identifiers (list of int) for the target stories.
 
         Returns:
-            List of ``int``: List of deleted stories IDs
+            List of ``int``: List of deleted stories IDs.
 
         Example:
             .. code-block:: python
 
                 # Delete a single story
-                app.delete_stories(chat_id, 1)
+                await app.delete_stories(chat_id, 1)
 
                 # Delete multiple stories
-                app.delete_stories(chat_id, [1, 2])
+                await app.delete_stories(chat_id, [1, 2])
         """
         is_iterable = not isinstance(story_ids, int)
         ids = list(story_ids) if is_iterable else [story_ids]

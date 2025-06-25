@@ -16,7 +16,7 @@
 #  You should have received a copy of the GNU Lesser General Public License
 #  along with Pyrogram.  If not, see <http://www.gnu.org/licenses/>.
 
-from typing import AsyncGenerator, Union, Optional
+from typing import AsyncGenerator, Union
 
 import pyrogram
 from pyrogram import raw
@@ -30,8 +30,8 @@ class GetPinnedStories:
         chat_id: Union[int, str],
         offset_id: int = 0,
         limit: int = 0,
-    ) -> Optional[AsyncGenerator["types.Story", None]]:
-        """Get pinned stories stories.
+    ) -> AsyncGenerator["types.Story", None]:
+        """Get all pinned stories from a chat by using chat identifier.
 
         .. include:: /_includes/usable-by/users.rst
 
@@ -47,14 +47,14 @@ class GetPinnedStories:
                 Maximum amount of events to be returned.
                 By default, all events will be returned.
 
-        Yields:
-            :obj:`~pyrogram.types.Story` objects.
+        Returns:
+            ``Generator``: On success, a generator yielding :obj:`~pyrogram.types.Story` objects is returned.
 
         Example:
             .. code-block:: python
 
                 # Get all pinned story
-                async for story in app.get_pinned_stories():
+                async for story in app.get_pinned_stories(chat_id):
                     print(story)
         """
         current = 0
@@ -79,7 +79,7 @@ class GetPinnedStories:
             chats = {i.id: i for i in r.chats}
 
             if isinstance(peer, raw.types.InputPeerChannel):
-                peer_id = utils.get_input_peer_id(peer)
+                peer_id = utils.get_raw_peer_id(peer)
                 if peer_id not in r.chats:
                     channel = await self.invoke(raw.functions.channels.GetChannels(id=[peer]))
                     chats.update({peer_id: channel.chats[0]})
@@ -91,9 +91,9 @@ class GetPinnedStories:
                 yield await types.Story._parse(
                     self,
                     story,
+                    peer,
                     users,
-                    chats,
-                    peer
+                    chats
                 )
 
                 current += 1

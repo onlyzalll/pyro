@@ -1,6 +1,5 @@
 #  Pyrogram - Telegram MTProto API Client Library for Python
 #  Copyright (C) 2017-present <https://github.com/TelegramPlayGround>
-#  Copyright (C) 2022-present Mayuri-Chan <https://github.com/Mayuri-Chan>
 #
 #  This file is part of Pyrogram.
 #
@@ -43,7 +42,6 @@ class MessageOriginChannel(MessageOrigin):
         author_signature (``str``, *optional*):
             Signature of the original post author.
     """
-
     def __init__(
         self,
         *,
@@ -53,7 +51,10 @@ class MessageOriginChannel(MessageOrigin):
         message_id: int = None,
         author_signature: str = None
     ):
-        super().__init__(type=type, date=date)
+        super().__init__(
+            type=type,
+            date=date
+        )
 
         self.chat = chat
         self.message_id = message_id

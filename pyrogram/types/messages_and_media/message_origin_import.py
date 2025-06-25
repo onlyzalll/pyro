@@ -1,6 +1,5 @@
 #  Pyrogram - Telegram MTProto API Client Library for Python
 #  Copyright (C) 2017-present <https://github.com/TelegramPlayGround>
-#  Copyright (C) 2022-present Mayuri-Chan <https://github.com/Mayuri-Chan>
 #
 #  This file is part of Pyrogram.
 #
@@ -37,8 +36,15 @@ class MessageOriginImport(MessageOrigin):
         sender_user_name (``str``):
             Name of the original sender.
     """
-
-    def __init__(self, *, date: datetime = None, sender_user_name: str = None):
-        super().__init__(type=enums.MessageOriginType.IMPORT, date=date)
+    def __init__(
+        self,
+        *,
+        date: datetime = None,
+        sender_user_name: str = None
+    ):
+        super().__init__(
+            type=enums.MessageOriginType.IMPORT,
+            date=date
+        )
 
         self.sender_user_name = sender_user_name
